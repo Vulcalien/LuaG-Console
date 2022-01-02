@@ -17,6 +17,7 @@
 #include <stdio.h>
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 
 static SDL_Window *window;
 static SDL_Renderer *renderer;
@@ -43,6 +44,13 @@ int display_init(void) {
         fputs("SDL display: could not create renderer", stderr);
         return -3;
     }
+
+    IMG_Init(IMG_INIT_PNG);
+
+    // set window icon
+    SDL_Surface *icon = IMG_Load("res/icon.png");
+    SDL_SetWindowIcon(window, icon);
+    SDL_FreeSurface(icon);
 
     return 0;
 }
