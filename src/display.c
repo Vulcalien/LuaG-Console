@@ -20,12 +20,17 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
-static void display_draw_char(char c, u32 color, i32 x, i32 y);
+#define CHAR_WIDTH     (5)
+#define CHAR_HEIGHT    (8)
+#define LINE_SPACING   (1)
+#define LETTER_SPACING (1)
 
 static SDL_Window *window;
 static SDL_Renderer *renderer;
 
 static SDL_Texture *font_texture;
+
+static void display_draw_char(char c, u32 color, i32 x, i32 y);
 
 static int set_window_icon(void) {
     SDL_Surface *icon = IMG_Load("res/icon.png");
@@ -95,13 +100,13 @@ static void display_draw_char(char c, u32 color, i32 x, i32 y) {
         return;
 
     SDL_Rect src = {
-        .x = (c - 32) * (5 + 1), .y = 0,
-        .w = 5,                  .h = 8
+        .x = (c - 32) * (CHAR_WIDTH + 1), .y = 0,
+        .w = CHAR_WIDTH,                  .h = CHAR_HEIGHT
     };
 
     SDL_Rect dst = {
-        .x = x, .y = y,
-        .w = 5, .h = 8
+        .x = x,          .y = y,
+        .w = CHAR_WIDTH, .h = CHAR_HEIGHT
     };
 
     SDL_SetTextureColorMod(font_texture, color >> 16, color >> 8, color);
@@ -111,5 +116,19 @@ static void display_draw_char(char c, u32 color, i32 x, i32 y) {
 void display_write(const char *text, u32 color, i32 x, i32 y) {
     u32 len = strlen(text);
 
-    // TODO ...
+    i32 xdraw = x;
+    i32 ydraw = y;
+
+    for(u32 i = 0; i < len; i++) {
+        char c = text[i];
+
+        if(c == '\n') {
+            xdraw = x;
+            ydraw += y + LINE_SPACING;
+        } else {
+            display_draw_char(c, color, xdraw, ydraw);
+
+            xdraw += CHAR_WIDTH + LETTER_SPACING;
+        }
+    }
 }
