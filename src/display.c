@@ -14,17 +14,50 @@
  */
 #include "display.h"
 
-#include "shell.h"
-
 #include <stdio.h>
+#include <string.h>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
+static void display_draw_char(char c, u32 color, i32 x, i32 y);
+
 static SDL_Window *window;
 static SDL_Renderer *renderer;
 
-static bool text_mode;
+static SDL_Texture *font_texture;
+
+static int set_window_icon(void) {
+    SDL_Surface *icon = IMG_Load("res/icon.png");
+    if(!icon) {
+        fputs("SDL display: cannot load window icon", stderr);
+        return -1;
+    }
+
+    SDL_SetWindowIcon(window, icon);
+    SDL_FreeSurface(icon);
+    return 0;
+}
+
+static int load_font(void) {
+    SDL_Surface *font_surf = IMG_Load("res/font.png");
+    if(!font_surf) {
+        fputs("SDL display: cannot load font file", stderr);
+        return -1;
+    }
+
+    // make background transparent
+    SDL_SetColorKey(font_surf, SDL_TRUE, SDL_MapRGB(font_surf->format, 0x00, 0x00, 0x00));
+
+    font_texture = SDL_CreateTextureFromSurface(renderer, font_surf);
+    if(!font_texture) {
+        fputs("SDL display: cannot create font texture", stderr);
+        return -2;
+    }
+
+    SDL_FreeSurface(font_surf);
+    return 0;
+}
 
 int display_init(void) {
     if(SDL_Init(SDL_INIT_VIDEO)) {
@@ -51,51 +84,32 @@ int display_init(void) {
 
     IMG_Init(IMG_INIT_PNG);
 
-    // set window icon
-    SDL_Surface *icon = IMG_Load("res/icon.png");
-    SDL_SetWindowIcon(window, icon);
-    SDL_FreeSurface(icon);
-
-    display_set_text_mode(true);
+    set_window_icon();
+    load_font();
 
     return 0;
 }
 
-void display_tick(void) {
-    SDL_Event e;
+static void display_draw_char(char c, u32 color, i32 x, i32 y) {
+    if(c < ' ' || c > '~')
+        return;
 
-    while(SDL_PollEvent(&e)) {
-        if(e.type == SDL_QUIT) {
-            should_quit = true;
-            break;
-        }
+    SDL_Rect src = {
+        .x = (c - 32) * (5 + 1), .y = 0,
+        .w = 5,                  .h = 8
+    };
 
-        if(text_mode) {
-            if(e.type == SDL_TEXTINPUT) {
-                if(SDL_GetModState() & KMOD_CTRL) {
-                    // TODO ctrl+w, ctrl+c, ctrl+alt+c/v
-                } else if(SDL_GetModState() & KMOD_ALT) {
-                    // pass
-                } else {
-                    shell_receive_input(e.text.text);
-                }
-            } else if(e.type == SDL_KEYDOWN) {
-            }
-        } else {
-            // not in text mode
-            // ...
-        }
-    }
+    SDL_Rect dst = {
+        .x = x, .y = y,
+        .w = 5, .h = 8
+    };
+
+    SDL_SetTextureColorMod(font_texture, color >> 16, color >> 8, color);
+    SDL_RenderCopy(renderer, font_texture, &src, &dst);
 }
 
-void display_set_text_mode(bool flag) {
-    if(flag == text_mode)
-        return;
-    text_mode = flag;
+void display_write(const char *text, u32 color, i32 x, i32 y) {
+    u32 len = strlen(text);
 
-    if(flag) {
-        SDL_StartTextInput();
-    } else {
-        SDL_StopTextInput();
-    }
+    // TODO ...
 }

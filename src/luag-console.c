@@ -16,6 +16,7 @@
 
 #include "gameloop.h"
 #include "shell.h"
+#include "input.h"
 #include "display.h"
 
 static int init(void);
@@ -34,7 +35,7 @@ int main(int argc, const char *argv[]) {
 }
 
 void tick(void) {
-    display_tick();
+    input_tick();
 
     shell_tick();
 
@@ -46,6 +47,7 @@ void render(void) {
 }
 
 static int init(void) {
+    input_init();
     if(display_init())
         return -1;
     return 0;

@@ -12,19 +12,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#ifndef VULC_LUAG_DISPLAY
-#define VULC_LUAG_DISPLAY
+#ifndef VULC_LUAG_INPUT
+#define VULC_LUAG_INPUT
 
 #include "luag-console.h"
 
-#define DISPLAY_WIDTH  160
-#define DISPLAY_HEIGHT 160
+extern void input_init(void);
+extern void input_tick(void);
 
-extern int display_init(void);
-extern void display_render(void);
+extern void input_set_text_mode(bool flag);
 
-// TODO deallocate memory on exit
-
-extern void display_write(const char *text, u32 color, i32 x, i32 y);
-
-#endif // VULC_LUAG_DISPLAY
+#endif // VULC_LUAG_INPUT
