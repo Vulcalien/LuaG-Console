@@ -86,6 +86,7 @@ int display_init(void) {
         fputs("SDL display: could not create renderer", stderr);
         return -3;
     }
+    SDL_RenderSetLogicalSize(renderer, DISPLAY_WIDTH, DISPLAY_HEIGHT);
 
     IMG_Init(IMG_INIT_PNG);
 
@@ -124,7 +125,7 @@ void display_write(const char *text, u32 color, i32 x, i32 y) {
 
         if(c == '\n') {
             xdraw = x;
-            ydraw += y + LINE_SPACING;
+            ydraw += CHAR_HEIGHT + LINE_SPACING;
         } else {
             display_draw_char(c, color, xdraw, ydraw);
 
