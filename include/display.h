@@ -24,4 +24,6 @@ extern int display_init(void);
 extern void display_tick(void);
 extern void display_render(void);
 
+extern void display_set_text_mode(bool flag);
+
 #endif // VULC_LUAG_DISPLAY

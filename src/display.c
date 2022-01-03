@@ -14,6 +14,8 @@
  */
 #include "display.h"
 
+#include "shell.h"
+
 #include <stdio.h>
 
 #include <SDL2/SDL.h>
@@ -21,6 +23,8 @@
 
 static SDL_Window *window;
 static SDL_Renderer *renderer;
+
+static bool text_mode;
 
 int display_init(void) {
     if(SDL_Init(SDL_INIT_VIDEO)) {
@@ -52,14 +56,46 @@ int display_init(void) {
     SDL_SetWindowIcon(window, icon);
     SDL_FreeSurface(icon);
 
+    display_set_text_mode(true);
+
     return 0;
 }
 
 void display_tick(void) {
     SDL_Event e;
 
-    while(!should_quit && SDL_PollEvent(&e)) {
-        if(e.type == SDL_QUIT)
+    while(SDL_PollEvent(&e)) {
+        if(e.type == SDL_QUIT) {
             should_quit = true;
+            break;
+        }
+
+        if(text_mode) {
+            if(e.type == SDL_TEXTINPUT) {
+                if(SDL_GetModState() & KMOD_CTRL) {
+                    // TODO ctrl+w, ctrl+c, ctrl+alt+c/v
+                } else if(SDL_GetModState() & KMOD_ALT) {
+                    // pass
+                } else {
+                    shell_receive_input(e.text.text);
+                }
+            } else if(e.type == SDL_KEYDOWN) {
+            }
+        } else {
+            // not in text mode
+            // ...
+        }
+    }
+}
+
+void display_set_text_mode(bool flag) {
+    if(flag == text_mode)
+        return;
+    text_mode = flag;
+
+    if(flag) {
+        SDL_StartTextInput();
+    } else {
+        SDL_StopTextInput();
     }
 }

@@ -14,10 +14,16 @@
  */
 #include "shell.h"
 
+// DEBUG
+#include <stdio.h>
+
 int shell_init(void) {
     return 0;
 }
 
 void shell_tick(void) {
-    return 0;
+}
+
+void shell_receive_input(const char *c) {
+    puts(c);
 }

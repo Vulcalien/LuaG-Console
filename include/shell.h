@@ -21,6 +21,6 @@ extern int shell_init(void);
 extern void shell_tick(void);
 extern void shell_render(void);
 
-extern int shell_receive_input(char c);
+extern void shell_receive_input(const char *c);
 
 #endif // VULC_LUAG_SHELL
