@@ -73,7 +73,7 @@ int display_init(void) {
     window = SDL_CreateWindow(
         "LuaG Console - C",
         SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-        DISPLAY_WIDTH, DISPLAY_HEIGHT,
+        DISPLAY_WIDTH * 4, DISPLAY_HEIGHT * 4,
         SDL_WINDOW_SHOWN
     );
     if(!window) {
@@ -94,6 +94,16 @@ int display_init(void) {
     load_font();
 
     return 0;
+}
+
+void display_refresh(void) {
+    puts("render");
+    SDL_RenderPresent(renderer);
+}
+
+void display_clear(u32 color) {
+    SDL_SetRenderDrawColor(renderer, color >> 16, color >> 8, color, 0xff);
+    SDL_RenderClear(renderer);
 }
 
 static void display_draw_char(char c, u32 color, i32 x, i32 y) {

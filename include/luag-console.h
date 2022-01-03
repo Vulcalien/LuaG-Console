@@ -26,4 +26,6 @@ extern bool should_quit;
 extern void tick(void);
 extern void render(void);
 
+extern void luag_ask_refresh(void);
+
 #endif // VULC_LUAG_CORE

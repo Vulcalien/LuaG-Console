@@ -16,6 +16,8 @@
 
 #include <SDL2/SDL.h>
 
+#include "compile-options.h"
+
 #ifdef PERFORMANCE_THREAD
     #include <stdio.h>
     #include <pthread.h>
@@ -27,7 +29,8 @@
 
     static void *tps_counter(void *arg) {
         while(true) {
-            printf("tps: %d - fps: %d", counter_ticks, counter_frames);
+            printf("tps: %d - fps: %d\n", counter_ticks, counter_frames);
+            fflush(stdout);
 
             counter_ticks = 0;
             counter_frames = 0;

@@ -21,10 +21,11 @@
 #define DISPLAY_HEIGHT 160
 
 extern int display_init(void);
-extern void display_render(void);
+extern void display_refresh(void);
 
 // TODO deallocate memory on exit
 
+extern void display_clear(u32 color);
 extern void display_write(const char *text, u32 color, i32 x, i32 y);
 
 #endif // VULC_LUAG_DISPLAY

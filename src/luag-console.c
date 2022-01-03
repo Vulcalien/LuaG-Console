@@ -24,6 +24,8 @@ static void shutdown(void);
 
 bool should_quit = false;
 
+static bool should_refresh = false;
+
 int main(int argc, const char *argv[]) {
     int init_result = init();
     if(init_result)
@@ -44,12 +46,27 @@ void tick(void) {
 }
 
 void render(void) {
+    if(!should_refresh)
+        return;
+    should_refresh = false;
+
+    shell_render();
+
+    display_refresh();
+}
+
+void luag_ask_refresh(void) {
+    should_refresh = true;
 }
 
 static int init(void) {
     input_init();
     if(display_init())
         return -1;
+
+    shell_init();
+    input_set_text_mode(true);
+
     return 0;
 }
 
