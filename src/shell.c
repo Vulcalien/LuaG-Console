@@ -49,6 +49,7 @@ void shell_render(void) {
     display_clear(0x000000);
 
     display_write(active_line.text, 0xffffff, 1, 1);
+    display_write("_", 0xff0000, 1 + (CHAR_WIDTH + LETTER_SPACING) * active_line.cursor_pos, 1);
 }
 
 // TODO
@@ -59,20 +60,64 @@ void shell_receive_input(const char *c) {
     // do this instead of strlen because
     // most of the times c[1] is '\0'
     for(u32 i = 0; c[i] != '\0'; i++) {
-        if(active_line.len == MAX_LINE_LEN)
-            return;
+        if(c[i] == '\n') {
+            shell_execute();
+        } else if(c[i] == '\b') {
+            if(active_line.cursor_pos == 0)
+                continue;
 
-        if(active_line.cursor_pos == active_line.len) {
+            if(active_line.cursor_pos != active_line.len) {
+                memmove(
+                    active_line.text + active_line.cursor_pos - 1,
+                    active_line.text + active_line.cursor_pos,
+                    active_line.len - active_line.cursor_pos
+                );
+            }
+            active_line.len--;
+            active_line.cursor_pos--;
+            active_line.text[active_line.len] = '\0';
+        } else if(c[i] == '\x7f') {
+            if(active_line.cursor_pos == active_line.len)
+                continue;
+
+            if(active_line.cursor_pos < active_line.len - 1) {
+                memmove(
+                    active_line.text + active_line.cursor_pos,
+                    active_line.text + active_line.cursor_pos + 1,
+                    active_line.len - active_line.cursor_pos
+                );
+            }
+            active_line.len--;
+            active_line.text[active_line.len] = '\0';
+        } else if(c[i] == '\x11') {
+            // this represents the up key
+            // TODO history ...
+        } else if(c[i] == '\x12') {
+            // left key
+            if(active_line.cursor_pos != 0)
+                active_line.cursor_pos--;
+        } else if(c[i] == '\x13') {
+            // down key
+            // TODO history ...
+        } else if(c[i] == '\x14') {
+            // right key
+            if(active_line.cursor_pos != active_line.len)
+                active_line.cursor_pos++;
+        } else if(c[i] >= ' ' && c[i] <= '~') {
+            if(active_line.len == MAX_LINE_LEN)
+                return;
+
+            if(active_line.cursor_pos != active_line.len) {
+                memmove(
+                    active_line.text + active_line.cursor_pos + 1,
+                    active_line.text + active_line.cursor_pos,
+                    active_line.len - active_line.cursor_pos
+                );
+            }
             active_line.text[active_line.cursor_pos] = c[i];
-        } else {
-            memmove(
-                active_line.text + active_line.cursor_pos,
-                active_line.text + active_line.cursor_pos + 1,
-                active_line.len - active_line.cursor_pos
-            );
+            active_line.len++;
+            active_line.cursor_pos++;
         }
-        active_line.len++;
-        active_line.cursor_pos++;
     }
 
     luag_ask_refresh();

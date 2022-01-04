@@ -20,6 +20,11 @@
 #define DISPLAY_WIDTH  160
 #define DISPLAY_HEIGHT 160
 
+#define CHAR_WIDTH     (5)
+#define CHAR_HEIGHT    (8)
+#define LINE_SPACING   (1)
+#define LETTER_SPACING (1)
+
 extern int display_init(void);
 extern void display_refresh(void);
 

@@ -20,11 +20,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
-#define CHAR_WIDTH     (5)
-#define CHAR_HEIGHT    (8)
-#define LINE_SPACING   (1)
-#define LETTER_SPACING (1)
-
 static SDL_Window *window;
 static SDL_Renderer *renderer;
 
@@ -97,7 +92,6 @@ int display_init(void) {
 }
 
 void display_refresh(void) {
-    puts("render");
     SDL_RenderPresent(renderer);
 }
 

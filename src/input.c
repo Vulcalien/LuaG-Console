@@ -43,6 +43,21 @@ void input_tick(void) {
                     shell_receive_input(e.text.text);
                 }
             } else if(e.type == SDL_KEYDOWN) {
+                if(e.key.keysym.sym == SDLK_RETURN) {
+                    shell_receive_input("\n");
+                } else if(e.key.keysym.sym == SDLK_BACKSPACE) {
+                    shell_receive_input("\b");
+                } else if(e.key.keysym.sym == SDLK_DELETE) {
+                    shell_receive_input("\x7f");
+                } else if(e.key.keysym.sym == SDLK_UP) {
+                    shell_receive_input("\x11");
+                } else if(e.key.keysym.sym == SDLK_LEFT) {
+                    shell_receive_input("\x12");
+                } else if(e.key.keysym.sym == SDLK_DOWN) {
+                    shell_receive_input("\x13");
+                } else if(e.key.keysym.sym == SDLK_RIGHT) {
+                    shell_receive_input("\x14");
+                }
             }
         } else {
             // not in text mode
