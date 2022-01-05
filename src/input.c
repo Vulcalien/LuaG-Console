@@ -34,14 +34,8 @@ void input_tick(void) {
         }
 
         if(text_mode) {
-            if(e.type == SDL_TEXTINPUT) {
-                if(SDL_GetModState() & KMOD_CTRL) {
-                    // TODO ctrl+w, ctrl+c, ctrl+alt+c/v
-                } else if(SDL_GetModState() & KMOD_ALT) {
-                    // pass
-                } else {
-                    shell_receive_input(e.text.text);
-                }
+            if(e.type == SDL_TEXTINPUT && !(SDL_GetModState() & KMOD_CTRL)) {
+                shell_receive_input(e.text.text);
             } else if(e.type == SDL_KEYDOWN) {
                 if(e.key.keysym.sym == SDLK_RETURN) {
                     shell_receive_input("\n");
@@ -50,13 +44,13 @@ void input_tick(void) {
                 } else if(e.key.keysym.sym == SDLK_DELETE) {
                     shell_receive_input("\x7f");
                 } else if(e.key.keysym.sym == SDLK_UP) {
-                    shell_receive_input("\x11");
+                    shell_receive_input("\x01");
                 } else if(e.key.keysym.sym == SDLK_LEFT) {
-                    shell_receive_input("\x12");
+                    shell_receive_input("\x02");
                 } else if(e.key.keysym.sym == SDLK_DOWN) {
-                    shell_receive_input("\x13");
+                    shell_receive_input("\x03");
                 } else if(e.key.keysym.sym == SDLK_RIGHT) {
-                    shell_receive_input("\x14");
+                    shell_receive_input("\x04");
                 }
             }
         } else {

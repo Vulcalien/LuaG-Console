@@ -58,6 +58,8 @@ void shell_write(const char *text, u32 color) {
 }
 
 void shell_receive_input(const char *c) {
+    // TODO implement ctrl+backspace (= ctrl+w), ctrl+del, ctrl+u
+
     for(u32 i = 0; c[i] != '\0'; i++) {
         if(c[i] == '\n') {
             shell_execute();
@@ -88,17 +90,17 @@ void shell_receive_input(const char *c) {
             }
             active_line.len--;
             active_line.text[active_line.len] = '\0';
-        } else if(c[i] == '\x11') {
-            // this represents the up key
+        } else if(c[i] == '\x01') {
+            // up key
             // TODO history ...
-        } else if(c[i] == '\x12') {
+        } else if(c[i] == '\x02') {
             // left key
             if(active_line.cursor_pos != 0)
                 active_line.cursor_pos--;
-        } else if(c[i] == '\x13') {
+        } else if(c[i] == '\x03') {
             // down key
             // TODO history ...
-        } else if(c[i] == '\x14') {
+        } else if(c[i] == '\x04') {
             // right key
             if(active_line.cursor_pos != active_line.len)
                 active_line.cursor_pos++;
