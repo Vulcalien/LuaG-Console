@@ -44,13 +44,13 @@ void input_tick(void) {
                 } else if(e.key.keysym.sym == SDLK_DELETE) {
                     terminal_receive_input("\x7f");
                 } else if(e.key.keysym.sym == SDLK_UP) {
-                    terminal_receive_input("\x01");
+                    terminal_receive_input("\x11");
                 } else if(e.key.keysym.sym == SDLK_LEFT) {
-                    terminal_receive_input("\x02");
+                    terminal_receive_input("\x12");
                 } else if(e.key.keysym.sym == SDLK_DOWN) {
-                    terminal_receive_input("\x03");
+                    terminal_receive_input("\x13");
                 } else if(e.key.keysym.sym == SDLK_RIGHT) {
-                    terminal_receive_input("\x04");
+                    terminal_receive_input("\x14");
                 }
             }
         } else {

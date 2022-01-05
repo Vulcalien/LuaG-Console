@@ -45,17 +45,17 @@ static CMD(cmd_help) {
     if(argc > 0) {
 
     } else {
-        terminal_write("run: runs game\n",              TERM_COLOR_NORMAL);
-        terminal_write("edit: opens editor\n",          TERM_COLOR_NORMAL);
-        terminal_write("pack: creates cartridge\n",     TERM_COLOR_NORMAL);
-        terminal_write("setup: creates game files\n",   TERM_COLOR_NORMAL);
-        terminal_write("cls: clears shell\n",           TERM_COLOR_NORMAL);
-        terminal_write("ver: prints version\n",         TERM_COLOR_NORMAL);
-        terminal_write("help: prints this list\n",      TERM_COLOR_NORMAL);
-        terminal_write("mode: changes console mode\n",  TERM_COLOR_NORMAL);
-        terminal_write("files: opens game folder\n",    TERM_COLOR_NORMAL);
-        terminal_write("log: opens log file\n",         TERM_COLOR_NORMAL);
-        terminal_write("\n",                            TERM_COLOR_NORMAL);
+        terminal_write("run: runs game\n", false);
+        terminal_write("edit: opens editor\n", false);
+        terminal_write("pack: creates cartridge\n", false);
+        terminal_write("setup: creates game files\n", false);
+        terminal_write("cls: clears shell\n", false);
+        terminal_write("ver: prints version\n", false);
+        terminal_write("help: prints this list\n", false);
+        terminal_write("mode: changes console mode\n", false);
+        terminal_write("files: opens game folder\n", false);
+        terminal_write("log: opens log file\n", false);
+        terminal_write("\n", false);
     }
 }
 
@@ -100,7 +100,7 @@ bool execute_command(char *cmd, u32 argc, char **argv) {
     else if(TEST("exit"))
         CALL(cmd_exit);
     else
-        terminal_write("unknown command", TERM_COLOR_NORMAL);
+        terminal_write("unknown command", false);
 
     return false;
 }

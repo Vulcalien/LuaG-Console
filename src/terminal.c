@@ -19,11 +19,19 @@
 #include "display.h"
 #include "shell-commands.h"
 
-#define COMMAND_HISTORY_SIZE (1024)
-static char **command_history;
-static u32 used_command_history = 0;
+// colors
+#define TERM_COLOR_NORMAL (0xffffff)
+#define TERM_COLOR_ERROR  (0xff0000)
+#define TERM_COLOR_INPUT  (0x00ff00)
 
 #define MAX_LINE_LEN (127)
+
+#define CHARS_IN_ROW ((DISPLAY_WIDTH - 2) / (CHAR_WIDTH + LINE_SPACING))
+#define MAX_CLOSED_ROWS (2048)
+
+#define COMMAND_HISTORY_SIZE (1024)
+
+#define MAX_BUFFERED_CHARS (2048)
 
 static struct {
     char *text;
@@ -31,42 +39,105 @@ static struct {
     u32 cursor_pos;
 } active_line;
 
+struct row {
+    char text[CHARS_IN_ROW + 1];
+    u32 color;
+};
+
+struct buffered_char {
+    char c;
+    bool is_user_input;
+};
+
+static struct row *closed_rows;
+static u32 closed_rows_count = 0;
+
+static char **command_history;
+static u32 used_command_history = 0;
+
+static struct buffered_char *char_buffer;
+static u32 char_buffer_read_index = 0;
+static u32 char_buffer_write_index = 0;
+
 static void terminal_execute(void);
 
 static void allocate_active_line(void);
 
 int terminal_init(void) {
-    command_history = malloc(COMMAND_HISTORY_SIZE * sizeof(const char *));
-
     allocate_active_line();
+
+    closed_rows = calloc(MAX_CLOSED_ROWS, sizeof(struct row));
+    command_history = malloc(COMMAND_HISTORY_SIZE * sizeof(char *));
+    char_buffer = malloc(MAX_BUFFERED_CHARS * sizeof(struct buffered_char));
 
     return 0;
 }
 
+int terminal_destroy(void) {
+    free(active_line.text);
+    free(closed_rows);
+
+    for(u32 i = 0; i < used_command_history; i++)
+        free(command_history[i]);
+    free(command_history);
+
+    free(char_buffer);
+
+    return 0;
+}
+
+static inline void increment_closed_rows_count(void) {
+}
+
 void terminal_tick(void) {
-}
-
-void terminal_render(void) {
-    display_clear(0x000000);
-
-    display_write(active_line.text, 0xffffff, 1, 1);
-    display_write("_", 0xff0000, 1 + (CHAR_WIDTH + LETTER_SPACING) * active_line.cursor_pos, 1);
-}
-
-// TODO
-void terminal_write(const char *text, u32 color) {
-}
-
-void terminal_receive_input(const char *c) {
     // TODO implement ctrl+backspace (= ctrl+w), ctrl+del, ctrl+u
 
-    for(u32 i = 0; c[i] != '\0'; i++) {
-        if(c[i] == '\n') {
-            terminal_execute();
-        } else if(c[i] == '\b') {
-            if(active_line.cursor_pos == 0)
-                continue;
+    // the buffer is empty
+    if(char_buffer_read_index == char_buffer_write_index)
+        return;
 
+    struct buffered_char buf_char = char_buffer[char_buffer_read_index];
+    char_buffer_read_index++;
+    char_buffer_read_index %= MAX_BUFFERED_CHARS;
+
+    char c = buf_char.c;
+
+    if(c == '\n') {
+        // split and save the active line into closed_rows
+        struct row *current_row = NULL;
+        for(u32 i = 0; i <= active_line.len; i++) {
+            // if the following, then we have to break the line here
+            if(i % CHARS_IN_ROW == 0 || i == active_line.len) {
+                if(current_row != NULL) {
+                    if(buf_char.is_user_input)
+                        current_row->color = TERM_COLOR_INPUT;
+                    else
+                        current_row->color = TERM_COLOR_NORMAL;
+
+                    closed_rows_count++;
+                    if(closed_rows_count == MAX_CLOSED_ROWS) {
+                        // overwrite the first half of the closed lines
+                        memcpy(
+                            closed_rows,
+                            closed_rows + MAX_CLOSED_ROWS / 2,
+                            MAX_CLOSED_ROWS / 2
+                        );
+                        closed_rows_count = MAX_CLOSED_ROWS / 2;
+                    }
+                }
+                // grab the next row
+                current_row = &closed_rows[closed_rows_count + i / CHARS_IN_ROW];
+            }
+            // put a char into the row we are writing in
+            current_row->text[i % CHARS_IN_ROW] = active_line.text[i];
+        }
+
+        if(buf_char.is_user_input)
+            terminal_execute();
+
+        allocate_active_line();
+    } else if(c == '\b') {
+        if(active_line.cursor_pos != 0) {
             if(active_line.cursor_pos != active_line.len) {
                 memmove(
                     active_line.text + active_line.cursor_pos - 1,
@@ -77,10 +148,9 @@ void terminal_receive_input(const char *c) {
             active_line.len--;
             active_line.cursor_pos--;
             active_line.text[active_line.len] = '\0';
-        } else if(c[i] == '\x7f') {
-            if(active_line.cursor_pos == active_line.len)
-                continue;
-
+        }
+    } else if(c == '\x7f') {
+        if(active_line.cursor_pos != active_line.len) {
             if(active_line.cursor_pos < active_line.len - 1) {
                 memmove(
                     active_line.text + active_line.cursor_pos,
@@ -90,24 +160,23 @@ void terminal_receive_input(const char *c) {
             }
             active_line.len--;
             active_line.text[active_line.len] = '\0';
-        } else if(c[i] == '\x01') {
-            // up key
-            // TODO history ...
-        } else if(c[i] == '\x02') {
-            // left key
-            if(active_line.cursor_pos != 0)
-                active_line.cursor_pos--;
-        } else if(c[i] == '\x03') {
-            // down key
-            // TODO history ...
-        } else if(c[i] == '\x04') {
-            // right key
-            if(active_line.cursor_pos != active_line.len)
-                active_line.cursor_pos++;
-        } else if(c[i] >= ' ' && c[i] <= '~') {
-            if(active_line.len == MAX_LINE_LEN)
-                return;
-
+        }
+    } else if(c == '\x11') {
+        // up key
+        // TODO history ...
+    } else if(c == '\x12') {
+        // left key
+        if(active_line.cursor_pos != 0)
+            active_line.cursor_pos--;
+    } else if(c == '\x13') {
+        // down key
+        // TODO history ...
+    } else if(c == '\x14') {
+        // right key
+        if(active_line.cursor_pos != active_line.len)
+            active_line.cursor_pos++;
+    } else if(c >= ' ' && c <= '~') {
+        if(active_line.len != MAX_LINE_LEN) {
             if(active_line.cursor_pos != active_line.len) {
                 memmove(
                     active_line.text + active_line.cursor_pos + 1,
@@ -115,7 +184,7 @@ void terminal_receive_input(const char *c) {
                     active_line.len - active_line.cursor_pos
                 );
             }
-            active_line.text[active_line.cursor_pos] = c[i];
+            active_line.text[active_line.cursor_pos] = c;
             active_line.len++;
             active_line.cursor_pos++;
         }
@@ -124,13 +193,44 @@ void terminal_receive_input(const char *c) {
     luag_ask_refresh();
 }
 
+void terminal_render(void) {
+    display_clear(0x000000);
+
+    /*display_write(active_line.text, 0xffffff, 1, 1);*/
+    /*display_write("_", 0xff0000, 1 + (CHAR_WIDTH + LETTER_SPACING) * active_line.cursor_pos, 1);*/
+
+    for(u32 i = 0; i < closed_rows_count; i++) {
+        display_write(
+            closed_rows[i].text, closed_rows[i].color,
+            1, 1 + 20 * i
+        );
+    }
+}
+
+// TODO
+void terminal_write(const char *text, bool is_error) {
+}
+
+void terminal_receive_input(const char *c) {
+    // the buffer is full
+    if(char_buffer_write_index + 1 == char_buffer_read_index)
+        return;
+
+    for(u32 i = 0; c[i] != '\0'; i++) {
+        char_buffer[char_buffer_write_index] = (struct buffered_char) {
+            .c = c[i],
+            .is_user_input = true
+        };
+        char_buffer_write_index++;
+        char_buffer_write_index %= MAX_BUFFERED_CHARS;
+    }
+}
+
 static void terminal_execute(void) {
     if(used_command_history == COMMAND_HISTORY_SIZE) {
-        // delete the oldest half of commands
-
-        for(u32 i = 0; i < COMMAND_HISTORY_SIZE; i++) {
+        // free the oldest half of commands
+        for(u32 i = 0; i < COMMAND_HISTORY_SIZE / 2; i++)
             free(command_history[i]);
-        }
 
         // overwrite the first half
         memcpy(
@@ -170,8 +270,6 @@ static void terminal_execute(void) {
     for(u32 i = 0; i < splits_count; i++)
         free(splits[i]);
     free(splits);
-
-    allocate_active_line();
 }
 
 static void allocate_active_line(void) {

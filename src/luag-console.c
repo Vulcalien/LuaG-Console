@@ -20,6 +20,7 @@
 #include "display.h"
 
 static int init(void);
+static int destroy(void);
 static void shutdown(void);
 
 bool should_quit = false;
@@ -27,11 +28,17 @@ bool should_quit = false;
 static bool should_refresh = false;
 
 int main(int argc, const char *argv[]) {
-    int init_result = init();
-    if(init_result)
-        return init_result;
+    int err;
+
+    err = init();
+    if(err)
+        return err;
 
     gameloop();
+
+    err = destroy();
+    if(err)
+        return err;
 
     return 0;
 }
@@ -66,6 +73,13 @@ static int init(void) {
 
     terminal_init();
     input_set_text_mode(true);
+
+    return 0;
+}
+
+static int destroy(void) {
+    /*display_destroy();*/
+    terminal_destroy();
 
     return 0;
 }

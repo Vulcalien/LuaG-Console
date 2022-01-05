@@ -17,15 +17,13 @@
 
 #include "luag-console.h"
 
-#define TERM_COLOR_NORMAL (0xffffff)
-#define TERM_COLOR_ERROR  (0xff0000)
-#define TERM_COLOR_INPUT  (0x00ff00)
-
 extern int terminal_init(void);
+extern int terminal_destroy(void);
+
 extern void terminal_tick(void);
 extern void terminal_render(void);
 
-extern void terminal_write(const char *text, u32 color);
+extern void terminal_write(const char *text, bool is_error);
 extern void terminal_receive_input(const char *c);
 
 #endif // VULC_LUAG_TERMINAL
