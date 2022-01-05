@@ -150,24 +150,17 @@ static void terminal_execute(void) {
     u32 writing_index = 0;
     for(u32 i = 0; i < active_line.len; i++) {
         if(active_line.text[i] == ' ') {
-            if(writing_index != 0) {
-                splits[splits_count][writing_index] = '\0';
-                splits_count++;
+            if(writing_index != 0)
                 writing_index = 0;
-            }
         } else {
-            if(writing_index == 0)
-                splits[splits_count] = malloc(MAX_LINE_LEN * sizeof(char));
+            if(writing_index == 0) {
+                splits[splits_count] = calloc((MAX_LINE_LEN + 1), sizeof(char));
+                splits_count++;
+            }
 
-            splits[splits_count][writing_index] = active_line.text[i];
+            splits[splits_count - 1][writing_index] = active_line.text[i];
             writing_index++;
         }
-    }
-
-    // if the last word was not closed, close it
-    if(writing_index != 0) {
-        splits[splits_count][writing_index] = '\0';
-        splits_count++;
     }
 
     if(splits_count > 0)
