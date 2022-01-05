@@ -12,20 +12,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#ifndef VULC_LUAG_SHELL
-#define VULC_LUAG_SHELL
+#ifndef VULC_LUAG_TERMINAL
+#define VULC_LUAG_TERMINAL
 
 #include "luag-console.h"
 
-#define SHELL_COLOR_NORMAL (0xffffff)
-#define SHELL_COLOR_ERROR  (0xff0000)
-#define SHELL_COLOR_INPUT  (0x00ff00)
+#define TERM_COLOR_NORMAL (0xffffff)
+#define TERM_COLOR_ERROR  (0xff0000)
+#define TERM_COLOR_INPUT  (0x00ff00)
 
-extern int shell_init(void);
-extern void shell_tick(void);
-extern void shell_render(void);
+extern int terminal_init(void);
+extern void terminal_tick(void);
+extern void terminal_render(void);
 
-extern void shell_write(const char *text, u32 color);
-extern void shell_receive_input(const char *c);
+extern void terminal_write(const char *text, u32 color);
+extern void terminal_receive_input(const char *c);
 
-#endif // VULC_LUAG_SHELL
+#endif // VULC_LUAG_TERMINAL

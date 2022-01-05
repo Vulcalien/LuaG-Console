@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include "shell.h"
+#include "terminal.h"
 
 #include <string.h>
 
@@ -31,11 +31,11 @@ static struct {
     u32 cursor_pos;
 } active_line;
 
-static void shell_execute(void);
+static void terminal_execute(void);
 
 static void allocate_active_line(void);
 
-int shell_init(void) {
+int terminal_init(void) {
     command_history = malloc(COMMAND_HISTORY_SIZE * sizeof(const char *));
 
     allocate_active_line();
@@ -43,10 +43,10 @@ int shell_init(void) {
     return 0;
 }
 
-void shell_tick(void) {
+void terminal_tick(void) {
 }
 
-void shell_render(void) {
+void terminal_render(void) {
     display_clear(0x000000);
 
     display_write(active_line.text, 0xffffff, 1, 1);
@@ -54,15 +54,15 @@ void shell_render(void) {
 }
 
 // TODO
-void shell_write(const char *text, u32 color) {
+void terminal_write(const char *text, u32 color) {
 }
 
-void shell_receive_input(const char *c) {
+void terminal_receive_input(const char *c) {
     // TODO implement ctrl+backspace (= ctrl+w), ctrl+del, ctrl+u
 
     for(u32 i = 0; c[i] != '\0'; i++) {
         if(c[i] == '\n') {
-            shell_execute();
+            terminal_execute();
         } else if(c[i] == '\b') {
             if(active_line.cursor_pos == 0)
                 continue;
@@ -124,7 +124,7 @@ void shell_receive_input(const char *c) {
     luag_ask_refresh();
 }
 
-static void shell_execute(void) {
+static void terminal_execute(void) {
     if(used_command_history == COMMAND_HISTORY_SIZE) {
         // delete the oldest half of commands
 

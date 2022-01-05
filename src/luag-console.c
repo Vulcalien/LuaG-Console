@@ -15,7 +15,7 @@
 #include "luag-console.h"
 
 #include "gameloop.h"
-#include "shell.h"
+#include "terminal.h"
 #include "input.h"
 #include "display.h"
 
@@ -39,7 +39,7 @@ int main(int argc, const char *argv[]) {
 void tick(void) {
     input_tick();
 
-    shell_tick();
+    terminal_tick();
 
     if(should_quit)
         shutdown();
@@ -50,7 +50,7 @@ void render(void) {
         return;
     should_refresh = false;
 
-    shell_render();
+    terminal_render();
 
     display_refresh();
 }
@@ -64,7 +64,7 @@ static int init(void) {
     if(display_init())
         return -1;
 
-    shell_init();
+    terminal_init();
     input_set_text_mode(true);
 
     return 0;

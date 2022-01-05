@@ -14,7 +14,7 @@
  */
 #include "input.h"
 
-#include "shell.h"
+#include "terminal.h"
 
 #include <SDL2/SDL.h>
 
@@ -35,22 +35,22 @@ void input_tick(void) {
 
         if(text_mode) {
             if(e.type == SDL_TEXTINPUT && !(SDL_GetModState() & KMOD_CTRL)) {
-                shell_receive_input(e.text.text);
+                terminal_receive_input(e.text.text);
             } else if(e.type == SDL_KEYDOWN) {
                 if(e.key.keysym.sym == SDLK_RETURN) {
-                    shell_receive_input("\n");
+                    terminal_receive_input("\n");
                 } else if(e.key.keysym.sym == SDLK_BACKSPACE) {
-                    shell_receive_input("\b");
+                    terminal_receive_input("\b");
                 } else if(e.key.keysym.sym == SDLK_DELETE) {
-                    shell_receive_input("\x7f");
+                    terminal_receive_input("\x7f");
                 } else if(e.key.keysym.sym == SDLK_UP) {
-                    shell_receive_input("\x01");
+                    terminal_receive_input("\x01");
                 } else if(e.key.keysym.sym == SDLK_LEFT) {
-                    shell_receive_input("\x02");
+                    terminal_receive_input("\x02");
                 } else if(e.key.keysym.sym == SDLK_DOWN) {
-                    shell_receive_input("\x03");
+                    terminal_receive_input("\x03");
                 } else if(e.key.keysym.sym == SDLK_RIGHT) {
-                    shell_receive_input("\x04");
+                    terminal_receive_input("\x04");
                 }
             }
         } else {
