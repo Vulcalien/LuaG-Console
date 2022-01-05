@@ -42,6 +42,21 @@ static CMD(cmd_ver) {
 }
 
 static CMD(cmd_help) {
+    if(argc > 0) {
+
+    } else {
+        shell_write("run: runs game\n",             SHELL_COLOR_NORMAL);
+        shell_write("edit: opens editor\n",         SHELL_COLOR_NORMAL);
+        shell_write("pack: creates cartridge\n",    SHELL_COLOR_NORMAL);
+        Shell.write("setup: creates game files\n",  SHELL_COLOR_NORMAL);
+        shell_write("cls: clears shell\n",          SHELL_COLOR_NORMAL);
+        shell_write("ver: prints version\n",        SHELL_COLOR_NORMAL);
+        shell_write("help: prints this list\n",     SHELL_COLOR_NORMAL);
+        shell_write("mode: changes console mode\n", SHELL_COLOR_NORMAL);
+        shell_write("files: opens game folder\n",   SHELL_COLOR_NORMAL);
+        shell_write("log: opens log file\n",        SHELL_COLOR_NORMAL);
+        shell_write("\n",                           SHELL_COLOR_NORMAL);
+    }
 }
 
 static CMD(cmd_mode) {
