@@ -17,6 +17,7 @@
 #include <string.h>
 
 #include "display.h"
+#include "shell-commands.h"
 
 #define COMMAND_HISTORY_SIZE (1024)
 static char **command_history;
@@ -139,8 +140,44 @@ static void shell_execute(void) {
         );
         used_command_history = COMMAND_HISTORY_SIZE / 2;
     }
-
     command_history[used_command_history] = active_line.text;
+
+    // parse command and arguments
+    u32 splits_count = 0;
+    // to avoid errors, just allocate MAX_LINE_LEN pointers
+    char **splits = malloc(MAX_LINE_LEN * sizeof(const char *));
+
+    u32 writing_index = 0;
+    for(u32 i = 0; i < active_line.len; i++) {
+        if(active_line.text[i] == ' ') {
+            if(writing_index != 0) {
+                splits[splits_count][writing_index] = '\0';
+                splits_count++;
+                writing_index = 0;
+            }
+        } else {
+            if(writing_index == 0)
+                splits[splits_count] = malloc(MAX_LINE_LEN * sizeof(char));
+
+            splits[splits_count][writing_index] = active_line.text[i];
+            writing_index++;
+        }
+    }
+
+    // if the last word was not closed, close it
+    if(writing_index != 0) {
+        splits[splits_count][writing_index] = '\0';
+        splits_count++;
+    }
+
+    if(splits_count > 0)
+        execute_command(splits[0], splits_count - 1, (const char **) splits + 1);
+
+    // free memory
+    for(u32 i = 0; i < splits_count; i++)
+        free(splits[i]);
+    free(splits);
+
     allocate_active_line();
 }
 
