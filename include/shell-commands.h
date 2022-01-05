@@ -17,6 +17,6 @@
 
 #include "luag-console.h"
 
-extern bool execute_command(const char *command, u32 argc, const char **argv);
+extern bool execute_command(char *cmd, u32 argc, char **argv);
 
 #endif // VULC_LUAG_SHELL_COMMANDS

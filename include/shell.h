@@ -17,6 +17,10 @@
 
 #include "luag-console.h"
 
+#define SHELL_COLOR_NORMAL (0xffffff)
+#define SHELL_COLOR_ERROR  (0xff0000)
+#define SHELL_COLOR_INPUT  (0x00ff00)
+
 extern int shell_init(void);
 extern void shell_tick(void);
 extern void shell_render(void);

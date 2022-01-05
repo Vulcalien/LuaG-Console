@@ -58,8 +58,6 @@ void shell_write(const char *text, u32 color) {
 }
 
 void shell_receive_input(const char *c) {
-    // do this instead of strlen because
-    // most of the times c[1] is '\0'
     for(u32 i = 0; c[i] != '\0'; i++) {
         if(c[i] == '\n') {
             shell_execute();
@@ -171,7 +169,7 @@ static void shell_execute(void) {
     }
 
     if(splits_count > 0)
-        execute_command(splits[0], splits_count - 1, (const char **) splits + 1);
+        execute_command(splits[0], splits_count - 1, splits + 1);
 
     // free memory
     for(u32 i = 0; i < splits_count; i++)
