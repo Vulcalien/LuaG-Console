@@ -86,7 +86,16 @@ int terminal_destroy(void) {
     return 0;
 }
 
-static inline void increment_closed_rows_count(void) {
+static inline void check_closed_rows(void) {
+    if(closed_rows_count == MAX_CLOSED_ROWS) {
+        // overwrite the first half of the closed lines
+        memcpy(
+            closed_rows,
+            closed_rows + MAX_CLOSED_ROWS / 2,
+            MAX_CLOSED_ROWS / 2
+        );
+        closed_rows_count = MAX_CLOSED_ROWS / 2;
+    }
 }
 
 void terminal_tick(void) {
@@ -104,34 +113,30 @@ void terminal_tick(void) {
 
     if(c == '\n' || c == '\x0b') {
         // split and save the active line into closed_rows
-        struct row *current_row = NULL;
+        struct row *current_row;
         for(u32 i = 0; i <= active_line.len; i++) {
-            // if the following, then we have to break the line here
             if(i % CHARS_IN_ROW == 0 || i == active_line.len) {
-                if(current_row != NULL) {
+                // close the row
+                if(i > 0 || active_line.len == 0) {
+                    closed_rows_count++;
+                    check_closed_rows();
+                }
+
+                // grab the next row
+                if(i != active_line.len) {
+                    current_row = &closed_rows[closed_rows_count];
+
                     if(buf_char.is_user_input)
                         current_row->color = TERM_COLOR_INPUT;
                     else if(c == '\x0b')
                         current_row->color = TERM_COLOR_ERROR;
                     else
                         current_row->color = TERM_COLOR_NORMAL;
-
-                    closed_rows_count++;
-                    if(closed_rows_count == MAX_CLOSED_ROWS) {
-                        // overwrite the first half of the closed lines
-                        memcpy(
-                            closed_rows,
-                            closed_rows + MAX_CLOSED_ROWS / 2,
-                            MAX_CLOSED_ROWS / 2
-                        );
-                        closed_rows_count = MAX_CLOSED_ROWS / 2;
-                    }
                 }
-                // grab the next row
-                current_row = &closed_rows[closed_rows_count + i / CHARS_IN_ROW];
             }
             // put a char into the row we are writing in
-            current_row->text[i % CHARS_IN_ROW] = active_line.text[i];
+            if(active_line.len > 0)
+                current_row->text[i % CHARS_IN_ROW] = active_line.text[i];
         }
 
         if(buf_char.is_user_input)
@@ -209,7 +214,30 @@ void terminal_render(void) {
     }
 }
 
-// TODO
+void terminal_receive_input(const char *c) {
+    // the buffer is full
+    if(char_buffer_write_index + 1 == char_buffer_read_index)
+        return;
+
+    for(u32 i = 0; c[i] != '\0'; i++) {
+        char_buffer[char_buffer_write_index] = (struct buffered_char) {
+            .c = c[i],
+            .is_user_input = true
+        };
+        char_buffer_write_index++;
+        char_buffer_write_index %= MAX_BUFFERED_CHARS;
+    }
+}
+
+void terminal_clear(void) {
+    memset(active_line.text, '\0', (MAX_LINE_LEN + 1) * sizeof(char));
+    active_line.len = 0;
+    active_line.cursor_pos = 0;
+
+    memset(closed_rows, 0, MAX_CLOSED_ROWS * sizeof(struct row));
+    closed_rows_count = 0;
+}
+
 void terminal_write(const char *text, bool is_error) {
     for(u32 i = 0; text[i] != '\0'; i++) {
         char_buffer[char_buffer_write_index] = (struct buffered_char) {
@@ -226,22 +254,7 @@ void terminal_write(const char *text, bool is_error) {
     }
 }
 
-void terminal_receive_input(const char *c) {
-    // the buffer is full
-    if(char_buffer_write_index + 1 == char_buffer_read_index)
-        return;
-
-    for(u32 i = 0; c[i] != '\0'; i++) {
-        char_buffer[char_buffer_write_index] = (struct buffered_char) {
-            .c = c[i],
-            .is_user_input = true
-        };
-        char_buffer_write_index++;
-        char_buffer_write_index %= MAX_BUFFERED_CHARS;
-    }
-}
-
-static void terminal_execute(void) {
+static inline void check_command_history(void) {
     if(used_command_history == COMMAND_HISTORY_SIZE) {
         // free the oldest half of commands
         for(u32 i = 0; i < COMMAND_HISTORY_SIZE / 2; i++)
@@ -255,7 +268,12 @@ static void terminal_execute(void) {
         );
         used_command_history = COMMAND_HISTORY_SIZE / 2;
     }
+}
+
+static void terminal_execute(void) {
+    check_command_history();
     command_history[used_command_history] = active_line.text;
+    used_command_history++;
 
     // parse command and arguments
     u32 splits_count = 0;
@@ -278,7 +296,9 @@ static void terminal_execute(void) {
         }
     }
 
-    if(splits_count > 0)
+    if(splits_count == 0)
+        execute_command("", 0, NULL);
+    else
         execute_command(splits[0], splits_count - 1, splits + 1);
 
     // free memory

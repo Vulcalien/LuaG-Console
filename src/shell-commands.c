@@ -36,6 +36,7 @@ static CMD(cmd_setup) {
 }
 
 static CMD(cmd_cls) {
+    terminal_clear();
 }
 
 static CMD(cmd_ver) {
@@ -69,6 +70,7 @@ static CMD(cmd_log) {
 }
 
 static CMD(cmd_exit) {
+    should_quit = true;
 }
 
 bool execute_command(char *cmd, u32 argc, char **argv) {
