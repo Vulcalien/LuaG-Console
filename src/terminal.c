@@ -102,7 +102,7 @@ void terminal_tick(void) {
 
     char c = buf_char.c;
 
-    if(c == '\n') {
+    if(c == '\n' || c == '\x0b') {
         // split and save the active line into closed_rows
         struct row *current_row = NULL;
         for(u32 i = 0; i <= active_line.len; i++) {
@@ -111,6 +111,8 @@ void terminal_tick(void) {
                 if(current_row != NULL) {
                     if(buf_char.is_user_input)
                         current_row->color = TERM_COLOR_INPUT;
+                    else if(c == '\x0b')
+                        current_row->color = TERM_COLOR_ERROR;
                     else
                         current_row->color = TERM_COLOR_NORMAL;
 
@@ -196,19 +198,32 @@ void terminal_tick(void) {
 void terminal_render(void) {
     display_clear(0x000000);
 
-    /*display_write(active_line.text, 0xffffff, 1, 1);*/
-    /*display_write("_", 0xff0000, 1 + (CHAR_WIDTH + LETTER_SPACING) * active_line.cursor_pos, 1);*/
+    display_write(active_line.text, 0xffffff, 1, 1);
+    display_write("_", 0xff0000, 1 + (CHAR_WIDTH + LETTER_SPACING) * active_line.cursor_pos, 1);
 
     for(u32 i = 0; i < closed_rows_count; i++) {
         display_write(
             closed_rows[i].text, closed_rows[i].color,
-            1, 1 + 20 * i
+            1, 1 + 12 * (i + 1)
         );
     }
 }
 
 // TODO
 void terminal_write(const char *text, bool is_error) {
+    for(u32 i = 0; text[i] != '\0'; i++) {
+        char_buffer[char_buffer_write_index] = (struct buffered_char) {
+            .is_user_input = false
+        };
+
+        if(text[i] == '\n' && is_error)
+            char_buffer[char_buffer_write_index].c = '\x0b';
+        else
+            char_buffer[char_buffer_write_index].c = text[i];
+
+        char_buffer_write_index++;
+        char_buffer_write_index %= MAX_BUFFERED_CHARS;
+    }
 }
 
 void terminal_receive_input(const char *c) {

@@ -100,7 +100,9 @@ bool execute_command(char *cmd, u32 argc, char **argv) {
     else if(TEST("exit"))
         CALL(cmd_exit);
     else
-        terminal_write("unknown command", false);
+        terminal_write("unknown command\n", false);
+
+    terminal_write("\n", false);
 
     return false;
 }
