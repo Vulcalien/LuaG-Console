@@ -19,6 +19,9 @@
 
 #include <vulcalien/vulcalien.h>
 
+#define LUAG_VERSION "C Port - 0.0.1-WIP"
+#define COPYRIGHT_NOTICE "Copyright 2022 Vulcalien"
+
 #define TPS (60)
 
 extern bool should_quit;

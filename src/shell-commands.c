@@ -40,6 +40,9 @@ static CMD(cmd_cls) {
 }
 
 static CMD(cmd_ver) {
+    terminal_write(LUAG_VERSION "\n", false);
+    terminal_write(COPYRIGHT_NOTICE "\n", false);
+    terminal_write("This is Free software\n", false);
 }
 
 static CMD(cmd_help) {
