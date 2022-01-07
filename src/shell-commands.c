@@ -15,6 +15,7 @@
 #include "shell-commands.h"
 
 #include "terminal.h"
+#include "lua-engine.h"
 
 #include <ctype.h>
 #include <string.h>
@@ -24,6 +25,7 @@
 #define TEST(command) !strcmp(cmd, command)
 
 static CMD(cmd_run) {
+    engine_load();
 }
 
 static CMD(cmd_edit) {
