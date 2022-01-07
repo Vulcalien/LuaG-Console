@@ -28,7 +28,7 @@ CFLAGS   := -Wall -pedantic
 ifeq ($(TARGET_OS),UNIX)
 	# UNIX
 	LDFLAGS := -Llib
-	LDLIBS  := -lSDL2 -lSDL2_image
+	LDLIBS  := -lSDL2 -lSDL2_image -lcjson
 else ifeq ($(TARGET_OS),WINDOWS)
 	# WINDOWS
 	LDFLAGS := -Llib
