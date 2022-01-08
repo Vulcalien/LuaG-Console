@@ -1,1 +1,5 @@
-print(asd 1)
+function init()
+end
+
+function tick()
+end

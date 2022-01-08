@@ -24,8 +24,30 @@
 
 #define BUFFER_SIZE (4 * 1024)
 
+static lua_State *L = NULL;
+
+// returns nonzero if the engine was stopped
+static int check_error(lua_State *L, int status) {
+    if(status != LUA_OK) {
+        const char *error_msg = lua_tostring(L, -1);
+
+        fprintf(stderr, "%s\n", error_msg);
+
+        lua_pop(L, 1);
+
+        engine_stop();
+        return 1;
+    }
+    return 0;
+}
+
 void engine_load(void) {
-    lua_State *L = luaL_newstate();
+    if(L != NULL) {
+        fputs("Error: lua_State 'L' is not NULL on engine_load\n", stderr);
+        return;
+    }
+
+    L = luaL_newstate();
 
     // load libraries
 
@@ -40,15 +62,42 @@ void engine_load(void) {
     // os
     // debug
 
-    // load and run main.lua
-    if(luaL_dofile(L, "scripts/main.lua")) {
-        fprintf(stderr, "%s\n", lua_tostring(L, -1));
-        lua_pop(L, 1); // TODO is this lua_pop correct?
+    int status;
 
-        // TODO print this to a log file and
-        // write "See log file" in terminal
+    // load and run main.lua
+    status = luaL_dofile(L, "scripts/main.lua");
+    if(check_error(L, status))
+        return;
+
+    // run "init" function
+    lua_getglobal(L, "init");
+    if(!lua_isfunction(L, -1)) {
+        fputs("Error: 'main.lua' must contain a function 'init()'\n", stderr);
+
+        engine_stop();
+        return;
     }
+
+    status = lua_pcall(L, 0, 0, 0);
+    if(check_error(L, status))
+        return;
+}
+
+void engine_stop(void) {
+    lua_close(L);
+    L = NULL;
 }
 
 void engine_tick(void) {
+    lua_getglobal(L, "tick");
+    if(!lua_isfunction(L, -1)) {
+        fputs("Error: a function 'tick()' must be defined\n", stderr);
+
+        engine_stop();
+        return;
+    }
+
+    int status = lua_pcall(L, 0, 0, 0);
+    if(check_error(L, status))
+        return;
 }
