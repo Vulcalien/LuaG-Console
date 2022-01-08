@@ -18,8 +18,8 @@
 #include "luag-console.h"
 
 void engine_load(void);
+void engine_stop(void);
 
 void engine_tick(void);
-void engine_render(void);
 
 #endif // VULC_LUAG_LUA_ENGINE

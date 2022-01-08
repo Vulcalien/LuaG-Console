@@ -18,7 +18,7 @@
 #include "luag-console.h"
 
 extern int terminal_init(void);
-extern int terminal_destroy(void);
+extern void terminal_destroy(void);
 
 extern void terminal_tick(void);
 extern void terminal_render(void);

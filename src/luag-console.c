@@ -20,7 +20,7 @@
 #include "display.h"
 
 static int init(void);
-static int destroy(void);
+static void destroy(void);
 static void shutdown(void);
 
 bool should_quit = false;
@@ -36,10 +36,7 @@ int main(int argc, const char *argv[]) {
 
     gameloop();
 
-    err = destroy();
-    if(err)
-        return err;
-
+    destroy();
     return 0;
 }
 
@@ -77,11 +74,9 @@ static int init(void) {
     return 0;
 }
 
-static int destroy(void) {
-    /*display_destroy();*/
+static void destroy(void) {
+    display_destroy();
     terminal_destroy();
-
-    return 0;
 }
 
 static void shutdown(void) {

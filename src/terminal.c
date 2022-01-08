@@ -73,7 +73,7 @@ int terminal_init(void) {
     return 0;
 }
 
-int terminal_destroy(void) {
+void terminal_destroy(void) {
     free(active_line.text);
     free(closed_rows);
 
@@ -82,8 +82,6 @@ int terminal_destroy(void) {
     free(command_history);
 
     free(char_buffer);
-
-    return 0;
 }
 
 static inline void check_closed_rows(void) {

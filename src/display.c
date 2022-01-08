@@ -25,8 +25,6 @@ static SDL_Renderer *renderer;
 
 static SDL_Texture *font_texture;
 
-static void display_draw_char(char c, u32 color, i32 x, i32 y);
-
 static int set_window_icon(void) {
     SDL_Surface *icon = IMG_Load("res/icon.png");
     if(!icon) {
@@ -89,6 +87,16 @@ int display_init(void) {
     load_font();
 
     return 0;
+}
+
+void display_destroy(void) {
+    SDL_DestroyTexture(font_texture);
+
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+
+    IMG_Quit();
+    SDL_Quit();
 }
 
 void display_refresh(void) {

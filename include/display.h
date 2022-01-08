@@ -26,11 +26,9 @@
 #define LETTER_SPACING (1)
 
 extern int display_init(void);
-extern int display_destroy(void);
+extern void display_destroy(void);
 
 extern void display_refresh(void);
-
-// TODO deallocate memory on exit
 
 extern void display_clear(u32 color);
 extern void display_write(const char *text, u32 color, i32 x, i32 y);

@@ -52,6 +52,3 @@ void engine_load(void) {
 
 void engine_tick(void) {
 }
-
-void engine_render(void) {
-}
