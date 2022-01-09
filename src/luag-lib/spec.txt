@@ -1,0 +1,31 @@
+LuaG library - C API specification
+
+Each major version of the api has one file, a shared library, and its filename
+is formatted as follows:
+
+"luag-lib-v$V.$v.$ext"
+
+where:
+- $V is the major version number
+- $v is the minor version number
+- $ext is the OS-specific extension. (in GNU/Linux the extension is .so)
+
+
+A minor version does not break compatibility with older versions of the same
+API major version, but a LuaG game that uses a newer minor version cannot be
+run using an older minor version.
+
+
+In the library, there must be two functions:
+
+int luag_lib_load(lua_State *L);
+int luag_lib_destroy(void);
+
+The return value must be 0 on success and nonzero on error.
+
+
+In `luag_lib_load` the api functions and/or variables must be added
+into the lua_State.
+
+
+The shared librares can be compiled against the core LuaG application headers.
