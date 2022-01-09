@@ -16,6 +16,9 @@
 
 #include <lua5.4/lua.h>
 
+// DEBUG
+#include <stdio.h>
+
 int luag_lib_load(lua_State *L) {
     puts("Hello shared library!");
 
@@ -23,5 +26,7 @@ int luag_lib_load(lua_State *L) {
 }
 
 int luag_lib_destroy(void) {
+    puts("Bye shared library!");
+
     return 0;
 }

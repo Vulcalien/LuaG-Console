@@ -15,13 +15,13 @@
 #include "luag-console.h"
 
 #include "gameloop.h"
+#include "lua-engine.h"
 #include "terminal.h"
 #include "input.h"
 #include "display.h"
 
 static int init(void);
 static void destroy(void);
-static void shutdown(void);
 
 bool should_quit = false;
 
@@ -46,7 +46,7 @@ void tick(void) {
     terminal_tick();
 
     if(should_quit)
-        shutdown();
+        gameloop_stop();
 }
 
 void render(void) {
@@ -75,10 +75,9 @@ static int init(void) {
 }
 
 static void destroy(void) {
+    if(engine_running)
+        engine_stop();
+
     display_destroy();
     terminal_destroy();
-}
-
-static void shutdown(void) {
-    gameloop_stop();
 }

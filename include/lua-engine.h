@@ -17,9 +17,11 @@
 
 #include "luag-console.h"
 
-void engine_load(void);
-void engine_stop(void);
+extern bool engine_running;
 
-void engine_tick(void);
+extern void engine_load(void);
+extern void engine_stop(void);
+
+extern void engine_tick(void);
 
 #endif // VULC_LUAG_LUA_ENGINE

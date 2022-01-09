@@ -13,7 +13,7 @@ endif
 TARGET_OS := $(CURRENT_OS)
 
 # ========= EDIT HERE =========
-OUT_FILENAME := luag-lib-1.4
+OUT_FILENAME := luag-lib-1.3
 
 SRC_DIR := src
 OBJ_DIR := obj
@@ -22,7 +22,7 @@ BIN_DIR := bin
 CPPFLAGS := -I../../../include -MMD -MP
 
 CFLAGS_STATIC := -Wall -pedantic
-CFLAGS_SHARED := -fPIC -fvisibility=hidden -Wall -pedantic
+CFLAGS_SHARED := -fPIC -Wall -pedantic
 
 ifeq ($(TARGET_OS),UNIX)
 	# UNIX
