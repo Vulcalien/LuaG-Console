@@ -126,6 +126,12 @@ static void display_draw_char(char c, u32 color, i32 x, i32 y) {
     SDL_RenderCopy(renderer, font_texture, &src, &dst);
 }
 
+void display_fill(u32 x, u32 y, u32 w, u32 h, u32 color) {
+    SDL_SetRenderDrawColor(renderer, color >> 16, color >> 8, color, 0xff);
+    SDL_Rect rect = { x, y, w, h };
+    SDL_RenderFillRect(renderer, &rect);
+}
+
 void display_write(const char *text, u32 color, i32 x, i32 y) {
     u32 len = strlen(text);
 

@@ -31,6 +31,7 @@ extern void display_destroy(void);
 extern void display_refresh(void);
 
 extern void display_clear(u32 color);
+extern void display_fill(u32 x, u32 y, u32 w, u32 h, u32 color);
 extern void display_write(const char *text, u32 color, i32 x, i32 y);
 
 #endif // VULC_LUAG_DISPLAY

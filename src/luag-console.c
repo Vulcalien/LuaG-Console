@@ -43,7 +43,8 @@ int main(int argc, const char *argv[]) {
 void tick(void) {
     input_tick();
 
-    terminal_tick();
+    if(!engine_running)
+        terminal_tick();
 
     if(should_quit)
         gameloop_stop();
@@ -54,7 +55,8 @@ void render(void) {
         return;
     should_refresh = false;
 
-    terminal_render();
+    if(!engine_running)
+        terminal_render();
 
     display_refresh();
 }

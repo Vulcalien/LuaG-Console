@@ -53,9 +53,6 @@ void input_tick(void) {
                     terminal_receive_input("\x14");
                 }
             }
-        } else {
-            // not in text mode
-            // ...
         }
     }
 }

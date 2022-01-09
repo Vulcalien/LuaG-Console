@@ -15,6 +15,7 @@
 #include "lua-engine.h"
 
 #include "terminal.h"
+#include "input.h"
 
 #include <stdio.h>
 #include <limits.h>
@@ -144,6 +145,8 @@ void engine_load(void) {
     status = lua_pcall(L, 0, 0, 0);
     if(check_error(L, status))
         return;
+
+    input_set_text_mode(false);
 }
 
 void engine_stop(void) {
@@ -180,6 +183,8 @@ void engine_stop(void) {
 
         dlclose(shared_lib_handle);
     }
+
+    input_set_text_mode(true);
 }
 
 void engine_tick(void) {
