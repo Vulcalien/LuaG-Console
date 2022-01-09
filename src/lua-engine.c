@@ -55,7 +55,7 @@ static int load_luag_library(lua_State *L, u32 major, u32 min_minor) {
     for(u32 i = min_minor; i < min_minor + 100; i++) {
         snprintf(
             filename, PATH_MAX,
-            "%s/luag-lib-%d.%d.so", "luag-lib", major, i
+            "res/luag-lib/luag-lib-%d.%d.so", major, i
         );
 
         shared_lib_handle = dlopen(filename, RTLD_LAZY);

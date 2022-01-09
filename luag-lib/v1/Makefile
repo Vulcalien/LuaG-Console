@@ -19,7 +19,7 @@ SRC_DIR := src
 OBJ_DIR := obj
 BIN_DIR := bin
 
-CPPFLAGS := -I../../../include -MMD -MP
+CPPFLAGS := -I../../include -MMD -MP
 
 CFLAGS_STATIC := -Wall -pedantic
 CFLAGS_SHARED := -fPIC -Wall -pedantic

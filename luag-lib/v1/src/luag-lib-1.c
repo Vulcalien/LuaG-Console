@@ -15,12 +15,32 @@
 #include "luag-console.h"
 
 #include <lua5.4/lua.h>
+#include <lua5.4/lauxlib.h>
+
+#include "display.h"
 
 // DEBUG
 #include <stdio.h>
 
+#define F(name) static int name(lua_State *L)
+
+F(clear) {
+    lua_Integer color = luaL_checkinteger(L, 1);
+
+    /*display_clear(color);*/
+    return 0;
+}
+
+static void setf(lua_State *L, int (*func)(lua_State *L), const char *name) {
+    lua_pushcfunction(L, func);
+    lua_setglobal(L, name);
+}
+
 int luag_lib_load(lua_State *L) {
-    puts("Hello shared library!");
+    // TODO add variables
+    // TODO add more functions and order them
+
+    setf(L, clear, "clear");
 
     return 0;
 }
