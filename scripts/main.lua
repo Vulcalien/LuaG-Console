@@ -1,5 +1,5 @@
 function init()
-    clear("1a", "ciao")
+    clear(0xff0000)
 end
 
 function tick()

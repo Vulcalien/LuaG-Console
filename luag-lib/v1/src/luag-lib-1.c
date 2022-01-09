@@ -26,8 +26,7 @@
 
 F(clear) {
     lua_Integer color = luaL_checkinteger(L, 1);
-
-    /*display_clear(color);*/
+    display_clear(color);
     return 0;
 }
 
