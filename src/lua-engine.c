@@ -50,8 +50,7 @@ static int check_error(lua_State *L, int status) {
 static int load_luag_library(lua_State *L, u32 major, u32 min_minor) {
     // find file
     // I'm pretty sure there is a better way
-    char *filename = malloc((PATH_MAX) * sizeof(char));
-    filename[PATH_MAX] = '\0';
+    char *filename = malloc(PATH_MAX * sizeof(char));
 
     for(u32 i = min_minor; i < min_minor + 100; i++) {
         snprintf(
