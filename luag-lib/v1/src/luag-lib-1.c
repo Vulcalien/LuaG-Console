@@ -14,6 +14,8 @@
  */
 #include "luag-console.h"
 
+#include <limits.h>
+
 #include <lua5.4/lua.h>
 #include <lua5.4/lauxlib.h>
 
@@ -23,6 +25,19 @@
 
 // generic
 F(loadscript) {
+    // TODO make sure this can't escape the scripts
+    // folder using '..' or other ways
+    const char *filename = luaL_checkstring(L, 1);
+
+    char *full_path = malloc(PATH_MAX * sizeof(char));
+    snprintf(
+        full_path, PATH_MAX,
+        "%s/%s", "scripts", filename
+    );
+
+    if(luaL_dofile(L, full_path))
+        lua_error(L);
+
     return 0;
 }
 
