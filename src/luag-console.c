@@ -67,10 +67,17 @@ void luag_ask_refresh(void) {
 
 static int init(void) {
     input_init();
-    if(display_init())
-        return -1;
 
-    terminal_init();
+    if(display_init()) {
+        display_destroy();
+        return -1;
+    }
+
+    if(terminal_init()) {
+        terminal_destroy();
+        return -2;
+    }
+
     input_set_text_mode(true);
 
     return 0;

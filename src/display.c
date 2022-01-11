@@ -26,7 +26,7 @@ static SDL_Renderer *renderer;
 static SDL_Texture *font_texture;
 
 static int set_window_icon(void) {
-    SDL_Surface *icon = IMG_Load("res/icon.png");
+    SDL_Surface *icon = IMG_Load(RESOURCES_DIR "/icon.png");
     if(!icon) {
         fputs("SDL display: cannot load window icon\n", stderr);
         return -1;
@@ -38,7 +38,7 @@ static int set_window_icon(void) {
 }
 
 static int load_font(void) {
-    SDL_Surface *font_surf = IMG_Load("res/font.png");
+    SDL_Surface *font_surf = IMG_Load(RESOURCES_DIR "/font.png");
     if(!font_surf) {
         fputs("SDL display: cannot load font file\n", stderr);
         return -1;
@@ -83,8 +83,10 @@ int display_init(void) {
 
     IMG_Init(IMG_INIT_PNG);
 
-    set_window_icon();
-    load_font();
+    if(set_window_icon())
+        return -4;
+    if(load_font())
+        return -5;
 
     return 0;
 }

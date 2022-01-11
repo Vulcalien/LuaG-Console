@@ -22,6 +22,9 @@
 #define LUAG_VERSION "C Port - 0.0.1-WIP"
 #define COPYRIGHT_NOTICE "Copyright 2022 Vulcalien"
 
+// TODO this is OS-dependant
+#define RESOURCES_DIR "/usr/share/luag-console"
+
 #define TPS (60)
 
 extern bool should_quit;
