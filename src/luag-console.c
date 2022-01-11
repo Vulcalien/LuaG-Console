@@ -20,10 +20,13 @@
 #include "input.h"
 #include "display.h"
 
+#include <limits.h>
+
 static int init(void);
 static void destroy(void);
 
 bool should_quit = false;
+char *game_folder = NULL;
 
 static bool should_refresh = false;
 
@@ -65,7 +68,15 @@ void luag_ask_refresh(void) {
     should_refresh = true;
 }
 
+// DEBUG
+#include <stdio.h>
+
 static int init(void) {
+    game_folder = malloc(PATH_MAX * sizeof(char));
+
+    // DEBUG
+    snprintf(game_folder, PATH_MAX, "./console-userdata");
+
     input_init();
 
     if(display_init()) {
@@ -84,6 +95,8 @@ static int init(void) {
 }
 
 static void destroy(void) {
+    free(game_folder);
+
     if(engine_running)
         engine_stop();
 

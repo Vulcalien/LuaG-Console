@@ -32,12 +32,13 @@ F(loadscript) {
     char *full_path = malloc(PATH_MAX * sizeof(char));
     snprintf(
         full_path, PATH_MAX,
-        "%s/%s", "scripts", filename
+        "%s/scripts/%s", game_folder, filename
     );
 
     if(luaL_dofile(L, full_path))
         lua_error(L);
 
+    free(full_path);
     return 0;
 }
 

@@ -42,7 +42,7 @@ static int check_error(lua_State *L, int status) {
         lua_pop(L, 1);
 
         engine_stop();
-        return 1;
+        return -1;
     }
     return 0;
 }
@@ -96,6 +96,20 @@ static int load_luag_library(lua_State *L, u32 major, u32 min_minor) {
     return 0;
 }
 
+static int load_main_file(void) {
+    char *filename = malloc(PATH_MAX * sizeof(char));
+    snprintf(
+        filename, PATH_MAX,
+        "%s/scripts/main.lua", game_folder
+    );
+
+    int status = luaL_dofile(L, filename);
+
+    free(filename);
+
+    return check_error(L, status);
+}
+
 void engine_load(void) {
     if(engine_running) {
         fputs("Error: engine is running when calling 'engine_load'", stderr);
@@ -125,11 +139,7 @@ void engine_load(void) {
         return;
     }
 
-    int status;
-
-    // load and run main.lua
-    status = luaL_dofile(L, "scripts/main.lua");
-    if(check_error(L, status))
+    if(load_main_file())
         return;
 
     // run "init" function
@@ -141,7 +151,7 @@ void engine_load(void) {
         return;
     }
 
-    status = lua_pcall(L, 0, 0, 0);
+    int status = lua_pcall(L, 0, 0, 0);
     if(check_error(L, status))
         return;
 

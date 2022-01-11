@@ -3,7 +3,7 @@ function init()
     write("asd", 0x000000, 1, 1)
     pix(100, 100, 0x00ffff, 5, 2)
 
-    loadscript("../scripttest.lua")
+    loadscript("test.lua")
     foo()
 end
 

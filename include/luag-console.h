@@ -29,6 +29,8 @@
 
 extern bool should_quit;
 
+extern char *game_folder;
+
 extern void tick(void);
 extern void render(void);
 
