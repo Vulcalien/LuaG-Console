@@ -26,7 +26,16 @@
 #define TEST(command) !strcmp(cmd, command)
 
 static CMD(cmd_run) {
-    engine_load();
+    if(argc == 0) {
+        if(dev_mode) {
+            game_folder = "console-userdata";
+            engine_load();
+        } else {
+            // TODO do terminal_write print error
+        }
+    } else {
+        // TODO
+    }
 }
 
 static CMD(cmd_edit) {

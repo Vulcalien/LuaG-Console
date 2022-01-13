@@ -45,20 +45,19 @@ struct row {
     u32 color;
 };
 
-struct buffered_char {
-    char c;
-    bool is_user_input;
-};
-
 static struct row *closed_rows;
 static u32 closed_rows_count = 0;
 
 static char **command_history;
 static u32 used_command_history = 0;
 
-static struct buffered_char *char_buffer;
-static u32 char_buffer_read_index = 0;
-static u32 char_buffer_write_index = 0;
+static char *user_buffer;
+static u32 user_buffer_read_index = 0;
+static u32 user_buffer_write_index = 0;
+
+static char *output_buffer;
+static u32 output_buffer_read_index = 0;
+static u32 output_buffer_write_index = 0;
 
 static void terminal_execute(void);
 
@@ -69,7 +68,9 @@ int terminal_init(void) {
 
     closed_rows = calloc(MAX_CLOSED_ROWS, sizeof(struct row));
     command_history = malloc(COMMAND_HISTORY_SIZE * sizeof(char *));
-    char_buffer = malloc(MAX_BUFFERED_CHARS * sizeof(struct buffered_char));
+
+    user_buffer   = malloc(MAX_BUFFERED_CHARS * sizeof(char));
+    output_buffer = malloc(MAX_BUFFERED_CHARS * sizeof(char));
 
     return 0;
 }
@@ -82,7 +83,8 @@ void terminal_destroy(void) {
         free(command_history[i]);
     free(command_history);
 
-    free(char_buffer);
+    free(user_buffer);
+    free(output_buffer);
 }
 
 static inline void check_closed_rows(void) {
@@ -100,15 +102,27 @@ static inline void check_closed_rows(void) {
 void terminal_tick(void) {
     // TODO implement ctrl+backspace (= ctrl+w), ctrl+del, ctrl+u
 
-    // the buffer is empty
-    if(char_buffer_read_index == char_buffer_write_index)
+    char c;
+    bool is_user_input;
+
+    if(output_buffer_read_index != output_buffer_write_index) {
+        // output buffer is not empty
+        c = output_buffer[output_buffer_read_index];
+        output_buffer_read_index++;
+        output_buffer_read_index %= MAX_BUFFERED_CHARS;
+
+        is_user_input = false;
+    } else if(user_buffer_read_index != user_buffer_write_index) {
+        // user buffer is not empty
+        c = user_buffer[user_buffer_read_index];
+        user_buffer_read_index++;
+        user_buffer_read_index %= MAX_BUFFERED_CHARS;
+
+        is_user_input = true;
+    } else {
+        // all buffers are empty
         return;
-
-    struct buffered_char buf_char = char_buffer[char_buffer_read_index];
-    char_buffer_read_index++;
-    char_buffer_read_index %= MAX_BUFFERED_CHARS;
-
-    char c = buf_char.c;
+    }
 
     if(c == '\n' || c == '\x0b') {
         // split and save the active line into closed_rows
@@ -125,7 +139,7 @@ void terminal_tick(void) {
                 if(i != active_line.len) {
                     current_row = &closed_rows[closed_rows_count];
 
-                    if(buf_char.is_user_input)
+                    if(is_user_input)
                         current_row->color = TERM_COLOR_INPUT;
                     else if(c == '\x0b')
                         current_row->color = TERM_COLOR_ERROR;
@@ -138,7 +152,7 @@ void terminal_tick(void) {
                 current_row->text[i % CHARS_IN_ROW] = active_line.text[i];
         }
 
-        if(buf_char.is_user_input)
+        if(is_user_input)
             terminal_execute();
 
         allocate_active_line();
@@ -214,17 +228,14 @@ void terminal_render(void) {
 }
 
 void terminal_receive_input(const char *c) {
-    // the buffer is full
-    if(char_buffer_write_index + 1 == char_buffer_read_index)
-        return;
-
     for(u32 i = 0; c[i] != '\0'; i++) {
-        char_buffer[char_buffer_write_index] = (struct buffered_char) {
-            .c = c[i],
-            .is_user_input = true
-        };
-        char_buffer_write_index++;
-        char_buffer_write_index %= MAX_BUFFERED_CHARS;
+        // the buffer is full
+        if(user_buffer_write_index + 1 == user_buffer_read_index)
+            return;
+
+        user_buffer[user_buffer_write_index] = c[i];
+        user_buffer_write_index++;
+        user_buffer_write_index %= MAX_BUFFERED_CHARS;
     }
 }
 
@@ -239,17 +250,17 @@ void terminal_clear(void) {
 
 void terminal_write(const char *text, bool is_error) {
     for(u32 i = 0; text[i] != '\0'; i++) {
-        char_buffer[char_buffer_write_index] = (struct buffered_char) {
-            .is_user_input = false
-        };
+        // the buffer is full
+        if(output_buffer_write_index + 1 == output_buffer_read_index)
+            return;
 
         if(text[i] == '\n' && is_error)
-            char_buffer[char_buffer_write_index].c = '\x0b';
+            output_buffer[output_buffer_write_index] = '\x0b';
         else
-            char_buffer[char_buffer_write_index].c = text[i];
+            output_buffer[output_buffer_write_index] = text[i];
 
-        char_buffer_write_index++;
-        char_buffer_write_index %= MAX_BUFFERED_CHARS;
+        output_buffer_write_index++;
+        output_buffer_write_index %= MAX_BUFFERED_CHARS;
     }
 }
 
