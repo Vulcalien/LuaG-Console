@@ -47,9 +47,24 @@ static CMD(cmd_run) {
             "%s.luag", argv[0]
         );
         game_folder = cartridge_extract(filename);
-        free(filename);
 
-        engine_load();
+        if(game_folder) {
+            engine_load();
+        } else {
+            char *error_msg = malloc(128 * sizeof(char));
+            snprintf(
+                error_msg, 128,
+                "Error:\n"
+                "'%s'\n"
+                "cartridge not found\n",
+                filename
+            );
+
+            terminal_write(error_msg, true);
+            free(error_msg);
+        }
+
+        free(filename);
     }
 }
 

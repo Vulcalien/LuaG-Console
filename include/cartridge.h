@@ -22,6 +22,7 @@ extern int cartridge_init(void);
 extern void cartridge_destroy(void);
 
 // returns the folder the cartridge was extracted into
+// or NULL if the cartridge could not be found
 extern char *cartridge_extract(const char *filename);
 
 #endif // VULC_LUAG_CARTRIDGE
