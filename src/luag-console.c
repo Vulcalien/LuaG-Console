@@ -20,6 +20,7 @@
 #include "terminal.h"
 #include "input.h"
 #include "display.h"
+#include "cartridge.h"
 
 #include <limits.h>
 
@@ -84,6 +85,11 @@ static int init(void) {
         return -2;
     }
 
+    if(cartridge_init()) {
+        cartridge_destroy();
+        return -3;
+    }
+
     input_set_text_mode(true);
 
     return 0;
@@ -95,4 +101,5 @@ static void destroy(void) {
 
     display_destroy();
     terminal_destroy();
+    cartridge_destroy();
 }

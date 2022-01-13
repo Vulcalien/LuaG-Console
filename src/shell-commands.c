@@ -17,9 +17,12 @@
 
 #include "terminal.h"
 #include "lua-engine.h"
+#include "cartridge.h"
 
-#include <ctype.h>
+#include <stdio.h>
 #include <string.h>
+#include <ctype.h>
+#include <limits.h>
 
 #define CMD(name) void name(u32 argc, char **argv)
 #define CALL(command) command(argc, argv)
@@ -31,10 +34,22 @@ static CMD(cmd_run) {
             game_folder = "console-userdata";
             engine_load();
         } else {
-            // TODO do terminal_write print error
+            terminal_write(
+                "Error:\n"
+                "insert cartridge name\n",
+                true
+            );
         }
     } else {
-        // TODO
+        char *filename = malloc(PATH_MAX * sizeof(char));
+        snprintf(
+            filename, PATH_MAX,
+            "%s.luag", argv[0]
+        );
+        game_folder = cartridge_extract(filename);
+        free(filename);
+
+        engine_load();
     }
 }
 
