@@ -67,6 +67,37 @@ static CMD(cmd_help) {
 }
 
 static CMD(cmd_mode) {
+    if(argc == 0) {
+        terminal_write("current mode:\n", false);
+        if(dev_mode)
+            terminal_write("developer\n", false);
+        else
+            terminal_write("user\n", false);
+    } else {
+        const char *mode = argv[0];
+        if(!strcmp(mode, "d") || !strcmp(mode, "developer")) {
+            dev_mode = true;
+            terminal_write(
+                "switching to\n"
+                "developer mode\n",
+                false
+            );
+        } else if(!strcmp(mode, "u") || !strcmp(mode, "user")) {
+            dev_mode = false;
+            terminal_write(
+                "switching to\n"
+                "user mode\n",
+                false
+            );
+        } else {
+            terminal_write(
+                "Error\n"
+                "unrecognized mode\n"
+                "try 'd' or 'u'\n",
+                true
+            );
+        }
+    }
 }
 
 static CMD(cmd_files) {
