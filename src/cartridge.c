@@ -71,7 +71,7 @@ int cartridge_load_info(void) {
         terminal_write(
             "Error:\n"
             "'cartridge-info'\n"
-            "is invalid\n",
+            "is invalid",
             true
         );
         err = -1;

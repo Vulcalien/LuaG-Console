@@ -29,7 +29,7 @@ static int check_is_developer(void) {
         terminal_write(
             "Error:\n"
             "only developers can\n"
-            "use this command\n",
+            "use this command",
             true
         );
         return -1;
@@ -49,7 +49,7 @@ static CMD(cmd_run) {
         } else {
             terminal_write(
                 "Error:\n"
-                "insert cartridge name\n",
+                "insert cartridge name",
                 true
             );
         }
@@ -69,7 +69,7 @@ static CMD(cmd_run) {
                 error_msg, 128,
                 "Error:\n"
                 "'%s'\n"
-                "cartridge not found\n",
+                "cartridge not found",
                 filename
             );
 
@@ -95,57 +95,57 @@ static CMD(cmd_cls) {
 }
 
 static CMD(cmd_ver) {
-    terminal_write(LUAG_VERSION "\n", false);
-    terminal_write(COPYRIGHT_NOTICE "\n", false);
-    terminal_write("This is Free software\n", false);
+    terminal_write(LUAG_VERSION, false);
+    terminal_write(COPYRIGHT_NOTICE, false);
+    terminal_write("This is Free software", false);
 }
 
 static CMD(cmd_help) {
     if(argc > 0) {
 
     } else {
-        terminal_write("run: runs game\n", false);
-        terminal_write("edit: opens editor\n", false);
-        terminal_write("pack: creates cartridge\n", false);
-        terminal_write("setup: creates game files\n", false);
-        terminal_write("cls: clears shell\n", false);
-        terminal_write("ver: prints version\n", false);
-        terminal_write("help: prints this list\n", false);
-        terminal_write("mode: changes console mode\n", false);
-        terminal_write("files: opens game folder\n", false);
-        terminal_write("log: opens log file\n", false);
-        terminal_write("\n", false);
+        terminal_write("run: runs game", false);
+        terminal_write("edit: opens editor", false);
+        terminal_write("pack: creates cartridge", false);
+        terminal_write("setup: creates game files", false);
+        terminal_write("cls: clears shell", false);
+        terminal_write("ver: prints version", false);
+        terminal_write("help: prints this list", false);
+        terminal_write("mode: changes console mode", false);
+        terminal_write("files: opens game folder", false);
+        terminal_write("log: opens log file", false);
+        terminal_write("", false);
     }
 }
 
 static CMD(cmd_mode) {
     if(argc == 0) {
-        terminal_write("current mode:\n", false);
+        terminal_write("current mode:", false);
         if(dev_mode)
-            terminal_write("developer\n", false);
+            terminal_write("developer", false);
         else
-            terminal_write("user\n", false);
+            terminal_write("user", false);
     } else {
         const char *mode = argv[0];
         if(!strcmp(mode, "d") || !strcmp(mode, "developer")) {
             dev_mode = true;
             terminal_write(
                 "switching to\n"
-                "developer mode\n",
+                "developer mode",
                 false
             );
         } else if(!strcmp(mode, "u") || !strcmp(mode, "user")) {
             dev_mode = false;
             terminal_write(
                 "switching to\n"
-                "user mode\n",
+                "user mode",
                 false
             );
         } else {
             terminal_write(
                 "Error\n"
                 "unrecognized mode\n"
-                "try 'd' or 'u'\n",
+                "try 'd' or 'u'",
                 true
             );
         }
@@ -199,9 +199,9 @@ bool execute_command(char *cmd, u32 argc, char **argv) {
     else if(TEST("exit"))
         CALL(cmd_exit);
     else
-        terminal_write("unknown command\n", false);
+        terminal_write("unknown command", false);
 
-    terminal_write("\n", false);
+    terminal_write("", false);
 
     return false;
 }

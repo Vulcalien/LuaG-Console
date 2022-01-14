@@ -231,7 +231,7 @@ void terminal_receive_input(const char *c) {
     for(u32 i = 0; c[i] != '\0'; i++) {
         // the buffer is full
         if(user_buffer_write_index + 1 == user_buffer_read_index)
-            return;
+            break;
 
         user_buffer[user_buffer_write_index] = c[i];
         user_buffer_write_index++;
@@ -249,15 +249,23 @@ void terminal_clear(void) {
 }
 
 void terminal_write(const char *text, bool is_error) {
-    for(u32 i = 0; text[i] != '\0'; i++) {
+    bool is_last_char = false;
+    for(u32 i = 0; !is_last_char; i++) {
         // the buffer is full
         if(output_buffer_write_index + 1 == output_buffer_read_index)
-            return;
+            break;
 
-        if(text[i] == '\n' && is_error)
+        char c = text[i];
+
+        if(c == '\0') {
+            c = '\n';
+            is_last_char = true;
+        }
+
+        if(c == '\n' && is_error)
             output_buffer[output_buffer_write_index] = '\x0b';
         else
-            output_buffer[output_buffer_write_index] = text[i];
+            output_buffer[output_buffer_write_index] = c;
 
         output_buffer_write_index++;
         output_buffer_write_index %= MAX_BUFFERED_CHARS;
