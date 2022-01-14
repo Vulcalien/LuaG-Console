@@ -24,6 +24,19 @@
 #include <ctype.h>
 #include <limits.h>
 
+static int check_is_developer(void) {
+    if(!dev_mode) {
+        terminal_write(
+            "Error:\n"
+            "only developers can\n"
+            "use this command",
+            false
+        );
+        return -1;
+    }
+    return 0;
+}
+
 #define CMD(name) void name(u32 argc, char **argv)
 #define CALL(command) command(argc, argv)
 #define TEST(command) !strcmp(cmd, command)
@@ -140,6 +153,14 @@ static CMD(cmd_mode) {
 }
 
 static CMD(cmd_files) {
+    if(check_is_developer())
+        return;
+
+    #ifdef __unix__
+        system("xdg-open console-userdata");
+    #elif _WIN32
+        system("explorer console-userdata");
+    #endif
 }
 
 static CMD(cmd_log) {
