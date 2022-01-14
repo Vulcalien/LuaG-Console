@@ -17,6 +17,7 @@
 
 #include "terminal.h"
 #include "input.h"
+#include "cartridge.h"
 
 #include <stdio.h>
 #include <limits.h>
@@ -48,15 +49,16 @@ static int check_error(lua_State *L, int status) {
     return 0;
 }
 
-static int load_luag_library(lua_State *L, u32 major, u32 min_minor) {
-    // find file
-    // I'm pretty sure there is a better way
+static int load_luag_library(lua_State *L) {
     char *filename = malloc(PATH_MAX * sizeof(char));
 
-    for(u32 i = min_minor; i < min_minor + 100; i++) {
+    // check at most 100 times
+    // i'm pretty sure there is a better way
+    for(u32 i = 0; i < 100; i++) {
         snprintf(
             filename, PATH_MAX,
-            RESOURCES_DIR "/luag-lib/luag-lib-%d.%d.so", major, i
+            RESOURCES_DIR "/luag-lib/luag-lib-%d.%d.so",
+            cartridge_info.major_v, (cartridge_info.minor_v + i)
         );
 
         shared_lib_handle = dlopen(filename, RTLD_LAZY);
@@ -70,7 +72,7 @@ static int load_luag_library(lua_State *L, u32 major, u32 min_minor) {
             stderr,
             "Error: could not find a version of LuaG library compatible "
             "with %d.%d\n",
-            major, min_minor
+            cartridge_info.major_v, cartridge_info.minor_v
         );
         return -1;
     }
@@ -113,7 +115,7 @@ static int load_main_file(void) {
 
 void engine_load(void) {
     if(engine_running) {
-        fputs("Error: engine is running when calling 'engine_load'", stderr);
+        fputs("Error: engine is running when calling 'engine_load'\n", stderr);
         return;
     }
     engine_running = true;
@@ -133,8 +135,12 @@ void engine_load(void) {
     // os
     // debug
 
-    // TODO make the version a variable
-    if(load_luag_library(L, 1, 3)) {
+    if(cartridge_load_info()) {
+        engine_stop();
+        return;
+    }
+
+    if(load_luag_library(L)) {
         fputs("Error: could not load LuaG Library\n", stderr);
         engine_stop();
         return;

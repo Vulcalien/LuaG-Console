@@ -15,7 +15,12 @@
  */
 #include "cartridge.h"
 
+#include "terminal.h"
+
+#include <stdio.h>
 #include <limits.h>
+
+struct cartridge_Info cartridge_info;
 
 static char *cartridge_folder;
 
@@ -30,4 +35,48 @@ void cartridge_destroy(void) {
 char *cartridge_extract(const char *filename) {
     // TODO
     return NULL;
+}
+
+static inline FILE *open_cartridge_info_file(void) {
+    char *filename = malloc(PATH_MAX * sizeof(char));
+    snprintf(
+        filename, PATH_MAX,
+        "%s/cartridge-info", game_folder
+    );
+
+    FILE *file = fopen(filename, "r");
+    free(filename);
+
+    return file;
+}
+
+int cartridge_load_info(void) {
+    FILE *file = open_cartridge_info_file();
+    if(!file) {
+        // defaults
+        cartridge_info.major_v = CARTRIDGE_DEFAULT_MAJOR_V;
+        cartridge_info.minor_v = CARTRIDGE_DEFAULT_MINOR_V;
+        return 0;
+    }
+
+    int result = fscanf(
+        file,
+        " library-version = %u.%u",
+        &cartridge_info.major_v,
+        &cartridge_info.minor_v
+    );
+
+    int err = 0;
+    if(result != 2) {
+        terminal_write(
+            "Error:\n"
+            "'cartridge-info'\n"
+            "is invalid\n",
+            true
+        );
+        err = -1;
+    }
+
+    fclose(file);
+    return err;
 }

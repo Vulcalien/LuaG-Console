@@ -18,11 +18,24 @@
 
 #include "luag-console.h"
 
+#define CARTRIDGE_DEFAULT_MAJOR_V (1)
+#define CARTRIDGE_DEFAULT_MINOR_V (3)
+
+struct cartridge_Info {
+    // library version
+    u32 major_v;
+    u32 minor_v;
+};
+
+extern struct cartridge_Info cartridge_info;
+
 extern int cartridge_init(void);
 extern void cartridge_destroy(void);
 
 // returns the folder the cartridge was extracted into
 // or NULL if the cartridge could not be found
 extern char *cartridge_extract(const char *filename);
+
+extern int cartridge_load_info(void);
 
 #endif // VULC_LUAG_CARTRIDGE
