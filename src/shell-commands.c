@@ -29,8 +29,8 @@ static int check_is_developer(void) {
         terminal_write(
             "Error:\n"
             "only developers can\n"
-            "use this command",
-            false
+            "use this command\n",
+            true
         );
         return -1;
     }
