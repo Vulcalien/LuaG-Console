@@ -16,9 +16,13 @@
 #include "cartridge.h"
 
 #include "terminal.h"
+#include "display.h"
 
 #include <stdio.h>
 #include <limits.h>
+
+static int load_cartridge_info(void);
+static int load_atlas(void);
 
 struct cartridge_Info cartridge_info;
 
@@ -37,21 +41,23 @@ char *cartridge_extract(const char *filename) {
     return NULL;
 }
 
-static inline FILE *open_cartridge_info_file(void) {
+int cartridge_load_files(void) {
+    if(load_cartridge_info())
+        return -1;
+    if(load_atlas())
+        return -2;
+    return 0;
+}
+
+static int load_cartridge_info(void) {
     char *filename = malloc(PATH_MAX * sizeof(char));
     snprintf(
         filename, PATH_MAX,
         "%s/cartridge-info", game_folder
     );
-
     FILE *file = fopen(filename, "r");
     free(filename);
 
-    return file;
-}
-
-int cartridge_load_info(void) {
-    FILE *file = open_cartridge_info_file();
     if(!file) {
         // defaults
         cartridge_info.major_v = CARTRIDGE_DEFAULT_MAJOR_V;
@@ -78,5 +84,17 @@ int cartridge_load_info(void) {
     }
 
     fclose(file);
+    return err;
+}
+
+static int load_atlas() {
+    char *filename = malloc(PATH_MAX * sizeof(char));
+    snprintf(
+        filename, PATH_MAX,
+        "%s/atlas.png", game_folder
+    );
+    int err = display_set_atlas(filename);
+    free(filename);
+
     return err;
 }

@@ -36,6 +36,6 @@ extern void cartridge_destroy(void);
 // or NULL if the cartridge could not be found
 extern char *cartridge_extract(const char *filename);
 
-extern int cartridge_load_info(void);
+extern int cartridge_load_files(void);
 
 #endif // VULC_LUAG_CARTRIDGE

@@ -25,6 +25,7 @@ static SDL_Window *window;
 static SDL_Renderer *renderer;
 
 static SDL_Texture *font_texture;
+static SDL_Texture *atlas_texture = NULL;
 
 static int set_window_icon(void) {
     SDL_Surface *icon = IMG_Load(RESOURCES_DIR "/icon.png");
@@ -39,10 +40,13 @@ static int set_window_icon(void) {
 }
 
 static int load_font(void) {
+    int err = 0;
+
     SDL_Surface *font_surf = IMG_Load(RESOURCES_DIR "/font.png");
     if(!font_surf) {
         fputs("SDL display: cannot load font file\n", stderr);
-        return -1;
+        err = -1;
+        goto exit;
     }
 
     // make background transparent
@@ -51,11 +55,15 @@ static int load_font(void) {
     font_texture = SDL_CreateTextureFromSurface(renderer, font_surf);
     if(!font_texture) {
         fputs("SDL display: cannot create font texture\n", stderr);
-        return -2;
+        err = -2;
+        goto exit;
     }
 
-    SDL_FreeSurface(font_surf);
-    return 0;
+    exit:
+    if(font_surf)
+        SDL_FreeSurface(font_surf);
+
+    return err;
 }
 
 int display_init(void) {
@@ -93,13 +101,45 @@ int display_init(void) {
 }
 
 void display_destroy(void) {
-    SDL_DestroyTexture(font_texture);
+    if(font_texture)
+        SDL_DestroyTexture(font_texture);
+    if(atlas_texture)
+        SDL_DestroyTexture(atlas_texture);
 
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
+    if(renderer)
+        SDL_DestroyRenderer(renderer);
+    if(window)
+        SDL_DestroyWindow(window);
 
     IMG_Quit();
     SDL_Quit();
+}
+
+int display_set_atlas(char *filename) {
+    int err = 0;
+
+    SDL_Surface *atlas_surf = IMG_Load(filename);
+    if(!atlas_surf) {
+        fprintf(
+            stderr,
+            "SDL: cannot load atlas file %s\n", filename
+        );
+        err = -1;
+        goto exit;
+    }
+
+    atlas_texture = SDL_CreateTextureFromSurface(renderer, atlas_surf);
+    if(!atlas_texture) {
+        fputs("SDL: cannot create atlas texture\n", stderr);
+        err = -2;
+        goto exit;
+    }
+
+    exit:
+    if(atlas_surf)
+        SDL_FreeSurface(atlas_surf);
+
+    return err;
 }
 
 void display_refresh(void) {

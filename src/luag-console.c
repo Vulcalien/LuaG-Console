@@ -35,16 +35,17 @@ char *game_folder = NULL;
 static bool should_refresh = false;
 
 int main(int argc, const char *argv[]) {
-    int err;
+    int err = 0;
 
     err = init();
     if(err)
-        return err;
+        goto exit;
 
     gameloop();
 
+    exit:
     destroy();
-    return 0;
+    return err;
 }
 
 void tick(void) {
@@ -75,20 +76,12 @@ void luag_ask_refresh(void) {
 static int init(void) {
     input_init();
 
-    if(display_init()) {
-        display_destroy();
+    if(display_init())
         return -1;
-    }
-
-    if(terminal_init()) {
-        terminal_destroy();
+    if(terminal_init())
         return -2;
-    }
-
-    if(cartridge_init()) {
-        cartridge_destroy();
+    if(cartridge_init())
         return -3;
-    }
 
     input_set_text_mode(true);
 

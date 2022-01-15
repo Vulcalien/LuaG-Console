@@ -135,7 +135,7 @@ void engine_load(void) {
     // os
     // debug
 
-    if(cartridge_load_info()) {
+    if(cartridge_load_files()) {
         engine_stop();
         return;
     }

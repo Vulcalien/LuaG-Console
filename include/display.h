@@ -29,6 +29,8 @@
 extern int display_init(void);
 extern void display_destroy(void);
 
+extern int display_set_atlas(char *filename);
+
 extern void display_refresh(void);
 
 extern void display_clear(u32 color);
