@@ -30,7 +30,7 @@ static SDL_Texture *atlas_texture = NULL;
 static int set_window_icon(void) {
     SDL_Surface *icon = IMG_Load(RESOURCES_DIR "/icon.png");
     if(!icon) {
-        fputs("SDL display: cannot load window icon\n", stderr);
+        fputs("SDL: cannot load window icon\n", stderr);
         return -1;
     }
 
@@ -44,7 +44,7 @@ static int load_font(void) {
 
     SDL_Surface *font_surf = IMG_Load(RESOURCES_DIR "/font.png");
     if(!font_surf) {
-        fputs("SDL display: cannot load font file\n", stderr);
+        fputs("SDL: cannot load font file\n", stderr);
         err = -1;
         goto exit;
     }
@@ -54,7 +54,7 @@ static int load_font(void) {
 
     font_texture = SDL_CreateTextureFromSurface(renderer, font_surf);
     if(!font_texture) {
-        fputs("SDL display: cannot create font texture\n", stderr);
+        fputs("SDL: cannot create font texture\n", stderr);
         err = -2;
         goto exit;
     }
@@ -68,7 +68,7 @@ static int load_font(void) {
 
 int display_init(void) {
     if(SDL_Init(SDL_INIT_VIDEO)) {
-        fputs("SDL display: could not initialize\n", stderr);
+        fputs("SDL: could not initialize\n", stderr);
         return -1;
     }
 
@@ -79,13 +79,13 @@ int display_init(void) {
         SDL_WINDOW_SHOWN
     );
     if(!window) {
-        fputs("SDL display: could not create window\n", stderr);
+        fputs("SDL: could not create window\n", stderr);
         return -2;
     }
 
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if(!renderer) {
-        fputs("SDL display: could not create renderer\n", stderr);
+        fputs("SDL: could not create renderer\n", stderr);
         return -3;
     }
     SDL_RenderSetLogicalSize(renderer, DISPLAY_WIDTH, DISPLAY_HEIGHT);
