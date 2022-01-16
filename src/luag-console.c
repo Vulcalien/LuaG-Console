@@ -51,7 +51,9 @@ int main(int argc, const char *argv[]) {
 void tick(void) {
     input_tick();
 
-    if(!engine_running)
+    if(engine_running)
+        engine_tick();
+    else
         terminal_tick();
 
     if(should_quit)
