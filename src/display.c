@@ -115,6 +115,8 @@ void display_destroy(void) {
     SDL_Quit();
 }
 
+// TODO check more things: the size (128x128)
+// and if the file really is an image
 int display_set_atlas(char *filename) {
     int err = 0;
 
@@ -192,5 +194,40 @@ void display_write(const char *text, u32 color, i32 x, i32 y) {
 
             xdraw += CHAR_WIDTH + LETTER_SPACING;
         }
+    }
+}
+
+// TODO apply scale
+void display_draw_from_atlas(u32 id,    u32 x,       u32 y,
+                             u32 scale, u32 sw,      u32 sh,
+                             u32 rot,   bool h_flip, bool v_flip) {
+    struct SDL_Rect src = {
+        .x = (id % 16) * 8, .y = (id / 16) * 8,
+        .w = sw * 8,        .h = sh * 8
+    };
+
+    struct SDL_Rect dst = {
+        .x = x,      .y = y,
+        .w = sw * 8, .h = sh * 8
+    };
+
+    if(rot % 4 == 0 && !h_flip && !v_flip) {
+        SDL_RenderCopy(
+            renderer, atlas_texture,
+            &src, &dst
+        );
+    } else {
+        SDL_RendererFlip flip = SDL_FLIP_NONE;
+        if(h_flip)
+            flip |= SDL_FLIP_HORIZONTAL;
+        if(v_flip)
+            flip |= SDL_FLIP_VERTICAL;
+
+        SDL_RenderCopyEx(
+            renderer, atlas_texture,
+            &src, &dst,
+            90 * rot, NULL,
+            flip
+        );
     }
 }

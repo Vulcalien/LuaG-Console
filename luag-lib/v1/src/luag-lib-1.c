@@ -89,8 +89,8 @@ F(pix) {
     lua_Integer y     = luaL_checkinteger(L, 2);
     lua_Integer color = luaL_checkinteger(L, 3);
 
-    lua_Integer w     = lua_isnil(L, 4) ? 1 : luaL_checkinteger(L, 4);
-    lua_Integer h     = lua_isnil(L, 5) ? 1 : luaL_checkinteger(L, 5);
+    lua_Integer w = lua_isnil(L, 4) ? 1 : luaL_checkinteger(L, 4);
+    lua_Integer h = lua_isnil(L, 5) ? 1 : luaL_checkinteger(L, 5);
 
     display_fill(x, y, w, h, color);
     return 0;
@@ -107,6 +107,27 @@ F(write) {
 }
 
 F(spr) {
+    lua_Integer id = luaL_checkinteger(L, 1);
+    lua_Integer x  = luaL_checkinteger(L, 2);
+    lua_Integer y  = luaL_checkinteger(L, 3);
+
+    lua_Integer scale = lua_isnil(L, 4) ? 1 : luaL_checkinteger(L, 4);
+
+    lua_Integer sw = lua_isnil(L, 5) ? 1 : luaL_checkinteger(L, 5);
+    lua_Integer sh = lua_isnil(L, 6) ? 1 : luaL_checkinteger(L, 6);
+
+    lua_Integer rot = lua_isnil(L, 7) ? 0 : luaL_checkinteger(L, 7);
+
+    bool h_flip = lua_isnil(L, 8) ? false : lua_toboolean(L, 8);
+    bool v_flip = lua_isnil(L, 9) ? false : lua_toboolean(L, 9);
+
+    // TODO check for bad argument values
+
+    display_draw_from_atlas(
+        id, x, y,
+        scale, sw, sh,
+        rot, h_flip, v_flip
+    );
     return 0;
 }
 

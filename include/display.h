@@ -36,5 +36,8 @@ extern void display_refresh(void);
 extern void display_clear(u32 color);
 extern void display_fill(u32 x, u32 y, u32 w, u32 h, u32 color);
 extern void display_write(const char *text, u32 color, i32 x, i32 y);
+extern void display_draw_from_atlas(u32 id,    u32 x,       u32 y,
+                                    u32 scale, u32 sw,      u32 sh,
+                                    u32 rot,   bool h_flip, bool v_flip);
 
 #endif // VULC_LUAG_DISPLAY
