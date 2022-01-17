@@ -121,13 +121,27 @@ F(spr) {
     bool h_flip = lua_isnil(L, 8) ? false : lua_toboolean(L, 8);
     bool v_flip = lua_isnil(L, 9) ? false : lua_toboolean(L, 9);
 
-    // TODO check for bad argument values
+    bool err = true;
+    if(id < 0 || id >= 256)
+        lua_pushliteral(L, "bad argument: id");
+    else if(scale <= 0)
+        lua_pushliteral(L, "bad argument: scale");
+    else if(sw <= 0 || (id % 16) + sw > 16)
+        lua_pushliteral(L, "bad argument: sw");
+    else if(sh <= 0 || (id / 16) + sh > 16)
+        lua_pushliteral(L, "bad argument: sh");
+    else
+        err = false;
 
-    display_draw_from_atlas(
-        id, x, y,
-        scale, sw, sh,
-        rot, h_flip, v_flip
-    );
+    if(err) {
+        lua_error(L);
+    } else {
+        display_draw_from_atlas(
+            id, x, y,
+            scale, sw, sh,
+            rot, h_flip, v_flip
+        );
+    }
     return 0;
 }
 
@@ -151,7 +165,6 @@ static void setf(lua_State *L, int (*func)(lua_State *L), const char *name) {
 
 int luag_lib_load(lua_State *L) {
     // TODO add variables
-    // TODO add more functions and order them
 
     // generic
     setf(L, loadscript, "loadscript");
@@ -185,7 +198,5 @@ int luag_lib_load(lua_State *L) {
 }
 
 int luag_lib_destroy(void) {
-    puts("Bye shared library!");
-
     return 0;
 }
