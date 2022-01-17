@@ -121,19 +121,20 @@ F(spr) {
     bool h_flip = lua_isnil(L, 8) ? false : lua_toboolean(L, 8);
     bool v_flip = lua_isnil(L, 9) ? false : lua_toboolean(L, 9);
 
-    bool err = true;
+    char *err_msg = NULL;
     if(id < 0 || id >= 256)
-        lua_pushliteral(L, "bad argument: id");
+        err_msg = "bad argument: id";
     else if(scale <= 0)
-        lua_pushliteral(L, "bad argument: scale");
+        err_msg = "bad argument: scale";
     else if(sw <= 0 || (id % 16) + sw > 16)
-        lua_pushliteral(L, "bad argument: sw");
+        err_msg = "bad argument: sw";
     else if(sh <= 0 || (id / 16) + sh > 16)
-        lua_pushliteral(L, "bad argument: sh");
-    else
-        err = false;
+        err_msg = "bad argument: sh";
 
-    if(err) {
+    if(err_msg) {
+        luaL_where(L, 1);
+        lua_pushstring(L, err_msg);
+        lua_concat(L, 2);
         lua_error(L);
     } else {
         display_draw_from_atlas(
