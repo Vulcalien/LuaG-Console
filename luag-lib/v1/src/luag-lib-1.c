@@ -164,8 +164,22 @@ static void setf(lua_State *L, int (*func)(lua_State *L), const char *name) {
 }
 
 int luag_lib_load(lua_State *L) {
-    // TODO add variables
+    // VARIABLES
+    lua_pushinteger(L, DISPLAY_WIDTH);
+    lua_setglobal(L, "scr_w");
 
+    lua_pushinteger(L, DISPLAY_HEIGHT);
+    lua_setglobal(L, "scr_h");
+
+    lua_pushinteger(L, CHAR_WIDTH);
+    lua_setglobal(L, "font_w");
+
+    lua_pushinteger(L, CHAR_HEIGHT);
+    lua_setglobal(L, "font_h");
+
+    // TODO map_w and map_h variables
+
+    // FUNCTIONS
     // generic
     setf(L, loadscript, "loadscript");
     setf(L, luag_log, "log");

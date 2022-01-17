@@ -18,8 +18,8 @@
 
 #include "luag-console.h"
 
-#define DISPLAY_WIDTH  160
-#define DISPLAY_HEIGHT 160
+#define DISPLAY_WIDTH  (160)
+#define DISPLAY_HEIGHT (160)
 
 #define CHAR_WIDTH     (5)
 #define CHAR_HEIGHT    (8)
