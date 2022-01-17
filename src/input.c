@@ -34,6 +34,9 @@ void input_tick(void) {
             break;
         }
 
+        if(e.type == SDL_MOUSEWHEEL)
+            terminal_scroll(e.wheel.y);
+
         if(text_mode) {
             if(e.type == SDL_TEXTINPUT && !(SDL_GetModState() & KMOD_CTRL)) {
                 terminal_receive_input(e.text.text);

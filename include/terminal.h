@@ -25,6 +25,7 @@ extern void terminal_tick(void);
 extern void terminal_render(void);
 
 extern void terminal_receive_input(const char *c);
+extern void terminal_scroll(i32 amount);
 
 extern void terminal_clear(void);
 extern void terminal_write(const char *text, bool is_error);

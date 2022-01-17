@@ -24,15 +24,18 @@
 #define TERM_COLOR_NORMAL (0xffffff)
 #define TERM_COLOR_ERROR  (0xff0000)
 #define TERM_COLOR_INPUT  (0x00ff00)
+#define CURSOR_COLOR      (0xff0000)
+
+#define ROWS_IN_DISPLAY ((DISPLAY_HEIGHT - 2) / (CHAR_HEIGHT + LINE_SPACING))
+#define CHARS_IN_ROW    ((DISPLAY_WIDTH - 2) / (CHAR_WIDTH + LETTER_SPACING))
+
+#define ANIMATION_DELAY (25)
 
 #define MAX_LINE_LEN (127)
-
-#define CHARS_IN_ROW ((DISPLAY_WIDTH - 2) / (CHAR_WIDTH + LINE_SPACING))
 #define MAX_CLOSED_ROWS (2048)
 
 #define COMMAND_HISTORY_SIZE (1024)
-
-#define MAX_BUFFERED_CHARS (2048)
+#define MAX_BUFFERED_CHARS (4096)
 
 static struct {
     char *text;
@@ -45,16 +48,25 @@ struct row {
     u32 color;
 };
 
+static u32 scroll_position = 0;
+static u32 cursor_animation_ticks = 0;
+static bool is_user_input = true;
+
+// closed rows
 static struct row *closed_rows;
 static u32 closed_rows_count = 0;
 
+// command history
 static char **command_history;
 static u32 used_command_history = 0;
 
+// BUFFERS
+// user buffer
 static char *user_buffer;
 static u32 user_buffer_read_index = 0;
 static u32 user_buffer_write_index = 0;
 
+// output buffer
 static char *output_buffer;
 static u32 output_buffer_read_index = 0;
 static u32 output_buffer_write_index = 0;
@@ -103,7 +115,6 @@ void terminal_tick(void) {
     // TODO implement ctrl+backspace (= ctrl+w), ctrl+del, ctrl+u
 
     char c;
-    bool is_user_input;
 
     if(output_buffer_read_index != output_buffer_write_index) {
         // output buffer is not empty
@@ -121,8 +132,13 @@ void terminal_tick(void) {
         is_user_input = true;
     } else {
         // all buffers are empty
+        cursor_animation_ticks++;
+        if(cursor_animation_ticks % ANIMATION_DELAY == 0)
+            luag_ask_refresh();
         return;
     }
+
+    cursor_animation_ticks = 0;
 
     if(c == '\n' || c == '\x0b') {
         // split and save the active line into closed_rows
@@ -216,14 +232,35 @@ void terminal_tick(void) {
 void terminal_render(void) {
     display_clear(0x000000);
 
-    display_write(active_line.text, 0xffffff, 1, 1);
-    display_write("_", 0xff0000, 1 + (CHAR_WIDTH + LETTER_SPACING) * active_line.cursor_pos, 1);
-
-    for(u32 i = 0; i < closed_rows_count; i++) {
+    u32 rendered_lines = 0;
+    for(u32 i = scroll_position; i < closed_rows_count; i++) {
         display_write(
             closed_rows[i].text, closed_rows[i].color,
-            1, 1 + 12 * (i + 1)
+            1, 1 + (CHAR_HEIGHT + LINE_SPACING) * rendered_lines
         );
+
+        rendered_lines++;
+        if(rendered_lines >= ROWS_IN_DISPLAY) // TODO test this
+            break;
+    }
+
+    if(rendered_lines < ROWS_IN_DISPLAY) { // TODO test this
+        display_write(
+            active_line.text,
+            is_user_input ? TERM_COLOR_INPUT : TERM_COLOR_NORMAL,
+            1, 1 + (CHAR_HEIGHT + LINE_SPACING) * rendered_lines
+        );
+
+        if(
+            is_user_input &&
+            cursor_animation_ticks / ANIMATION_DELAY % 2 == 0
+        ) {
+            display_write(
+                "_", CURSOR_COLOR,
+                1 + (CHAR_WIDTH + LETTER_SPACING) * active_line.cursor_pos,
+                1 + (CHAR_HEIGHT + LINE_SPACING) * rendered_lines
+            );
+        }
     }
 }
 
@@ -237,6 +274,10 @@ void terminal_receive_input(const char *c) {
         user_buffer_write_index++;
         user_buffer_write_index %= MAX_BUFFERED_CHARS;
     }
+}
+
+void terminal_scroll(i32 amount) {
+    // TODO scroll
 }
 
 void terminal_clear(void) {
