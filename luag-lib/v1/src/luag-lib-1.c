@@ -15,7 +15,10 @@
  */
 #include "luag-console.h"
 
+#include <stdio.h>
 #include <limits.h>
+#include <string.h>
+#include <errno.h>
 
 #include <lua5.4/lua.h>
 #include <lua5.4/lauxlib.h>
@@ -24,22 +27,61 @@
 
 #define F(name) static int name(lua_State *L)
 
+#define prefix(pre, str) !strncmp(pre, str, strlen(pre))
+
 // generic
 F(loadscript) {
-    // TODO make sure this can't escape the scripts
-    // folder using '..' or other ways
-    const char *filename = luaL_checkstring(L, 1);
+    const char *script_filename = luaL_checkstring(L, 1);
 
-    char *full_path = malloc(PATH_MAX * sizeof(char));
+    char *file_rel_path          = malloc(PATH_MAX * sizeof(char));
+    char *file_abs_path_m        = malloc(PATH_MAX * sizeof(char));
+    char *game_folder_abs_path_m = malloc(PATH_MAX * sizeof(char));
+
     snprintf(
-        full_path, PATH_MAX,
-        "%s/scripts/%s", game_folder, filename
+        file_rel_path, PATH_MAX,
+        "%s/scripts/%s", game_folder, script_filename
     );
 
-    if(luaL_dofile(L, full_path))
+    char *file_abs_path = realpath(file_rel_path, file_abs_path_m);
+    if(!file_abs_path) {
+        char *err_msg;
+        if(errno == EACCES)
+            err_msg = "cannot open %s: Permission denied";
+        else if(errno == ENOENT)
+            err_msg = "cannot open %s: No such file or directory";
+        else
+            err_msg = "cannot open %s";
+
+        luaL_where(L, 1);
+        lua_pushfstring(L, err_msg, script_filename);
+        lua_concat(L, 2);
         lua_error(L);
 
-    free(full_path);
+        goto exit;
+    }
+
+    char *game_folder_abs_path = realpath(game_folder, game_folder_abs_path_m);
+    if(!game_folder_abs_path) {
+        fputs("Error: could not find realpath of cartridge folder\n", stderr);
+        goto exit;
+    }
+
+    bool is_file_in_folder = prefix(game_folder_abs_path, file_abs_path);
+
+    if(is_file_in_folder) {
+        if(luaL_dofile(L, file_rel_path))
+            lua_error(L);
+    } else {
+        luaL_where(L, 1);
+        lua_pushliteral(L, "attempt to load a script outside of the cartridge folder");
+        lua_concat(L, 2);
+        lua_error(L);
+    }
+
+    exit:
+    free(file_rel_path);
+    free(file_abs_path_m);
+    free(game_folder_abs_path_m);
     return 0;
 }
 
