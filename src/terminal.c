@@ -249,7 +249,7 @@ void terminal_render(void) {
         );
 
         if(
-            is_user_input &&
+            (is_user_input || cursor_animation_ticks != 0) &&
             cursor_animation_ticks / ANIMATION_DELAY % 2 == 0
         ) {
             display_write(
