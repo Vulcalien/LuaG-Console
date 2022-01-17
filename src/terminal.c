@@ -144,28 +144,25 @@ void terminal_tick(void) {
         // split and save the active line into closed_rows
         struct row *current_row;
         for(u32 i = 0; i <= active_line.len; i++) {
+            // if this then it is time to switch row
             if(i % CHARS_IN_ROW == 0 || i == active_line.len) {
-                // close the row
+                // close the last row
                 if(i > 0 || active_line.len == 0) {
                     closed_rows_count++;
                     check_closed_rows();
                 }
 
                 // grab the next row
-                if(i != active_line.len) {
-                    current_row = &closed_rows[closed_rows_count];
+                current_row = &closed_rows[closed_rows_count];
 
-                    if(is_user_input)
-                        current_row->color = TERM_COLOR_INPUT;
-                    else if(c == '\x0b')
-                        current_row->color = TERM_COLOR_ERROR;
-                    else
-                        current_row->color = TERM_COLOR_NORMAL;
-                }
+                if(is_user_input)
+                    current_row->color = TERM_COLOR_INPUT;
+                else if(c == '\x0b')
+                    current_row->color = TERM_COLOR_ERROR;
+                else
+                    current_row->color = TERM_COLOR_NORMAL;
             }
-            // put a char into the row we are writing in
-            if(active_line.len > 0)
-                current_row->text[i % CHARS_IN_ROW] = active_line.text[i];
+            current_row->text[i % CHARS_IN_ROW] = active_line.text[i];
         }
 
         if(is_user_input)

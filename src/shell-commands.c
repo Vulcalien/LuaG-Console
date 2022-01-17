@@ -114,7 +114,6 @@ static CMD(cmd_help) {
         terminal_write("mode: changes console mode", false);
         terminal_write("files: opens game folder", false);
         terminal_write("log: opens log file", false);
-        terminal_write("", false);
     }
 }
 
