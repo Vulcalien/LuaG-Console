@@ -82,6 +82,11 @@ static CMD(cmd_run) {
 }
 
 static CMD(cmd_edit) {
+    if(check_is_developer())
+        return;
+
+    game_folder = RESOURCES_DIR "/editor";
+    engine_load();
 }
 
 static CMD(cmd_pack) {
