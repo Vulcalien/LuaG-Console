@@ -117,7 +117,7 @@ void display_destroy(void) {
 
 // TODO check more things: the size (128x128)
 // and if the file really is an image
-int display_set_atlas(char *filename) {
+int display_load_atlas(char *filename) {
     int err = 0;
 
     SDL_Surface *atlas_surf = IMG_Load(filename);

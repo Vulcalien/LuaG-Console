@@ -93,7 +93,7 @@ static int load_atlas() {
         filename, PATH_MAX,
         "%s/atlas.png", game_folder
     );
-    int err = display_set_atlas(filename);
+    int err = display_load_atlas(filename);
     free(filename);
 
     return err;
