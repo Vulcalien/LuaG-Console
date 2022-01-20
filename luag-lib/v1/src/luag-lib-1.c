@@ -153,15 +153,24 @@ F(spr) {
     lua_Integer x  = luaL_checkinteger(L, 2);
     lua_Integer y  = luaL_checkinteger(L, 3);
 
-    lua_Integer scale = lua_isnil(L, 4) ? 1 : luaL_checkinteger(L, 4);
+    lua_Integer scale = lua_isnoneornil(L, 4)
+                        ? 1 : luaL_checkinteger(L, 4);
 
-    lua_Integer sw = lua_isnil(L, 5) ? 1 : luaL_checkinteger(L, 5);
-    lua_Integer sh = lua_isnil(L, 6) ? 1 : luaL_checkinteger(L, 6);
+    lua_Integer sw = lua_isnoneornil(L, 5)
+                     ? 1 : luaL_checkinteger(L, 5);
+    lua_Integer sh = lua_isnoneornil(L, 6)
+                     ? 1 : luaL_checkinteger(L, 6);
 
-    lua_Integer rot = lua_isnil(L, 7) ? 0 : luaL_checkinteger(L, 7);
+    lua_Integer rot = lua_isnoneornil(L, 7)
+                      ? 0 : luaL_checkinteger(L, 7);
 
-    bool h_flip = lua_isnil(L, 8) ? false : lua_toboolean(L, 8);
-    bool v_flip = lua_isnil(L, 9) ? false : lua_toboolean(L, 9);
+    bool h_flip = lua_isnoneornil(L, 8)
+                  ? false : lua_toboolean(L, 8);
+    bool v_flip = lua_isnoneornil(L, 9)
+                  ? false : lua_toboolean(L, 9);
+
+    lua_Integer color_mod = lua_isnoneornil(L, 10)
+                            ? 0xffffff : luaL_checkinteger(L, 10);
 
     char *err_msg = NULL;
     if(id < 0 || id >= 256)
@@ -182,7 +191,8 @@ F(spr) {
         display_draw_from_atlas(
             id, x, y,
             scale, sw, sh,
-            rot, h_flip, v_flip
+            rot, h_flip, v_flip,
+            color_mod
         );
     }
     return 0;
