@@ -41,6 +41,12 @@ static struct {
     char *text;
     u32 len;
     u32 cursor_pos;
+
+    enum {
+        LINE_TYPE_NORMAL,
+        LINE_TYPE_ERROR,
+        LINE_TYPE_INPUT
+    } type;
 } active_line;
 
 struct row {
@@ -50,7 +56,6 @@ struct row {
 
 static u32 scroll_position = 0;
 static u32 cursor_animation_ticks = 0;
-static bool is_user_input = true;
 
 // closed rows
 static struct row *closed_rows;
@@ -122,14 +127,15 @@ void terminal_tick(void) {
         output_buffer_read_index++;
         output_buffer_read_index %= MAX_BUFFERED_CHARS;
 
-        is_user_input = false;
+        if(active_line.type == LINE_TYPE_INPUT)
+            active_line.type = LINE_TYPE_NORMAL;
     } else if(user_buffer_read_index != user_buffer_write_index) {
         // user buffer is not empty
         c = user_buffer[user_buffer_read_index];
         user_buffer_read_index++;
         user_buffer_read_index %= MAX_BUFFERED_CHARS;
 
-        is_user_input = true;
+        active_line.type = LINE_TYPE_INPUT;
     } else {
         // all buffers are empty
         cursor_animation_ticks++;
@@ -140,7 +146,7 @@ void terminal_tick(void) {
 
     cursor_animation_ticks = 0;
 
-    if(c == '\n' || c == '\x0b') {
+    if(c == '\n') {
         // split and save the active line into closed_rows
         struct row *current_row;
         for(u32 i = 0; i <= active_line.len; i++) {
@@ -155,20 +161,28 @@ void terminal_tick(void) {
                 // grab the next row
                 current_row = &closed_rows[closed_rows_count];
 
-                if(is_user_input)
-                    current_row->color = TERM_COLOR_INPUT;
-                else if(c == '\x0b')
-                    current_row->color = TERM_COLOR_ERROR;
-                else
-                    current_row->color = TERM_COLOR_NORMAL;
+                switch(active_line.type) {
+                    case LINE_TYPE_NORMAL:
+                        current_row->color = TERM_COLOR_NORMAL;
+                        break;
+                    case LINE_TYPE_ERROR:
+                        current_row->color = TERM_COLOR_ERROR;
+                        break;
+                    case LINE_TYPE_INPUT:
+                        current_row->color = TERM_COLOR_INPUT;
+                        break;
+                }
             }
             current_row->text[i % CHARS_IN_ROW] = active_line.text[i];
         }
 
-        if(is_user_input)
+        if(active_line.type == LINE_TYPE_INPUT)
             terminal_execute();
 
         allocate_active_line();
+    } else if(c == '\x0b') {
+        // error line indicator
+        active_line.type = LINE_TYPE_ERROR;
     } else if(c == '\b') {
         if(active_line.cursor_pos != 0) {
             if(active_line.cursor_pos != active_line.len) {
@@ -242,15 +256,26 @@ void terminal_render(void) {
     }
 
     if(rendered_lines < ROWS_IN_DISPLAY) { // TODO test this
+        u32 color;
+        switch(active_line.type) {
+            case LINE_TYPE_NORMAL:
+                color = TERM_COLOR_NORMAL;
+                break;
+            case LINE_TYPE_ERROR:
+                color = TERM_COLOR_ERROR;
+                break;
+            case LINE_TYPE_INPUT:
+                color = TERM_COLOR_INPUT;
+                break;
+        }
         display_write(
-            active_line.text,
-            is_user_input ? TERM_COLOR_INPUT : TERM_COLOR_NORMAL,
+            active_line.text, color,
             1, 1 + (CHAR_HEIGHT + LINE_SPACING) * rendered_lines
         );
 
         if(
-            (is_user_input || cursor_animation_ticks != 0) &&
-            cursor_animation_ticks / ANIMATION_DELAY % 2 == 0
+            (active_line.type == LINE_TYPE_INPUT || cursor_animation_ticks != 0)
+            && cursor_animation_ticks / ANIMATION_DELAY % 2 == 0
         ) {
             display_write(
                 "_", CURSOR_COLOR,
@@ -287,23 +312,32 @@ void terminal_clear(void) {
 }
 
 void terminal_write(const char *text, bool is_error) {
+    bool should_write_err_flag = is_error;
     bool is_last_char = false;
-    for(u32 i = 0; !is_last_char; i++) {
+    for(i32 i = 0; !is_last_char; i++) {
         // the buffer is full
         if(output_buffer_write_index + 1 == output_buffer_read_index)
             break;
 
-        char c = text[i];
+        char c;
+        if(should_write_err_flag) {
+            should_write_err_flag = false;
+            i--;
+
+            c = '\x0b';
+        } else {
+            c = text[i];
+        }
 
         if(c == '\0') {
             c = '\n';
             is_last_char = true;
+        } else if(c == '\n') {
+            if(is_error)
+                should_write_err_flag = true;
         }
 
-        if(c == '\n' && is_error)
-            output_buffer[output_buffer_write_index] = '\x0b';
-        else
-            output_buffer[output_buffer_write_index] = c;
+        output_buffer[output_buffer_write_index] = c;
 
         output_buffer_write_index++;
         output_buffer_write_index %= MAX_BUFFERED_CHARS;
@@ -367,4 +401,5 @@ static void allocate_active_line(void) {
     active_line.text = calloc((MAX_LINE_LEN + 1), sizeof(char));
     active_line.len = 0;
     active_line.cursor_pos = 0;
+    active_line.type = LINE_TYPE_NORMAL;
 }
