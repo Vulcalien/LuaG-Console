@@ -46,10 +46,23 @@ function init()
         }
     }
 
+    -- load editors
+    editors = {}
+
+    loadscript("editor/map.lua")
+    loadscript("editor/sprite.lua")
+
+    editors.map.init()
+    editors.sprite.init()
+
+    current_editor = editors.map
+
     settransparent(0x000000)
 end
 
 function tick()
+    current_editor.tick()
+
     render()
 end
 
@@ -61,6 +74,8 @@ function render()
 
     -- draw bottom bar
     pix(0, scr_h - 10, colors.primary.bg, scr_w, 10)
+
+    write(current_editor.title, colors.secondary.fg, 1, scr_h - font_h - 1)
 
     -- draw buttons
     for _,btn in pairs(buttons) do
@@ -83,4 +98,6 @@ function render()
             col             -- color_mod
         )
     end
+
+    current_editor.render()
 end
