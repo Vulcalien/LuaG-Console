@@ -128,10 +128,7 @@ int display_load_atlas(char *filename) {
 
     SDL_Surface *atlas_surf = IMG_Load(filename);
     if(!atlas_surf) {
-        fprintf(
-            stderr,
-            "SDL: cannot load atlas file %s\n", filename
-        );
+        fprintf(stderr, "SDL: cannot load atlas file %s\n", filename);
         err = -1;
         goto exit;
     }

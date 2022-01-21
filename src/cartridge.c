@@ -23,6 +23,7 @@
 
 static int load_cartridge_info(void);
 static int load_atlas(void);
+static int load_map(void);
 
 struct cartridge_Info cartridge_info;
 
@@ -46,6 +47,8 @@ int cartridge_load_files(void) {
         return -1;
     if(load_atlas())
         return -2;
+    if(load_map())
+        return -3;
     return 0;
 }
 
@@ -87,13 +90,25 @@ static int load_cartridge_info(void) {
     return err;
 }
 
-static int load_atlas() {
+static int load_atlas(void) {
     char *filename = malloc(PATH_MAX * sizeof(char));
     snprintf(
         filename, PATH_MAX,
         "%s/atlas.png", game_folder
     );
     int err = display_load_atlas(filename);
+    free(filename);
+
+    return err;
+}
+
+static int load_map(void) {
+    char *filename = malloc(PATH_MAX * sizeof(char));
+    snprintf(
+        filename, PATH_MAX,
+        "%s/map", game_folder
+    );
+    int err = map_load(filename);
     free(filename);
 
     return err;

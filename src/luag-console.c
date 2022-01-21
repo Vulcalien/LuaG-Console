@@ -74,6 +74,8 @@ static int init(void) {
         return -2;
     if(cartridge_init())
         return -3;
+    if(map_init())
+        return -4;
 
     input_set_text_mode(true);
 
@@ -87,4 +89,5 @@ static void destroy(void) {
     display_destroy();
     terminal_destroy();
     cartridge_destroy();
+    map_destroy();
 }
