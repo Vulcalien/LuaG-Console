@@ -19,15 +19,29 @@
 #include <limits.h>
 #include <string.h>
 #include <errno.h>
+#include <stdarg.h>
 
 #include <lua5.4/lua.h>
 #include <lua5.4/lauxlib.h>
 
 #include "display.h"
+#include "map.h"
 
 #define F(name) static int name(lua_State *L)
 
 #define prefix(pre, str) !strncmp(pre, str, strlen(pre))
+
+static void throw_lua_error(lua_State *L, char *msg_format, ...) {
+    va_list args;
+    va_start(args, msg_format);
+
+    luaL_where(L, 1);
+    lua_pushvfstring(L, msg_format, args);
+    lua_concat(L, 2);
+    lua_error(L);
+
+    va_end(args);
+}
 
 // generic
 F(loadscript) {
@@ -52,10 +66,7 @@ F(loadscript) {
         else
             err_msg = "cannot open %s";
 
-        luaL_where(L, 1);
-        lua_pushfstring(L, err_msg, script_filename);
-        lua_concat(L, 2);
-        lua_error(L);
+        throw_lua_error(L, err_msg, script_filename);
 
         goto exit;
     }
@@ -72,10 +83,10 @@ F(loadscript) {
         if(luaL_dofile(L, file_rel_path))
             lua_error(L);
     } else {
-        luaL_where(L, 1);
-        lua_pushliteral(L, "attempt to load a script outside of the cartridge folder");
-        lua_concat(L, 2);
-        lua_error(L);
+        throw_lua_error(
+            L,
+            "attempt to load a script outside of the cartridge folder"
+        );
     }
 
     exit:
@@ -183,10 +194,7 @@ F(spr) {
         err_msg = "bad argument: sh";
 
     if(err_msg) {
-        luaL_where(L, 1);
-        lua_pushstring(L, err_msg);
-        lua_concat(L, 2);
-        lua_error(L);
+        throw_lua_error(L, err_msg);
     } else {
         display_draw_from_atlas(
             id, x, y,
@@ -200,11 +208,43 @@ F(spr) {
 
 // map
 F(get_tile) {
+    lua_Integer x = luaL_checkinteger(L, 1);
+    lua_Integer y = luaL_checkinteger(L, 2);
+
+    char *err_msg = NULL;
+    if(x < 0 || x >= map.width)
+        err_msg = "bad argument: x";
+    else if(y < 0 || y >= map.height)
+        err_msg = "bad argument: y";
+
+    if(err_msg) {
+        throw_lua_error(L, err_msg);
+    } else {
+        u8 tile = map_get_tile(x, y);
+        lua_pushinteger(L, tile);
+    }
     return 1;
 }
 
 F(set_tile) {
-    return 1;
+    lua_Integer x  = luaL_checkinteger(L, 1);
+    lua_Integer y  = luaL_checkinteger(L, 2);
+    lua_Integer id = luaL_checkinteger(L, 3);
+
+    char *err_msg = NULL;
+    if(x < 0 || x >= map.width)
+        err_msg = "bad argument: x";
+    else if(y < 0 || y >= map.height)
+        err_msg = "bad argument: y";
+    else if(id < 0 || id >= 256)
+        err_msg = "bad argument: id";
+
+    if(err_msg) {
+        throw_lua_error(L, err_msg);
+    } else {
+        map_set_tile(x, y, id);
+    }
+    return 0;
 }
 
 F(maprender) {
@@ -230,7 +270,11 @@ int luag_lib_load(lua_State *L) {
     lua_pushinteger(L, CHAR_HEIGHT);
     lua_setglobal(L, "font_h");
 
-    // TODO map_w and map_h variables
+    lua_pushinteger(L, map.width);
+    lua_setglobal(L, "map_w");
+
+    lua_pushinteger(L, map.height);
+    lua_setglobal(L, "map_h");
 
     // FUNCTIONS
     // generic
