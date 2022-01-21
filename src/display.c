@@ -76,7 +76,7 @@ int display_init(void) {
         "LuaG Console - C",
         SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
         DISPLAY_WIDTH * 4, DISPLAY_HEIGHT * 4,
-        SDL_WINDOW_SHOWN
+        SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN
     );
     if(!window) {
         fputs("SDL: could not create window\n", stderr);
@@ -146,11 +146,13 @@ int display_load_atlas(char *filename) {
 
 void display_refresh(void) {
     SDL_RenderPresent(renderer);
+
+    SDL_SetRenderDrawColor(renderer, 0x40, 0x40, 0x40, 0xff);
+    SDL_RenderClear(renderer);
 }
 
 void display_clear(u32 color) {
-    SDL_SetRenderDrawColor(renderer, color >> 16, color >> 8, color, 0xff);
-    SDL_RenderClear(renderer);
+    display_fill(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT, color);
 }
 
 static void display_draw_char(char c, u32 color, i32 x, i32 y) {
