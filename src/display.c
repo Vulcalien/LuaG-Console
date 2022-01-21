@@ -120,6 +120,12 @@ void display_destroy(void) {
 int display_load_atlas(char *filename) {
     int err = 0;
 
+    // delete the old texture
+    if(atlas_texture) {
+        SDL_DestroyTexture(atlas_texture);
+        atlas_texture = NULL;
+    }
+
     SDL_Surface *atlas_surf = IMG_Load(filename);
     if(!atlas_surf) {
         fprintf(
