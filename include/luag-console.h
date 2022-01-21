@@ -36,6 +36,4 @@ extern char *game_folder;
 extern void tick(void);
 extern void render(void);
 
-extern void luag_ask_refresh(void);
-
 #endif // VULC_LUAG_CORE

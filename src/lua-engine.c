@@ -215,7 +215,4 @@ void engine_tick(void) {
     int status = lua_pcall(L, 0, 0, 0);
     if(check_error(L, status))
         return;
-
-    // 'tick()' also renders
-    luag_ask_refresh();
 }

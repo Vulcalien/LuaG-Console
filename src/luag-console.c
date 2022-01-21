@@ -32,8 +32,6 @@ bool should_quit = false;
 bool dev_mode = false;
 char *game_folder = NULL;
 
-static bool should_refresh = false;
-
 int main(int argc, const char *argv[]) {
     int err = 0;
 
@@ -61,18 +59,10 @@ void tick(void) {
 }
 
 void render(void) {
-    if(!should_refresh)
-        return;
-    should_refresh = false;
-
     if(!engine_running)
         terminal_render();
 
     display_refresh();
-}
-
-void luag_ask_refresh(void) {
-    should_refresh = true;
 }
 
 static int init(void) {

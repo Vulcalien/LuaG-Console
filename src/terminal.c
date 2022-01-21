@@ -139,8 +139,6 @@ void terminal_tick(void) {
     } else {
         // all buffers are empty
         cursor_animation_ticks++;
-        if(cursor_animation_ticks % ANIMATION_DELAY == 0)
-            luag_ask_refresh();
         return;
     }
 
@@ -236,8 +234,6 @@ void terminal_tick(void) {
             active_line.cursor_pos++;
         }
     }
-
-    luag_ask_refresh();
 }
 
 void terminal_render(void) {
