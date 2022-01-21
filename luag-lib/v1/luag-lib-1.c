@@ -248,6 +248,23 @@ F(set_tile) {
 }
 
 F(maprender) {
+    lua_Integer scale = lua_isnoneornil(L, 1)
+                        ? 1 : luaL_checkinteger(L, 1);
+
+    lua_Integer xoff = lua_isnoneornil(L, 2)
+                       ? 0 : luaL_checkinteger(L, 2);
+    lua_Integer yoff = lua_isnoneornil(L, 3)
+                       ? 0 : luaL_checkinteger(L, 3);
+
+    char *err_msg = NULL;
+    if(scale <= 0)
+        err_msg = "bad argument: scale";
+
+    if(err_msg) {
+        throw_lua_error(L, err_msg);
+    } else {
+        // TODO
+    }
     return 0;
 }
 
