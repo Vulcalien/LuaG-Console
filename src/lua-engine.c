@@ -49,7 +49,9 @@ static int check_error(lua_State *L, int status) {
     return 0;
 }
 
-static int load_luag_library(lua_State *L) {
+static void *load_luag_library(lua_State *L) {
+    void *handle;
+
     char *filename = malloc(PATH_MAX * sizeof(char));
 
     // check at most 100 times
@@ -61,25 +63,25 @@ static int load_luag_library(lua_State *L) {
             cartridge_info.major_v, (cartridge_info.minor_v + i)
         );
 
-        shared_lib_handle = dlopen(filename, RTLD_LAZY);
-        if(shared_lib_handle)
+        handle = dlopen(filename, RTLD_LAZY);
+        if(handle)
             break;
     }
     free(filename);
 
-    if(!shared_lib_handle) {
+    if(!handle) {
         fprintf(
             stderr,
             "Error: could not find a version of LuaG library compatible "
             "with %d.%d\n",
             cartridge_info.major_v, cartridge_info.minor_v
         );
-        return -1;
+        return NULL;
     }
 
     // call luag_lib_load
     int (*lib_load_fn)(lua_State *L);
-    *(void **) (&lib_load_fn) = dlsym(shared_lib_handle, "luag_lib_load");
+    *(void **) (&lib_load_fn) = dlsym(handle, "luag_lib_load");
 
     if(!lib_load_fn) {
         fputs(
@@ -87,16 +89,17 @@ static int load_luag_library(lua_State *L) {
             "'luag_lib_load'\n",
             stderr
         );
-        dlclose(shared_lib_handle);
-        return -2;
+        dlclose(handle);
+        return NULL;
     }
     int status = lib_load_fn(L);
     if(status) {
         fprintf(stderr, "Error: 'luag_lib_load' returned %d\n", status);
-        return -3;
+        dlclose(handle);
+        return NULL;
     }
 
-    return 0;
+    return handle;
 }
 
 static void destroy_luag_library(void *handle) {
@@ -159,7 +162,8 @@ void engine_load(void) {
         return;
     }
 
-    if(load_luag_library(L)) {
+    shared_lib_handle = load_luag_library(L);
+    if(!shared_lib_handle) {
         fputs("Error: could not load LuaG Library\n", stderr);
         engine_stop();
         return;
