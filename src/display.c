@@ -202,7 +202,6 @@ void display_write(const char *text, u32 color, i32 x, i32 y) {
     }
 }
 
-// TODO apply scale
 void display_draw_from_atlas(u32 id,    u32 x,       u32 y,
                              u32 scale, u32 sw,      u32 sh,
                              u32 rot,   bool h_flip, bool v_flip,
@@ -214,7 +213,7 @@ void display_draw_from_atlas(u32 id,    u32 x,       u32 y,
 
     struct SDL_Rect dst = {
         .x = x,      .y = y,
-        .w = sw * 8, .h = sh * 8
+        .w = sw * scale * 8, .h = sh * scale * 8
     };
 
     SDL_SetTextureColorMod(
