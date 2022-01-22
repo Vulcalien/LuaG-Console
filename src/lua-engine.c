@@ -32,7 +32,7 @@
 bool engine_running = false;
 
 static lua_State *L = NULL;
-static void *shared_lib_handle = 0;
+static void *shared_lib_handle = NULL;
 
 // returns nonzero if the engine was stopped
 static int check_error(lua_State *L, int status) {
@@ -97,6 +97,25 @@ static int load_luag_library(lua_State *L) {
     }
 
     return 0;
+}
+
+static void destroy_luag_library(void *handle) {
+    int (*lib_destroy_fn)(void);
+    *(void **) (&lib_destroy_fn) = dlsym(handle, "luag_lib_destroy");
+
+    if(!lib_destroy_fn) {
+        fputs(
+            "Error: the LuaG Library object does not contain the function "
+            "'luag_lib_destroy'\n",
+            stderr
+        );
+    }
+
+    int status = lib_destroy_fn();
+    if(status)
+        fprintf(stderr, "Error: 'luag_lib_destroy' returned %d\n", status);
+
+    dlclose(handle);
 }
 
 static int load_main_file(void) {
@@ -180,25 +199,8 @@ void engine_stop(void) {
         L = NULL;
     }
 
-    // call luag_lib_destroy
-    if(shared_lib_handle) {
-        int (*lib_destroy_fn)(void);
-        *(void **) (&lib_destroy_fn) = dlsym(shared_lib_handle, "luag_lib_destroy");
-
-        if(!lib_destroy_fn) {
-            fputs(
-                "Error: the LuaG Library object does not contain the function "
-                "'luag_lib_destroy'\n",
-                stderr
-            );
-        }
-
-        int status = lib_destroy_fn();
-        if(status)
-            fprintf(stderr, "Error: 'luag_lib_destroy' returned %d\n", status);
-
-        dlclose(shared_lib_handle);
-    }
+    if(shared_lib_handle)
+        destroy_luag_library(shared_lib_handle);
 
     input_set_text_mode(true);
 }
