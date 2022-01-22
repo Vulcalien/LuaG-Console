@@ -49,6 +49,27 @@ static int check_error(lua_State *L, int status) {
     return 0;
 }
 
+static int run_library_function(lua_State *L, void *handle, char *name) {
+    int (*func)(lua_State *L);
+    *(void **) (&func) = dlsym(handle, name);
+
+    if(!func) {
+        fprintf(
+            stderr,
+            "Error: the LuaG Library object does not contain the function "
+            "'%s'\n", name
+        );
+        return -1;
+    }
+
+    int status = func(L);
+    if(status) {
+        fprintf(stderr, "Error: '%s' returned %d\n", name, status);
+        return -2;
+    }
+    return 0;
+}
+
 static void *load_luag_library(lua_State *L) {
     void *handle;
 
@@ -79,22 +100,7 @@ static void *load_luag_library(lua_State *L) {
         return NULL;
     }
 
-    // call luag_lib_load
-    int (*lib_load_fn)(lua_State *L);
-    *(void **) (&lib_load_fn) = dlsym(handle, "luag_lib_load");
-
-    if(!lib_load_fn) {
-        fputs(
-            "Error: the LuaG Library object does not contain the function "
-            "'luag_lib_load'\n",
-            stderr
-        );
-        dlclose(handle);
-        return NULL;
-    }
-    int status = lib_load_fn(L);
-    if(status) {
-        fprintf(stderr, "Error: 'luag_lib_load' returned %d\n", status);
+    if(run_library_function(L, handle, "luag_lib_load")) {
         dlclose(handle);
         return NULL;
     }
@@ -103,21 +109,7 @@ static void *load_luag_library(lua_State *L) {
 }
 
 static void destroy_luag_library(void *handle) {
-    int (*lib_destroy_fn)(void);
-    *(void **) (&lib_destroy_fn) = dlsym(handle, "luag_lib_destroy");
-
-    if(!lib_destroy_fn) {
-        fputs(
-            "Error: the LuaG Library object does not contain the function "
-            "'luag_lib_destroy'\n",
-            stderr
-        );
-    }
-
-    int status = lib_destroy_fn();
-    if(status)
-        fprintf(stderr, "Error: 'luag_lib_destroy' returned %d\n", status);
-
+    run_library_function(L, handle, "luag_lib_destroy");
     dlclose(handle);
 }
 
