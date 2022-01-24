@@ -44,7 +44,7 @@ static int check_is_developer(void) {
 static CMD(cmd_run) {
     if(argc == 0) {
         if(dev_mode) {
-            game_folder = "console-userdata";
+            game_folder = USERDATA_FOLDER;
             engine_load();
         } else {
             terminal_write(
@@ -161,9 +161,9 @@ static CMD(cmd_files) {
         return;
 
     #ifdef __unix__
-        system("xdg-open console-userdata");
+        system("xdg-open " USERDATA_FOLDER);
     #elif _WIN32
-        system("explorer console-userdata");
+        system("explorer " USERDATA_FOLDER);
     #endif
 }
 

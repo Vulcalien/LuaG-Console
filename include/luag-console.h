@@ -23,6 +23,8 @@
 #define LUAG_VERSION "C Port - 0.0.1-WIP"
 #define COPYRIGHT_NOTICE "Copyright 2022 Vulcalien"
 
+#define USERDATA_FOLDER "console-userdata"
+
 // TODO this is OS-dependant
 #define RESOURCES_DIR "/usr/share/luag-console"
 

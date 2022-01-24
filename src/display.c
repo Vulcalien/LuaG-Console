@@ -115,8 +115,6 @@ void display_destroy(void) {
     SDL_Quit();
 }
 
-// TODO check more things: the size (128x128)
-// and if the file really is an image
 int display_load_atlas(char *filename) {
     int err = 0;
 
@@ -133,10 +131,21 @@ int display_load_atlas(char *filename) {
         goto exit;
     }
 
+    if(atlas_surf->w != 128 || atlas_surf->h != 128) {
+        fprintf(
+            stderr,
+            "SDL: atlas is of wrong size: "
+            "(%d, %d) instead of (128, 128)\n",
+            atlas_surf->w, atlas_surf->h
+        );
+        err = -2;
+        goto exit;
+    }
+
     atlas_texture = SDL_CreateTextureFromSurface(renderer, atlas_surf);
     if(!atlas_texture) {
         fputs("SDL: cannot create atlas texture\n", stderr);
-        err = -2;
+        err = -3;
         goto exit;
     }
 
