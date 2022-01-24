@@ -17,6 +17,7 @@
 
 #include "terminal.h"
 #include "display.h"
+#include "map.h"
 
 #include <stdio.h>
 #include <limits.h>

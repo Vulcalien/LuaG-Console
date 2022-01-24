@@ -21,6 +21,7 @@
 #include "input.h"
 #include "display.h"
 #include "cartridge.h"
+#include "map.h"
 
 #include <limits.h>
 
