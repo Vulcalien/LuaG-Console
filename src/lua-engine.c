@@ -144,6 +144,8 @@ static int load_main_file(void) {
     return check_error(L, status);
 }
 
+#define lua_load(func, name) luaL_requiref(L, name, func, 1); lua_pop(L, 1)
+
 void engine_load(bool is_editor) {
     if(engine_running) {
         fputs("Engine: engine is running when calling 'engine_load'\n", stderr);
@@ -155,16 +157,19 @@ void engine_load(bool is_editor) {
 
     // load libraries
 
-    luaopen_base(L);
+    lua_load(luaopen_base, LUA_GNAME);
     // coroutine
     // package
-    luaopen_string(L);
+    lua_load(luaopen_string, LUA_STRLIBNAME);
     // UTF-8
-    luaopen_table(L);
-    luaopen_math(L);
+    lua_load(luaopen_table, LUA_TABLIBNAME);
+    lua_load(luaopen_math, LUA_MATHLIBNAME);
     // io
     // os
     // debug
+
+    // TODO luaopen_base loads functions like dofile.
+    // delete them
 
     if(cartridge_load_files()) {
         engine_stop();
