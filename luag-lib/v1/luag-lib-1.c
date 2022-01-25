@@ -299,11 +299,6 @@ F(maprender) {
     return 0;
 }
 
-static void setf(lua_State *L, int (*func)(lua_State *L), const char *name) {
-    lua_pushcfunction(L, func);
-    lua_setglobal(L, name);
-}
-
 int luag_lib_load(lua_State *L) {
     // VARIABLES
     lua_pushinteger(L, DISPLAY_WIDTH);
@@ -326,32 +321,32 @@ int luag_lib_load(lua_State *L) {
 
     // FUNCTIONS
     // generic
-    setf(L, loadscript, "loadscript");
-    setf(L, luag_log, "log");
+    lua_register(L, "loadscript", loadscript);
+    lua_register(L, "log", luag_log);
 
     // keys
-    setf(L, key, "key");
-    setf(L, key, "key_down");
-    setf(L, key_pressed, "key_pressed");
-    setf(L, key_released, "key_released");
+    lua_register(L, "key", key);
+    lua_register(L, "key_down", key);
+    lua_register(L, "key_pressed", key_pressed);
+    lua_register(L, "key_released", key_released);
 
     // sound
-    setf(L, sfx, "sfx");
-    setf(L, sfx, "sfx_play");
-    setf(L, sfx_loop, "sfx_loop");
-    setf(L, sfx_stop, "sfx_stop");
+    lua_register(L, "sfx", sfx);
+    lua_register(L, "sfx_play", sfx);
+    lua_register(L, "sfx_loop", sfx_loop);
+    lua_register(L, "sfx_stop", sfx_stop);
 
     // screen
-    setf(L, settransparent, "settransparent");
-    setf(L, clear, "clear");
-    setf(L, pix, "pix");
-    setf(L, write, "write");
-    setf(L, spr, "spr");
+    lua_register(L, "settransparent", settransparent);
+    lua_register(L, "clear", clear);
+    lua_register(L, "pix", pix);
+    lua_register(L, "write", write);
+    lua_register(L, "spr", spr);
 
     // map
-    setf(L, get_tile, "get_tile");
-    setf(L, set_tile, "set_tile");
-    setf(L, maprender, "maprender");
+    lua_register(L, "get_tile", get_tile);
+    lua_register(L, "set_tile", set_tile);
+    lua_register(L, "maprender", maprender);
 
     return 0;
 }

@@ -88,13 +88,8 @@ F(editor_load_files) {
     return 1;
 }
 
-static void setf(lua_State *L, int (*func)(lua_State *L), const char *name) {
-    lua_pushcfunction(L, func);
-    lua_setglobal(L, name);
-}
-
 int luag_lib_load(lua_State *L) {
-    setf(L, editor_load_files, "editor_load_files");
+    lua_register(L, "editor_load_files", editor_load_files);
 
     return 0;
 }
