@@ -26,6 +26,7 @@
 
 #include "display.h"
 #include "map.h"
+#include "input.h"
 
 #define F(name) static int name(lua_State *L)
 
@@ -97,37 +98,66 @@ F(loadscript) {
 }
 
 F(luag_log) {
+    // TODO
     return 0;
 }
 
 // keys
 F(key) {
-    return 1;
+    lua_Integer id = luaL_checkinteger(L, 1);
+
+    if(id < 0 || id >= KEY_COUNT) {
+        throw_lua_error(L, "bad argument: key '%d' does not exist");
+        return 0;
+    } else {
+        lua_pushboolean(L, input_keys[id].is_down);
+        return 1;
+    }
 }
 
 F(key_pressed) {
-    return 1;
+    lua_Integer id = luaL_checkinteger(L, 1);
+
+    if(id < 0 || id >= KEY_COUNT) {
+        throw_lua_error(L, "bad argument: key '%d' does not exist");
+        return 0;
+    } else {
+        lua_pushboolean(L, input_keys[id].is_pressed);
+        return 1;
+    }
 }
 
 F(key_released) {
-    return 1;
+    lua_Integer id = luaL_checkinteger(L, 1);
+
+    if(id < 0 || id >= KEY_COUNT) {
+        throw_lua_error(L, "bad argument: key '%d' does not exist");
+        return 0;
+    } else {
+        lua_pushboolean(L, input_keys[id].is_released);
+        return 1;
+    }
 }
 
 // sound
 F(sfx) {
+    // TODO
     return 0;
 }
 
 F(sfx_loop) {
+    // TODO
     return 0;
 }
 
 F(sfx_stop) {
+    // TODO
     return 0;
 }
 
 // screen
 F(settransparent) {
+    // TODO
     return 0;
 }
 
@@ -219,11 +249,12 @@ F(get_tile) {
 
     if(err_msg) {
         throw_lua_error(L, err_msg);
+        return 0;
     } else {
         u8 tile = map_get_tile(x, y);
         lua_pushinteger(L, tile);
+        return 1;
     }
-    return 1;
 }
 
 F(set_tile) {

@@ -18,6 +18,20 @@
 
 #include "luag-console.h"
 
+struct input_Key {
+    bool is_down;
+    bool is_pressed;
+    bool is_released;
+};
+
+#define KEY_COUNT (4)
+
+#define KEY_UP    (0)
+#define KEY_LEFT  (1)
+#define KEY_DOWN  (2)
+#define KEY_RIGHT (3)
+extern struct input_Key input_keys[KEY_COUNT];
+
 extern void input_init(void);
 extern void input_tick(void);
 

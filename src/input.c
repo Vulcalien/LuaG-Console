@@ -21,13 +21,27 @@
 
 static bool text_mode;
 
+struct input_Key input_keys[KEY_COUNT];
+
 void input_init(void) {
     input_set_text_mode(false);
 }
 
 void input_tick(void) {
-    SDL_Event e;
+    // update is_down based on is_released
+    // (is_released only affects is_down one tick *after* the event occurred)
+    for(u32 i = 0; i < KEY_COUNT; i++) {
+        struct input_Key *key = &input_keys[i];
 
+        if(key->is_released)
+            key->is_down = false;
+
+        key->is_pressed  = false;
+        key->is_released = false;
+    }
+
+
+    SDL_Event e;
     while(SDL_PollEvent(&e)) {
         if(e.type == SDL_QUIT) {
             should_quit = true;
@@ -57,7 +71,46 @@ void input_tick(void) {
                     terminal_receive_input("\x14");
                 }
             }
+        } else {
+            // not in text mode
+            struct input_Key *key = NULL;
+            switch(e.key.keysym.sym) {
+                case SDLK_UP:
+                case SDLK_w:
+                    key = &input_keys[KEY_UP];
+                    break;
+                case SDLK_LEFT:
+                case SDLK_a:
+                    key = &input_keys[KEY_LEFT];
+                    break;
+                case SDLK_DOWN:
+                case SDLK_s:
+                    key = &input_keys[KEY_DOWN];
+                    break;
+                case SDLK_RIGHT:
+                case SDLK_d:
+                    key = &input_keys[KEY_RIGHT];
+                    break;
+            }
+            if(key) {
+                switch(e.type) {
+                    case SDL_KEYDOWN:
+                        key->is_pressed = true;
+                        break;
+                    case SDL_KEYUP:
+                        key->is_released = true;
+                        break;
+                }
+            }
         }
+    }
+
+    // update is_down based on is_pressed
+    for(u32 i = 0; i < KEY_COUNT; i++) {
+        struct input_Key *key = &input_keys[i];
+
+        if(key->is_pressed)
+            key->is_down = true;
     }
 }
 
