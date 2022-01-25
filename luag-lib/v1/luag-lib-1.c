@@ -107,7 +107,7 @@ F(key) {
     lua_Integer id = luaL_checkinteger(L, 1);
 
     if(id < 0 || id >= KEY_COUNT) {
-        throw_lua_error(L, "bad argument: key '%d' does not exist");
+        throw_lua_error(L, "bad argument: key '%d' does not exist", id);
         return 0;
     } else {
         lua_pushboolean(L, input_keys[id].is_down);
@@ -119,7 +119,7 @@ F(key_pressed) {
     lua_Integer id = luaL_checkinteger(L, 1);
 
     if(id < 0 || id >= KEY_COUNT) {
-        throw_lua_error(L, "bad argument: key '%d' does not exist");
+        throw_lua_error(L, "bad argument: key '%d' does not exist", id);
         return 0;
     } else {
         lua_pushboolean(L, input_keys[id].is_pressed);
@@ -131,7 +131,7 @@ F(key_released) {
     lua_Integer id = luaL_checkinteger(L, 1);
 
     if(id < 0 || id >= KEY_COUNT) {
-        throw_lua_error(L, "bad argument: key '%d' does not exist");
+        throw_lua_error(L, "bad argument: key '%d' does not exist", id);
         return 0;
     } else {
         lua_pushboolean(L, input_keys[id].is_released);
