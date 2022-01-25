@@ -170,6 +170,7 @@ void engine_load(bool is_editor) {
         engine_stop();
         return;
     }
+    input_reset_keys();
 
     core_lib_handle = load_luag_library(L, false);
     if(!core_lib_handle) {

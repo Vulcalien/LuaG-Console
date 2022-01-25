@@ -24,6 +24,8 @@ static bool text_mode;
 struct input_Key input_keys[KEY_COUNT];
 
 void input_init(void) {
+    input_reset_keys();
+
     input_set_text_mode(false);
 }
 
@@ -111,6 +113,16 @@ void input_tick(void) {
 
         if(key->is_pressed)
             key->is_down = true;
+    }
+}
+
+void input_reset_keys(void) {
+    for(u32 i = 0; i < KEY_COUNT; i++) {
+        input_keys[i] = (struct input_Key) {
+            .is_down     = false,
+            .is_pressed  = false,
+            .is_released = false
+        };
     }
 }
 

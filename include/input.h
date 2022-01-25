@@ -35,6 +35,7 @@ extern struct input_Key input_keys[KEY_COUNT];
 extern void input_init(void);
 extern void input_tick(void);
 
+extern void input_reset_keys(void);
 extern void input_set_text_mode(bool flag);
 
 #endif // VULC_LUAG_INPUT
