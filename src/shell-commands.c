@@ -45,7 +45,7 @@ static CMD(cmd_run) {
     if(argc == 0) {
         if(dev_mode) {
             game_folder = USERDATA_FOLDER;
-            engine_load();
+            engine_load(false);
         } else {
             terminal_write(
                 "Error:\n"
@@ -62,7 +62,7 @@ static CMD(cmd_run) {
         game_folder = cartridge_extract(filename);
 
         if(game_folder) {
-            engine_load();
+            engine_load(false);
         } else {
             char *error_msg = malloc(128 * sizeof(char));
             snprintf(
@@ -86,7 +86,7 @@ static CMD(cmd_edit) {
         return;
 
     game_folder = RESOURCES_DIR "/editor";
-    engine_load();
+    engine_load(true);
 }
 
 static CMD(cmd_pack) {

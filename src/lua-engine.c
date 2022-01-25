@@ -32,7 +32,9 @@
 bool engine_running = false;
 
 static lua_State *L = NULL;
-static void *shared_lib_handle = NULL;
+
+static void *core_lib_handle = NULL;
+static void *editor_lib_handle = NULL;
 
 // returns nonzero if the engine was stopped
 static int check_error(lua_State *L, int status) {
@@ -56,7 +58,7 @@ static int run_library_function(lua_State *L, void *handle, char *name) {
     if(!func) {
         fprintf(
             stderr,
-            "Error: the LuaG Library object does not contain the function "
+            "Engine: the LuaG Library object does not contain the function "
             "'%s'\n", name
         );
         return -1;
@@ -64,40 +66,55 @@ static int run_library_function(lua_State *L, void *handle, char *name) {
 
     int status = func(L);
     if(status) {
-        fprintf(stderr, "Error: '%s' returned %d\n", name, status);
+        fprintf(stderr, "Engine: '%s' returned %d\n", name, status);
         return -2;
     }
     return 0;
 }
 
-static void *load_luag_library(lua_State *L) {
+static void *load_luag_library(lua_State *L, bool is_editor_lib) {
     void *handle;
 
-    char *filename = malloc(PATH_MAX * sizeof(char));
+    if(!is_editor_lib) {
+        char *filename = malloc(PATH_MAX * sizeof(char));
 
-    // check at most 100 times
-    // i'm pretty sure there is a better way
-    for(u32 i = 0; i < 100; i++) {
-        snprintf(
-            filename, PATH_MAX,
-            RESOURCES_DIR "/luag-lib/luag-lib-%d.%d.so",
-            cartridge_info.major_v, (cartridge_info.minor_v + i)
+        // check at most 100 times
+        // i'm pretty sure there is a better way
+        for(u32 i = 0; i < 100; i++) {
+            snprintf(
+                filename, PATH_MAX,
+                RESOURCES_DIR "/luag-lib/luag-lib-%d.%d.so",
+                cartridge_info.major_v, (cartridge_info.minor_v + i)
+            );
+
+            handle = dlopen(filename, RTLD_LAZY);
+            if(handle)
+                break;
+        }
+        free(filename);
+
+        if(!handle) {
+            fprintf(
+                stderr,
+                "Engine: could not find a version of LuaG Library compatible "
+                "with %d.%d\n",
+                cartridge_info.major_v, cartridge_info.minor_v
+            );
+            return NULL;
+        }
+    } else {
+        handle = dlopen(
+            RESOURCES_DIR "/luag-lib/luag-lib-editor.so",
+            RTLD_LAZY
         );
 
-        handle = dlopen(filename, RTLD_LAZY);
-        if(handle)
-            break;
-    }
-    free(filename);
-
-    if(!handle) {
-        fprintf(
-            stderr,
-            "Error: could not find a version of LuaG library compatible "
-            "with %d.%d\n",
-            cartridge_info.major_v, cartridge_info.minor_v
-        );
-        return NULL;
+        if(!handle) {
+            fputs(
+                "Engine: could not find the LuaG Editor Library\n",
+                stderr
+            );
+            return NULL;
+        }
     }
 
     if(run_library_function(L, handle, "luag_lib_load")) {
@@ -127,9 +144,9 @@ static int load_main_file(void) {
     return check_error(L, status);
 }
 
-void engine_load(void) {
+void engine_load(bool is_editor) {
     if(engine_running) {
-        fputs("Error: engine is running when calling 'engine_load'\n", stderr);
+        fputs("Engine: engine is running when calling 'engine_load'\n", stderr);
         return;
     }
     engine_running = true;
@@ -154,11 +171,20 @@ void engine_load(void) {
         return;
     }
 
-    shared_lib_handle = load_luag_library(L);
-    if(!shared_lib_handle) {
-        fputs("Error: could not load LuaG Library\n", stderr);
+    core_lib_handle = load_luag_library(L, false);
+    if(!core_lib_handle) {
+        fputs("Engine: could not load LuaG Library\n", stderr);
         engine_stop();
         return;
+    }
+
+    if(is_editor) {
+        editor_lib_handle = load_luag_library(L, true);
+        if(!editor_lib_handle) {
+            fputs("Engine: could not load LuaG Editor Library\n", stderr);
+            engine_stop();
+            return;
+        }
     }
 
     if(load_main_file())
@@ -167,8 +193,7 @@ void engine_load(void) {
     // run "init" function
     lua_getglobal(L, "init");
     if(!lua_isfunction(L, -1)) {
-        fputs("Error: 'main.lua' must contain a function 'init()'\n", stderr);
-
+        fputs("Engine: 'main.lua' must contain a function 'init()'\n", stderr);
         engine_stop();
         return;
     }
@@ -183,7 +208,7 @@ void engine_load(void) {
 void engine_stop(void) {
     if(!engine_running) {
         fputs(
-            "Error: engine is not running when calling 'engine_stop'\n",
+            "Engine: engine is not running when calling 'engine_stop'\n",
             stderr
         );
         return;
@@ -195,8 +220,11 @@ void engine_stop(void) {
         L = NULL;
     }
 
-    if(shared_lib_handle)
-        destroy_luag_library(shared_lib_handle);
+    if(core_lib_handle)
+        destroy_luag_library(core_lib_handle);
+
+    if(editor_lib_handle)
+        destroy_luag_library(editor_lib_handle);
 
     input_set_text_mode(true);
 }
@@ -204,8 +232,7 @@ void engine_stop(void) {
 void engine_tick(void) {
     lua_getglobal(L, "tick");
     if(!lua_isfunction(L, -1)) {
-        fputs("Error: a function 'tick()' must be defined\n", stderr);
-
+        fputs("Engine: a function 'tick()' must be defined\n", stderr);
         engine_stop();
         return;
     }

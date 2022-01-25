@@ -20,7 +20,7 @@
 
 extern bool engine_running;
 
-extern void engine_load(void);
+extern void engine_load(bool is_editor);
 extern void engine_stop(void);
 
 extern void engine_tick(void);
