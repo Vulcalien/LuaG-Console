@@ -15,10 +15,18 @@
  */
 #include "luag-console.h"
 
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+
 #include <lua5.4/lua.h>
 #include <lua5.4/lauxlib.h>
 
+#include "display.h"
+#include "map.h"
+
 #define F(name) static int name(lua_State *L)
+
+static SDL_Surface *atlas_surface = NULL;
 
 static void throw_lua_error(lua_State *L, char *msg_format, ...) {
     va_list args;
@@ -32,10 +40,68 @@ static void throw_lua_error(lua_State *L, char *msg_format, ...) {
     va_end(args);
 }
 
+static int load_atlas(char *filename) {
+    atlas_surface = IMG_Load(filename);
+    if(!atlas_surface) {
+        fprintf(stderr, "Editor: cannot load atlas file %s\n", filename);
+        return -1;
+    }
+
+    if(atlas_surface->w != 128 || atlas_surface->h != 128) {
+        fprintf(
+            stderr,
+            "Editor: atlas is of wrong size: "
+            "(%d, %d) instead of (128, 128)\n",
+            atlas_surface->w, atlas_surface->h
+        );
+
+        SDL_FreeSurface(atlas_surface);
+        atlas_surface = NULL;
+
+        return -2;
+    }
+    return 0;
+}
+
+static void load_map(char *filename) {
+    if(map_load(filename)) {
+        map = (struct Map) {
+            .width = 10,
+            .height = 10,
+            .tiles = calloc(10 * 10, sizeof(u8))
+        };
+    }
+}
+
+F(editor_load_files) {
+    int err = 0;
+
+    if(load_atlas(USERDATA_FOLDER "/atlas.png")) {
+        err = -1;
+        goto exit;
+    }
+
+    load_map(USERDATA_FOLDER "/map");
+
+    exit:
+    lua_pushinteger(L, err);
+    return 1;
+}
+
+static void setf(lua_State *L, int (*func)(lua_State *L), const char *name) {
+    lua_pushcfunction(L, func);
+    lua_setglobal(L, name);
+}
+
 int luag_lib_load(lua_State *L) {
+    setf(L, editor_load_files, "editor_load_files");
+
     return 0;
 }
 
 int luag_lib_destroy(void) {
+    if(atlas_surface)
+        SDL_FreeSurface(atlas_surface);
+
     return 0;
 }

@@ -1,4 +1,6 @@
 function init()
+    editor_load_files()
+
     colors = {
         primary = {
             bg = 0xdd4444,
