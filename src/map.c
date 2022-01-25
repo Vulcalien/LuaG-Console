@@ -58,7 +58,7 @@ int map_load(char *filename) {
     u32 map_size = map.width * map.height;
 
     map.tiles = malloc(map_size * sizeof(u8));
-    if(fread(&map.tiles, sizeof(u8), map_size, file) < map_size)
+    if(fread(map.tiles, sizeof(u8), map_size, file) < map_size)
         goto invalid_file;
 
     // skip the "invalid file" error
