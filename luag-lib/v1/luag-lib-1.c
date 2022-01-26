@@ -294,7 +294,35 @@ F(maprender) {
     if(err_msg) {
         throw_lua_error(L, err_msg);
     } else {
-        // TODO
+        const u32 tile_size = 8 * scale;
+
+        i32 xt0 = xoff / tile_size;
+        if(xoff < 0) xt0--;
+
+        i32 yt0 = yoff / tile_size;
+        if(yoff < 0) yt0--;
+
+        i32 xt1 = xt0 + (DISPLAY_WIDTH / tile_size) + 1;
+        i32 yt1 = yt0 + (DISPLAY_HEIGHT / tile_size) + 1;
+
+        // check boundaries
+        if(xt0 < 0) xt0 = 0;
+        if(yt0 < 0) yt0 = 0;
+
+        if(xt1 > map.width) xt1 = map.width;
+        if(yt1 > map.height) yt1 = map.height;
+
+        for(u32 yt = yt0; yt < yt1; yt++) {
+            for(u32 xt = xt0; xt < xt1; xt++) {
+                u32 id = map_get_tile(xt, yt);
+                display_draw_from_atlas(
+                    id, xt * tile_size - xoff, yt * tile_size - yoff,
+                    scale, 1, 1,
+                    0, false, false,
+                    0xffffff
+                );
+            }
+        }
     }
     return 0;
 }
