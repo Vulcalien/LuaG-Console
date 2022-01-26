@@ -31,12 +31,12 @@ extern void map_destroy(void);
 
 extern int map_load(char *filename);
 
-inline u8 map_get_tile(u32 x, u32 y) {
-    return map.tiles[x + y * map.width];
-}
+#define map_get_tile(x, y)\
+    map.tiles[x + y * map.width]
 
-inline void map_set_tile(u32 x, u32 y, u8 tile) {
-    map.tiles[x + y * map.width] = tile;
-}
+#define map_set_tile(x, y, tile)\
+    do{\
+        map.tiles[x + y * map.width] = tile;\
+    }while(0)
 
 #endif // VULC_LUAG_MAP
