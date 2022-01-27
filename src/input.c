@@ -97,7 +97,8 @@ void input_tick(void) {
             if(key) {
                 switch(e.type) {
                     case SDL_KEYDOWN:
-                        key->is_pressed = true;
+                        if(!e.key.repeat)
+                            key->is_pressed = true;
                         break;
                     case SDL_KEYUP:
                         key->is_released = true;
