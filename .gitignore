@@ -4,3 +4,6 @@
 
 # vim
 *.swp
+
+# console-userdata
+/console-userdata
