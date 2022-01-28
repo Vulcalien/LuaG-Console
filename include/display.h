@@ -31,6 +31,8 @@ extern void display_destroy(void);
 
 extern int display_load_atlas(char *filename);
 
+extern void display_atlas_set_color_key(u32 color, bool active_flag);
+
 extern void display_refresh(void);
 
 extern void display_clear(u32 color);

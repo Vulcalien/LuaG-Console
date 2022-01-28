@@ -157,7 +157,11 @@ F(sfx_stop) {
 
 // screen
 F(settransparent) {
-    // TODO
+    bool active_flag = !lua_isnoneornil(L, 1);
+    lua_Integer color = active_flag ? luaL_checkinteger(L, 1) : 0x000000;
+
+    display_atlas_set_color_key(color, active_flag);
+
     return 0;
 }
 
@@ -172,8 +176,8 @@ F(pix) {
     lua_Integer y     = luaL_checkinteger(L, 2);
     lua_Integer color = luaL_checkinteger(L, 3);
 
-    lua_Integer w = lua_isnil(L, 4) ? 1 : luaL_checkinteger(L, 4);
-    lua_Integer h = lua_isnil(L, 5) ? 1 : luaL_checkinteger(L, 5);
+    lua_Integer w = lua_isnoneornil(L, 4) ? 1 : luaL_checkinteger(L, 4);
+    lua_Integer h = lua_isnoneornil(L, 5) ? 1 : luaL_checkinteger(L, 5);
 
     display_fill(x, y, w, h, color);
     return 0;
