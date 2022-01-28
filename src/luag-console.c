@@ -20,6 +20,7 @@
 #include "terminal.h"
 #include "input.h"
 #include "display.h"
+#include "sound.h"
 #include "cartridge.h"
 #include "map.h"
 
@@ -71,12 +72,14 @@ static int init(void) {
 
     if(display_init())
         return -1;
-    if(terminal_init())
+    if(sound_init())
         return -2;
-    if(cartridge_init())
+    if(terminal_init())
         return -3;
-    if(map_init())
+    if(cartridge_init())
         return -4;
+    if(map_init())
+        return -5;
 
     input_set_text_mode(true);
 
@@ -87,6 +90,7 @@ static void destroy(void) {
     if(engine_running)
         engine_stop();
 
+    sound_destroy();
     display_destroy();
     terminal_destroy();
     cartridge_destroy();
