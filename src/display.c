@@ -32,7 +32,11 @@ static SDL_Texture *atlas_texture = NULL;
 static int set_window_icon(void) {
     SDL_Surface *icon = IMG_Load(RESOURCES_DIR "/icon.png");
     if(!icon) {
-        fputs("SDL: cannot load window icon\n", stderr);
+        fprintf(
+            stderr,
+            "SDL: cannot load window icon\n"
+            " - IMG_Load: %s\n", IMG_GetError()
+        );
         return -1;
     }
 
@@ -46,7 +50,11 @@ static int load_font(void) {
 
     SDL_Surface *font_surf = IMG_Load(RESOURCES_DIR "/font.png");
     if(!font_surf) {
-        fputs("SDL: cannot load font file\n", stderr);
+        fprintf(
+            stderr,
+            "SDL: cannot load font file\n"
+            " - IMG_Load: %s\n", IMG_GetError()
+        );
         err = -1;
         goto exit;
     }
@@ -56,7 +64,11 @@ static int load_font(void) {
 
     font_texture = SDL_CreateTextureFromSurface(renderer, font_surf);
     if(!font_texture) {
-        fputs("SDL: cannot create font texture\n", stderr);
+        fprintf(
+            stderr,
+            "SDL: cannot create font texture\n"
+            " - SDL_CreateTextureFromSurface: %s\n", SDL_GetError()
+        );
         err = -2;
         goto exit;
     }
@@ -70,7 +82,11 @@ static int load_font(void) {
 
 int display_init(void) {
     if(SDL_Init(SDL_INIT_VIDEO)) {
-        fputs("SDL: could not initialize\n", stderr);
+        fprintf(
+            stderr,
+            "SDL: could not initialize\n"
+            " - SDL_Init: %s\n", SDL_GetError()
+        );
         return -1;
     }
 
@@ -81,13 +97,21 @@ int display_init(void) {
         SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN
     );
     if(!window) {
-        fputs("SDL: could not create window\n", stderr);
+        fprintf(
+            stderr,
+            "SDL: could not create window\n"
+            " - SDL_CreateWindow: %s\n", SDL_GetError()
+        );
         return -2;
     }
 
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if(!renderer) {
-        fputs("SDL: could not create renderer\n", stderr);
+        fprintf(
+            stderr,
+            "SDL: could not create renderer\n"
+            " - SDL_CreateRenderer: %s\n", SDL_GetError()
+        );
         return -3;
     }
     SDL_RenderSetLogicalSize(renderer, DISPLAY_WIDTH, DISPLAY_HEIGHT);
@@ -129,7 +153,11 @@ static int atlas_update_texture(void) {
 
     atlas_texture = SDL_CreateTextureFromSurface(renderer, atlas_surface);
     if(!atlas_texture) {
-        fputs("SDL: cannot create atlas texture\n", stderr);
+        fprintf(
+            stderr,
+            "SDL: cannot create atlas texture\n"
+            " - SDL_CreateTextureFromSurface: %s\n", SDL_GetError()
+        );
         return -1;
     }
     return 0;
@@ -161,7 +189,12 @@ int display_set_atlas(SDL_Surface *surface) {
 int display_load_atlas(char *filename) {
     SDL_Surface *surface = IMG_Load(filename);
     if(!surface) {
-        fprintf(stderr, "SDL: cannot load atlas file %s\n", filename);
+        fprintf(
+            stderr,
+            "SDL: cannot load atlas file %s\n"
+            " - IMG_Load: %s\n",
+            filename, IMG_GetError()
+        );
         return -1;
     }
 

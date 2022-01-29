@@ -21,9 +21,8 @@ int sound_init(void) {
     if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048)) {
         fprintf(
             stderr,
-            "Sound: could not initialize: "
-            "Mix_OpenAudio: %s\n",
-            Mix_GetError()
+            "Sound: could not initialize\n"
+            " - Mix_OpenAudio: %s\n", Mix_GetError()
         );
         return -1;
     }

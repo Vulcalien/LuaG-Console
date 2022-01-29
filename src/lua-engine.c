@@ -58,8 +58,9 @@ static int run_library_function(lua_State *L, void *handle, char *name) {
     if(!func) {
         fprintf(
             stderr,
-            "Engine: the LuaG Library object does not contain the function "
-            "'%s'\n", name
+            "Engine: could not find function '%s'\n"
+            " - dlsym: %s\n",
+            name, dlerror()
         );
         return -1;
     }
@@ -109,9 +110,10 @@ static void *load_luag_library(lua_State *L, bool is_editor_lib) {
         );
 
         if(!handle) {
-            fputs(
-                "Engine: could not find the LuaG Editor Library\n",
-                stderr
+            fprintf(
+                stderr,
+                "Engine: could not find the LuaG Editor Library\n"
+                " - dlopen: %s\n", dlerror()
             );
             return NULL;
         }
