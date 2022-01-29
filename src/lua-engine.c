@@ -84,7 +84,8 @@ static void *load_luag_library(lua_State *L, bool is_editor_lib) {
         for(u32 i = 0; i < 100; i++) {
             snprintf(
                 filename, PATH_MAX,
-                RESOURCES_DIR "/luag-lib/luag-lib-%d.%d.so",
+                "%s/luag-lib/luag-lib-%d.%d.so",
+                res_folder,
                 cartridge_info.major_v, (cartridge_info.minor_v + i)
             );
 
@@ -104,10 +105,14 @@ static void *load_luag_library(lua_State *L, bool is_editor_lib) {
             return NULL;
         }
     } else {
-        handle = dlopen(
-            RESOURCES_DIR "/luag-lib/luag-lib-editor.so",
-            RTLD_LAZY
+        char *filename = malloc(PATH_MAX * sizeof(char));
+        snprintf(
+            filename, PATH_MAX,
+            "%s/luag-lib/luag-lib-editor.so", res_folder
         );
+
+        handle = dlopen(filename, RTLD_LAZY);
+        free(filename);
 
         if(!handle) {
             fprintf(

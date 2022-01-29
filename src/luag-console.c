@@ -18,6 +18,7 @@
 #include "gameloop.h"
 #include "lua-engine.h"
 #include "terminal.h"
+#include "shell-commands.h"
 #include "input.h"
 #include "display.h"
 #include "sound.h"
@@ -83,10 +84,12 @@ static int init(void) {
         return -3;
     if(terminal_init())
         return -4;
-    if(cartridge_init())
+    if(commands_init())
         return -5;
-    if(map_init())
+    if(cartridge_init())
         return -6;
+    if(map_init())
+        return -7;
 
     input_set_text_mode(true);
 
@@ -100,6 +103,7 @@ static void destroy(void) {
     sound_destroy();
     display_destroy();
     terminal_destroy();
+    commands_destroy();
     cartridge_destroy();
     map_destroy();
 

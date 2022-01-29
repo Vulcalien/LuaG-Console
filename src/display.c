@@ -17,6 +17,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <limits.h>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -30,7 +31,12 @@ static SDL_Surface *atlas_surface = NULL;
 static SDL_Texture *atlas_texture = NULL;
 
 static int set_window_icon(void) {
-    SDL_Surface *icon = IMG_Load(RESOURCES_DIR "/icon.png");
+    char *filename = malloc(PATH_MAX * sizeof(char));
+    snprintf(filename, PATH_MAX, "%s/icon.png", res_folder);
+
+    SDL_Surface *icon = IMG_Load(filename);
+    free(filename);
+
     if(!icon) {
         fprintf(
             stderr,
@@ -48,7 +54,12 @@ static int set_window_icon(void) {
 static int load_font(void) {
     int err = 0;
 
-    SDL_Surface *font_surf = IMG_Load(RESOURCES_DIR "/font.png");
+    char *filename = malloc(PATH_MAX * sizeof(char));
+    snprintf(filename, PATH_MAX, "%s/font.png", res_folder);
+
+    SDL_Surface *font_surf = IMG_Load(filename);
+    free(filename);
+
     if(!font_surf) {
         fprintf(
             stderr,

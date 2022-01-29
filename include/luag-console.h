@@ -25,9 +25,6 @@
 
 #define USERDATA_FOLDER "console-userdata"
 
-// TODO delete
-#define RESOURCES_DIR "/usr/share/luag-console"
-
 #define TPS (60)
 
 extern bool should_quit;

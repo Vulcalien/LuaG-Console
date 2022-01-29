@@ -24,6 +24,8 @@
 #include <ctype.h>
 #include <limits.h>
 
+static char *editor_folder = NULL;
+
 static int check_is_developer(void) {
     if(!dev_mode) {
         terminal_write(
@@ -55,12 +57,9 @@ static CMD(cmd_run) {
         }
     } else {
         char *filename = malloc(PATH_MAX * sizeof(char));
-        snprintf(
-            filename, PATH_MAX,
-            "%s.luag", argv[0]
-        );
-        game_folder = cartridge_extract(filename);
+        snprintf(filename, PATH_MAX, "%s.luag", argv[0]);
 
+        game_folder = cartridge_extract(filename);
         if(game_folder) {
             engine_load(false);
         } else {
@@ -85,7 +84,12 @@ static CMD(cmd_edit) {
     if(check_is_developer())
         return;
 
-    game_folder = RESOURCES_DIR "/editor";
+    if(!editor_folder) {
+        editor_folder = malloc(PATH_MAX * sizeof(char));
+        snprintf(editor_folder, PATH_MAX, "%s/editor", res_folder);
+    }
+
+    game_folder = editor_folder;
     engine_load(true);
 }
 
@@ -172,6 +176,15 @@ static CMD(cmd_log) {
 
 static CMD(cmd_exit) {
     should_quit = true;
+}
+
+int commands_init(void) {
+    return 0;
+}
+
+void commands_destroy(void) {
+    if(editor_folder)
+        free(editor_folder);
 }
 
 bool execute_command(char *cmd, u32 argc, char **argv) {
