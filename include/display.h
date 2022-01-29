@@ -34,7 +34,9 @@
 extern int display_init(void);
 extern void display_destroy(void);
 
-extern int display_load_atlas(char *filename);
+extern int display_load_atlas(char *filename,
+                              SDL_Surface **surface, SDL_Texture **texture);
+extern int display_update_atlas(SDL_Surface **surface, SDL_Texture **texture);
 
 extern void display_atlas_set_color_key(u32 color, bool active_flag);
 

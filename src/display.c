@@ -155,15 +155,60 @@ void display_destroy(void) {
     SDL_Quit();
 }
 
-static int update_atlas_texture(void) {
-    // delete old texture
-    if(atlas_texture) {
-        SDL_DestroyTexture(atlas_texture);
-        atlas_texture = NULL;
+int display_load_atlas(char *filename,
+                       SDL_Surface **surface, SDL_Texture **texture) {
+    if(!surface)
+        surface = &atlas_surface;
+    if(!texture)
+        texture = &atlas_texture;
+
+    // delete old surface
+    if(*surface) {
+        SDL_FreeSurface(*surface);
+        *surface = NULL;
     }
 
-    atlas_texture = SDL_CreateTextureFromSurface(renderer, atlas_surface);
-    if(!atlas_texture) {
+    *surface = IMG_Load(filename);
+    if(!*surface) {
+        fprintf(
+            stderr,
+            "SDL: cannot load atlas file %s\n"
+            " - IMG_Load: %s\n",
+            filename, IMG_GetError()
+        );
+        return -1;
+    }
+
+    if((*surface)->w != ATLAS_WIDTH || (*surface)->h != ATLAS_HEIGHT) {
+        fprintf(
+            stderr,
+            "SDL: atlas is of wrong size: "
+            "(%d, %d) instead of (%d, %d)\n",
+            (*surface)->w, (*surface)->h,
+            ATLAS_WIDTH, ATLAS_HEIGHT
+        );
+        return -2;
+    }
+
+    if(display_update_atlas(surface, texture))
+        return -3;
+    return 0;
+}
+
+int display_update_atlas(SDL_Surface **surface, SDL_Texture **texture) {
+    if(!surface)
+        surface = &atlas_surface;
+    if(!texture)
+        texture = &atlas_texture;
+
+    // delete old texture
+    if(*texture) {
+        SDL_DestroyTexture(*texture);
+        *texture = NULL;
+    }
+
+    *texture = SDL_CreateTextureFromSurface(renderer, *surface);
+    if(!*texture) {
         fprintf(
             stderr,
             "SDL: cannot create atlas texture\n"
@@ -174,47 +219,13 @@ static int update_atlas_texture(void) {
     return 0;
 }
 
-int display_load_atlas(char *filename) {
-    // delete old surface
-    if(atlas_surface) {
-        SDL_FreeSurface(atlas_surface);
-        atlas_surface = NULL;
-    }
-
-    atlas_surface = IMG_Load(filename);
-    if(!atlas_surface) {
-        fprintf(
-            stderr,
-            "SDL: cannot load atlas file %s\n"
-            " - IMG_Load: %s\n",
-            filename, IMG_GetError()
-        );
-        return -1;
-    }
-
-    if(atlas_surface->w != ATLAS_WIDTH || atlas_surface->h != ATLAS_HEIGHT) {
-        fprintf(
-            stderr,
-            "SDL: atlas is of wrong size: "
-            "(%d, %d) instead of (%d, %d)\n",
-            atlas_surface->w, atlas_surface->h,
-            ATLAS_WIDTH, ATLAS_HEIGHT
-        );
-        return -2;
-    }
-
-    if(update_atlas_texture())
-        return -3;
-    return 0;
-}
-
 void display_atlas_set_color_key(u32 color, bool active_flag) {
     SDL_SetColorKey(
         atlas_surface, active_flag,
         SDL_MapRGB(atlas_surface->format, color >> 16, color >> 8, color)
     );
 
-    update_atlas_texture();
+    display_update_atlas(NULL, NULL);
 }
 
 void display_refresh(void) {

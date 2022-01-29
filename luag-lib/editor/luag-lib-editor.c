@@ -27,6 +27,7 @@
 #define F(name) static int name(lua_State *L)
 
 static SDL_Surface *atlas_surface = NULL;
+static SDL_Texture *atlas_texture = NULL;
 
 static void throw_lua_error(lua_State *L, char *msg_format, ...) {
     va_list args;
@@ -41,26 +42,7 @@ static void throw_lua_error(lua_State *L, char *msg_format, ...) {
 }
 
 static int load_atlas(char *filename) {
-    atlas_surface = IMG_Load(filename);
-    if(!atlas_surface) {
-        fprintf(stderr, "Editor: cannot load atlas file %s\n", filename);
-        return -1;
-    }
-
-    if(atlas_surface->w != 128 || atlas_surface->h != 128) {
-        fprintf(
-            stderr,
-            "Editor: atlas is of wrong size: "
-            "(%d, %d) instead of (128, 128)\n",
-            atlas_surface->w, atlas_surface->h
-        );
-
-        SDL_FreeSurface(atlas_surface);
-        atlas_surface = NULL;
-
-        return -2;
-    }
-    return 0;
+    return display_load_atlas(filename, &atlas_surface, &atlas_texture);
 }
 
 static void load_map(char *filename) {
