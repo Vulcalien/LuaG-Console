@@ -18,6 +18,8 @@
 
 #include "luag-console.h"
 
+#include <SDL2/SDL.h>
+
 #define DISPLAY_WIDTH  (160)
 #define DISPLAY_HEIGHT (160)
 
@@ -29,6 +31,7 @@
 extern int display_init(void);
 extern void display_destroy(void);
 
+extern int display_set_atlas(SDL_Surface *surface);
 extern int display_load_atlas(char *filename);
 
 extern void display_atlas_set_color_key(u32 color, bool active_flag);

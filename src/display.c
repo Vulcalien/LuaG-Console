@@ -120,41 +120,52 @@ void display_destroy(void) {
     SDL_Quit();
 }
 
-int display_load_atlas(char *filename) {
-    // delete old surface
-    if(atlas_surface) {
-        SDL_FreeSurface(atlas_surface);
-        atlas_surface = NULL;
-    }
-
+static int atlas_update_texture(void) {
     // delete old texture
     if(atlas_texture) {
         SDL_DestroyTexture(atlas_texture);
         atlas_texture = NULL;
     }
 
-    atlas_surface = IMG_Load(filename);
-    if(!atlas_surface) {
-        fprintf(stderr, "SDL: cannot load atlas file %s\n", filename);
+    atlas_texture = SDL_CreateTextureFromSurface(renderer, atlas_surface);
+    if(!atlas_texture) {
+        fputs("SDL: cannot create atlas texture\n", stderr);
         return -1;
     }
+    return 0;
+}
 
-    if(atlas_surface->w != 128 || atlas_surface->h != 128) {
+int display_set_atlas(SDL_Surface *surface) {
+    // delete old surface
+    if(atlas_surface) {
+        SDL_FreeSurface(atlas_surface);
+        atlas_surface = NULL;
+    }
+
+    if(surface->w != 128 || surface->h != 128) {
         fprintf(
             stderr,
             "SDL: atlas is of wrong size: "
             "(%d, %d) instead of (128, 128)\n",
-            atlas_surface->w, atlas_surface->h
+            surface->w, surface->h
         );
-        return -2;
+        return -1;
     }
 
-    atlas_texture = SDL_CreateTextureFromSurface(renderer, atlas_surface);
-    if(!atlas_texture) {
-        fputs("SDL: cannot create atlas texture\n", stderr);
-        return -3;
-    }
+    atlas_surface = surface;
+    if(atlas_update_texture())
+        return -2;
     return 0;
+}
+
+int display_load_atlas(char *filename) {
+    SDL_Surface *surface = IMG_Load(filename);
+    if(!surface) {
+        fprintf(stderr, "SDL: cannot load atlas file %s\n", filename);
+        return -1;
+    }
+
+    return display_set_atlas(surface);
 }
 
 void display_atlas_set_color_key(u32 color, bool active_flag) {
@@ -163,9 +174,7 @@ void display_atlas_set_color_key(u32 color, bool active_flag) {
         SDL_MapRGB(atlas_surface->format, color >> 16, color >> 8, color)
     );
 
-    atlas_texture = SDL_CreateTextureFromSurface(renderer, atlas_surface);
-    if(!atlas_texture)
-        fputs("SDL: cannot create atlas texture\n", stderr);
+    atlas_update_texture();
 }
 
 void display_refresh(void) {
