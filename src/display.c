@@ -27,7 +27,7 @@ static SDL_Renderer *renderer;
 
 static SDL_Texture *font_texture;
 
-static SDL_Surface *atlas_surface = NULL;
+SDL_Surface *atlas_surface = NULL;
 static SDL_Texture *atlas_texture = NULL;
 
 static int set_window_icon(void) {
@@ -155,7 +155,7 @@ void display_destroy(void) {
     SDL_Quit();
 }
 
-static int atlas_update_texture(void) {
+int display_update_atlas(void) {
     // delete old texture
     if(atlas_texture) {
         SDL_DestroyTexture(atlas_texture);
@@ -174,32 +174,15 @@ static int atlas_update_texture(void) {
     return 0;
 }
 
-int display_set_atlas(SDL_Surface *surface) {
+int display_load_atlas(char *filename) {
     // delete old surface
     if(atlas_surface) {
         SDL_FreeSurface(atlas_surface);
         atlas_surface = NULL;
     }
 
-    if(surface->w != 128 || surface->h != 128) {
-        fprintf(
-            stderr,
-            "SDL: atlas is of wrong size: "
-            "(%d, %d) instead of (128, 128)\n",
-            surface->w, surface->h
-        );
-        return -1;
-    }
-
-    atlas_surface = surface;
-    if(atlas_update_texture())
-        return -2;
-    return 0;
-}
-
-int display_load_atlas(char *filename) {
-    SDL_Surface *surface = IMG_Load(filename);
-    if(!surface) {
+    atlas_surface = IMG_Load(filename);
+    if(!atlas_surface) {
         fprintf(
             stderr,
             "SDL: cannot load atlas file %s\n"
@@ -209,7 +192,20 @@ int display_load_atlas(char *filename) {
         return -1;
     }
 
-    return display_set_atlas(surface);
+    if(atlas_surface->w != ATLAS_WIDTH || atlas_surface->h != ATLAS_HEIGHT) {
+        fprintf(
+            stderr,
+            "SDL: atlas is of wrong size: "
+            "(%d, %d) instead of (%d, %d)\n",
+            atlas_surface->w, atlas_surface->h,
+            ATLAS_WIDTH, ATLAS_HEIGHT
+        );
+        return -2;
+    }
+
+    if(display_update_atlas())
+        return -3;
+    return 0;
 }
 
 void display_atlas_set_color_key(u32 color, bool active_flag) {
@@ -218,7 +214,7 @@ void display_atlas_set_color_key(u32 color, bool active_flag) {
         SDL_MapRGB(atlas_surface->format, color >> 16, color >> 8, color)
     );
 
-    atlas_update_texture();
+    display_update_atlas();
 }
 
 void display_refresh(void) {
