@@ -25,7 +25,7 @@
 
 #define USERDATA_FOLDER "console-userdata"
 
-// TODO this is OS-dependant
+// TODO delete
 #define RESOURCES_DIR "/usr/share/luag-console"
 
 #define TPS (60)
@@ -33,6 +33,8 @@
 extern bool should_quit;
 
 extern bool dev_mode;
+
+extern char *res_folder;
 extern char *game_folder;
 
 extern void tick(void);

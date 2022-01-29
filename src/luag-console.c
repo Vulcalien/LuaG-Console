@@ -25,13 +25,17 @@
 #include "map.h"
 
 #include <limits.h>
+#include <dirent.h>
 
 static int init(void);
 static void destroy(void);
+static int find_res_folder(char **result);
 
 bool should_quit = false;
 
 bool dev_mode = false;
+
+char *res_folder = NULL;
 char *game_folder = NULL;
 
 int main(int argc, const char *argv[]) {
@@ -68,18 +72,21 @@ void render(void) {
 }
 
 static int init(void) {
+    if(find_res_folder(&res_folder))
+        return -1;
+
     input_init();
 
     if(display_init())
-        return -1;
-    if(sound_init())
         return -2;
-    if(terminal_init())
+    if(sound_init())
         return -3;
-    if(cartridge_init())
+    if(terminal_init())
         return -4;
-    if(map_init())
+    if(cartridge_init())
         return -5;
+    if(map_init())
+        return -6;
 
     input_set_text_mode(true);
 
@@ -95,4 +102,46 @@ static void destroy(void) {
     terminal_destroy();
     cartridge_destroy();
     map_destroy();
+
+    if(res_folder)
+        free(res_folder);
+}
+
+// the pointer has to be freed
+static int find_res_folder(char **result) {
+    *result = NULL;
+
+    char *list[] = {
+        "/usr/share/luag-console",
+        "/usr/local/share/luag-console",
+        "%s/.local/share/luag-console",
+        NULL
+    };
+
+    const char *user_home = getenv("HOME");
+
+    char *path = malloc(PATH_MAX * sizeof(char));
+    for(u32 i = 0; list[i] != NULL; i++) {
+        snprintf(
+            path, PATH_MAX,
+            list[i], user_home
+        );
+
+        DIR *dir = opendir(path);
+        if(dir) {
+            closedir(dir);
+
+            printf("Found resource folder: '%s'\n", path);
+            *result = path;
+            break;
+        }
+    }
+
+    if(!*result) {
+        free(path);
+
+        fputs("LuaG: could not find resource folder\n", stderr);
+        return -1;
+    }
+    return 0;
 }
