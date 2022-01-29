@@ -231,6 +231,7 @@ F(spr) {
         throw_lua_error(L, err_msg);
     } else {
         display_draw_from_atlas(
+            NULL,
             id, x, y,
             scale, sw, sh,
             rot, h_flip, v_flip,
@@ -320,6 +321,7 @@ F(maprender) {
             for(u32 xt = xt0; xt < xt1; xt++) {
                 u32 id = map_get_tile(xt, yt);
                 display_draw_from_atlas(
+                    NULL,
                     id, xt * tile_size - xoff, yt * tile_size - yoff,
                     scale, 1, 1,
                     0, false, false,

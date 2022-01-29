@@ -272,28 +272,32 @@ void display_write(const char *text, u32 color, i32 x, i32 y) {
     }
 }
 
-void display_draw_from_atlas(u32 id,    u32 x,       u32 y,
+void display_draw_from_atlas(SDL_Texture *texture,
+                             u32 id,    u32 x,       u32 y,
                              u32 scale, u32 sw,      u32 sh,
                              u32 rot,   bool h_flip, bool v_flip,
                              u32 color_mod) {
+    if(!texture)
+        texture = atlas_texture;
+
     struct SDL_Rect src = {
         .x = (id % 16) * 8, .y = (id / 16) * 8,
         .w = sw * 8,        .h = sh * 8
     };
 
     struct SDL_Rect dst = {
-        .x = x,      .y = y,
+        .x = x,              .y = y,
         .w = sw * scale * 8, .h = sh * scale * 8
     };
 
     SDL_SetTextureColorMod(
-        atlas_texture,
+        texture,
         color_mod >> 16, color_mod >> 8, color_mod
     );
 
     if(rot % 4 == 0 && !h_flip && !v_flip) {
         SDL_RenderCopy(
-            renderer, atlas_texture,
+            renderer, texture,
             &src, &dst
         );
     } else {
@@ -304,7 +308,7 @@ void display_draw_from_atlas(u32 id,    u32 x,       u32 y,
             flip |= SDL_FLIP_VERTICAL;
 
         SDL_RenderCopyEx(
-            renderer, atlas_texture,
+            renderer, texture,
             &src, &dst,
             90 * rot, NULL,
             flip
