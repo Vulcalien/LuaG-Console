@@ -27,7 +27,7 @@ static SDL_Renderer *renderer;
 
 static SDL_Texture *font_texture;
 
-SDL_Surface *atlas_surface = NULL;
+static SDL_Surface *atlas_surface = NULL;
 static SDL_Texture *atlas_texture = NULL;
 
 static int set_window_icon(void) {
@@ -155,7 +155,7 @@ void display_destroy(void) {
     SDL_Quit();
 }
 
-int display_update_atlas(void) {
+static int update_atlas_texture(void) {
     // delete old texture
     if(atlas_texture) {
         SDL_DestroyTexture(atlas_texture);
@@ -203,7 +203,7 @@ int display_load_atlas(char *filename) {
         return -2;
     }
 
-    if(display_update_atlas())
+    if(update_atlas_texture())
         return -3;
     return 0;
 }
@@ -214,7 +214,7 @@ void display_atlas_set_color_key(u32 color, bool active_flag) {
         SDL_MapRGB(atlas_surface->format, color >> 16, color >> 8, color)
     );
 
-    display_update_atlas();
+    update_atlas_texture();
 }
 
 void display_refresh(void) {

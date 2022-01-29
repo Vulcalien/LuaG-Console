@@ -25,6 +25,7 @@
 #include "cartridge.h"
 #include "map.h"
 
+#include <stdio.h>
 #include <limits.h>
 #include <dirent.h>
 
