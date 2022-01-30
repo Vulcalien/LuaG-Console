@@ -70,8 +70,96 @@ F(editor_load_files) {
     return 1;
 }
 
+F(editor_spr) {
+    lua_Integer id = luaL_checkinteger(L, 1);
+    lua_Integer x  = luaL_checkinteger(L, 2);
+    lua_Integer y  = luaL_checkinteger(L, 3);
+
+    lua_Integer scale = lua_isnoneornil(L, 4)
+                        ? 1 : luaL_checkinteger(L, 4);
+
+    lua_Integer sw = lua_isnoneornil(L, 5)
+                     ? 1 : luaL_checkinteger(L, 5);
+    lua_Integer sh = lua_isnoneornil(L, 6)
+                     ? 1 : luaL_checkinteger(L, 6);
+
+    char *err_msg = NULL;
+    if(id < 0 || id >= 256)
+        err_msg = "bad argument: id";
+    else if(sw <= 0 || (id % 16) + sw > 16)
+        err_msg = "bad argument: sw";
+    else if(sh <= 0 || (id / 16) + sh > 16)
+        err_msg = "bad argument: sh";
+
+    if(err_msg) {
+        throw_lua_error(L, err_msg);
+    } else {
+        display_draw_from_atlas(
+            atlas_texture,
+            id, x, y,
+            scale, sw, sh,
+            0, false, false,
+            0xffffff
+        );
+    }
+    return 0;
+}
+
+F(editor_maprender) {
+    lua_Integer scale = lua_isnoneornil(L, 1)
+                        ? 1 : luaL_checkinteger(L, 1);
+
+    lua_Integer xoff = lua_isnoneornil(L, 2)
+                       ? 0 : luaL_checkinteger(L, 2);
+    lua_Integer yoff = lua_isnoneornil(L, 3)
+                       ? 0 : luaL_checkinteger(L, 3);
+
+    char *err_msg = NULL;
+    if(scale <= 0)
+        err_msg = "bad argument: scale";
+
+    if(err_msg) {
+        throw_lua_error(L, err_msg);
+    } else {
+        const u32 tile_size = 8 * scale;
+
+        i32 xt0 = xoff / tile_size;
+        if(xoff < 0) xt0--;
+
+        i32 yt0 = yoff / tile_size;
+        if(yoff < 0) yt0--;
+
+        i32 xt1 = xt0 + (DISPLAY_WIDTH / tile_size) + 1;
+        i32 yt1 = yt0 + (DISPLAY_HEIGHT / tile_size) + 1;
+
+        // check boundaries
+        if(xt0 < 0) xt0 = 0;
+        if(yt0 < 0) yt0 = 0;
+
+        if(xt1 > map.width) xt1 = map.width;
+        if(yt1 > map.height) yt1 = map.height;
+
+        for(u32 yt = yt0; yt < yt1; yt++) {
+            for(u32 xt = xt0; xt < xt1; xt++) {
+                u32 id = map_get_tile(xt, yt);
+                display_draw_from_atlas(
+                    atlas_texture,
+                    id, xt * tile_size - xoff, yt * tile_size - yoff,
+                    scale, 1, 1,
+                    0, false, false,
+                    0xffffff
+                );
+            }
+        }
+    }
+    return 0;
+}
+
 int luag_lib_load(lua_State *L) {
     lua_register(L, "editor_load_files", editor_load_files);
+
+    lua_register(L, "editor_spr", editor_spr);
+    lua_register(L, "editor_maprender", editor_maprender);
 
     return 0;
 }

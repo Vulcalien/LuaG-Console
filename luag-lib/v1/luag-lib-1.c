@@ -220,12 +220,12 @@ F(spr) {
     char *err_msg = NULL;
     if(id < 0 || id >= 256)
         err_msg = "bad argument: id";
-    else if(scale <= 0)
-        err_msg = "bad argument: scale";
     else if(sw <= 0 || (id % 16) + sw > 16)
         err_msg = "bad argument: sw";
     else if(sh <= 0 || (id / 16) + sh > 16)
         err_msg = "bad argument: sh";
+    else if(scale <= 0)
+        err_msg = "bad argument: scale";
 
     if(err_msg) {
         throw_lua_error(L, err_msg);
