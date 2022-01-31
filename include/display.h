@@ -23,8 +23,10 @@
 #define DISPLAY_WIDTH  (160)
 #define DISPLAY_HEIGHT (160)
 
-#define ATLAS_WIDTH    (128)
-#define ATLAS_HEIGHT   (128)
+#define SPRITE_SIZE    (8)
+
+#define ATLAS_WIDTH    (SPRITE_SIZE * 16)
+#define ATLAS_HEIGHT   (SPRITE_SIZE * 16)
 
 #define CHAR_WIDTH     (5)
 #define CHAR_HEIGHT    (8)

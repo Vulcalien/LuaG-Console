@@ -292,13 +292,13 @@ void display_draw_from_atlas(SDL_Texture *texture,
         texture = atlas_texture;
 
     struct SDL_Rect src = {
-        .x = (id % 16) * 8, .y = (id / 16) * 8,
-        .w = sw * 8,        .h = sh * 8
+        .x = (id % 16) * SPRITE_SIZE, .y = (id / 16) * SPRITE_SIZE,
+        .w = sw * SPRITE_SIZE,        .h = sh * SPRITE_SIZE
     };
 
     struct SDL_Rect dst = {
-        .x = x,              .y = y,
-        .w = sw * scale * 8, .h = sh * scale * 8
+        .x = x,                        .y = y,
+        .w = sw * SPRITE_SIZE * scale, .h = sh * SPRITE_SIZE * scale
     };
 
     SDL_SetTextureColorMod(

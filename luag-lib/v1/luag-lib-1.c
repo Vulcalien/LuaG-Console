@@ -299,7 +299,7 @@ F(maprender) {
     if(err_msg) {
         throw_lua_error(L, err_msg);
     } else {
-        const u32 tile_size = 8 * scale;
+        const u32 tile_size = SPRITE_SIZE * scale;
 
         i32 xt0 = xoff / tile_size;
         if(xoff < 0) xt0--;

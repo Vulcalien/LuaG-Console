@@ -121,7 +121,7 @@ F(editor_maprender) {
     if(err_msg) {
         throw_lua_error(L, err_msg);
     } else {
-        const u32 tile_size = 8 * scale;
+        const u32 tile_size = SPRITE_SIZE * scale;
 
         i32 xt0 = xoff / tile_size;
         if(xoff < 0) xt0--;
@@ -177,7 +177,7 @@ F(editor_draw_atlas) {
                 u32 id = xs + ys * 16;
                 display_draw_from_atlas(
                     atlas_texture,
-                    id, x0 + xs * 8, y0 + ys * 8,
+                    id, x0 + xs * SPRITE_SIZE, y0 + ys * SPRITE_SIZE,
                     1, 1, 1,
                     0, false, false,
                     0xffffff
