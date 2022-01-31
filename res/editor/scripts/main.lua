@@ -15,7 +15,6 @@ function init()
         }
     }
 
-    -- this only includes buttons in the core GUI
     buttons = {
         goto_term = {
             x = 1, y = 1,
