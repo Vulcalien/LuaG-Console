@@ -155,11 +155,46 @@ F(editor_maprender) {
     return 0;
 }
 
+F(editor_draw_atlas) {
+    // draw coordinates
+    lua_Integer x0 = luaL_checkinteger(L, 1);
+    lua_Integer y0 = luaL_checkinteger(L, 2);
+
+    lua_Integer row0 = luaL_checkinteger(L, 3);
+    lua_Integer rows = luaL_checkinteger(L, 4);
+
+    char *err_msg = NULL;
+    if(row0 < 0 || row0 >= 16)
+        err_msg = "bad argument: row0";
+    else if(rows <= 0 || row0 + rows > 16)
+        err_msg = "bad argument: rows";
+
+    if(err_msg) {
+        throw_lua_error(L, err_msg);
+    } else {
+        for(u32 ys = row0; ys < row0 + rows; ys++) {
+            for(u32 xs = 0; xs < 16; xs++) {
+                u32 id = xs + ys * 16;
+                display_draw_from_atlas(
+                    atlas_texture,
+                    id, x0 + xs * 8, y0 + ys * 8,
+                    1, 1, 1,
+                    0, false, false,
+                    0xffffff
+                );
+            }
+        }
+    }
+    return 0;
+}
+
 int luag_lib_load(lua_State *L) {
     lua_register(L, "editor_load_files", editor_load_files);
 
     lua_register(L, "editor_spr", editor_spr);
     lua_register(L, "editor_maprender", editor_maprender);
+
+    lua_register(L, "editor_draw_atlas", editor_draw_atlas);
 
     return 0;
 }

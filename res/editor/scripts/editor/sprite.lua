@@ -24,6 +24,9 @@ editors.sprite = {
         -- color selector
         -- TODO consider making this a fixed width
         pix(xc + 30, 15, colors.primary.bg, scr_w - xc - 35, 50)
+
+
+        editor_draw_atlas(scr_w / 2 - 64, scr_h - 10 - 69, 0, 8)
     end,
 
     buttons = {}
