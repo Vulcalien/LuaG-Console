@@ -18,6 +18,7 @@
 #include "terminal.h"
 #include "lua-engine.h"
 #include "cartridge.h"
+#include "archive-util.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -122,10 +123,10 @@ static CMD(cmd_setup) {
         "%s/template.luag", res_folder
     );
 
-    void *result = cartridge_extract(template_file, USERDATA_FOLDER);
+    int err = archiveutil_extract(template_file, USERDATA_FOLDER);
     free(template_file);
 
-    if(!result) {
+    if(err) {
         terminal_write(
             "Error:\n"
             "could not extract\n"
