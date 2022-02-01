@@ -20,7 +20,7 @@
 
 struct Hashtable;
 
-extern struct Hashtable *hashtable_create(u32 initial_size);
+extern struct Hashtable *hashtable_create(u32 size);
 
 // if destroy_value_fn is NULL, the value object is not destroyed
 extern void hashtable_destroy(struct Hashtable *table,

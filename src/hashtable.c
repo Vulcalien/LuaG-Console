@@ -98,7 +98,7 @@ int hashtable_get(struct Hashtable *table,
     struct hashtable_Entry *entry = get_entry(table, key);
 
     while(true) {
-        if(!strcmp(key, entry->key)) {
+        if(entry->key && !strcmp(key, entry->key)) {
             *value = entry->value;
             return 0;
         }

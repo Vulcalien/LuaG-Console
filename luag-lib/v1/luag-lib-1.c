@@ -15,6 +15,11 @@
  */
 #include "luag-console.h"
 
+#include "display.h"
+#include "map.h"
+#include "input.h"
+#include "sound.h"
+
 #include <stdio.h>
 #include <limits.h>
 #include <string.h>
@@ -23,10 +28,6 @@
 
 #include <lua5.4/lua.h>
 #include <lua5.4/lauxlib.h>
-
-#include "display.h"
-#include "map.h"
-#include "input.h"
 
 #define F(name) static int name(lua_State *L)
 
@@ -141,17 +142,23 @@ F(key_released) {
 
 // sound
 F(sfx) {
-    // TODO
+    const char *name = luaL_checkstring(L, 1);
+    if(sound_play(name, 0))
+        throw_lua_error(L, "bad argument: sound '%s' does not exist", name);
     return 0;
 }
 
 F(sfx_loop) {
-    // TODO
+    const char *name = luaL_checkstring(L, 1);
+    if(sound_play(name, -1))
+        throw_lua_error(L, "bad argument: sound '%s' does not exist", name);
     return 0;
 }
 
 F(sfx_stop) {
-    // TODO
+    const char *name = luaL_checkstring(L, 1);
+    if(sound_stop(name))
+        throw_lua_error(L, "bad argument: sound '%s' does not exist", name);
     return 0;
 }
 

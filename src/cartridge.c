@@ -18,6 +18,7 @@
 #include "terminal.h"
 #include "display.h"
 #include "map.h"
+#include "sound.h"
 #include "archive-util.h"
 
 #include <stdio.h>
@@ -31,6 +32,7 @@
 static int load_cartridge_info(void);
 static int load_atlas(void);
 static int load_map(void);
+static int load_sounds(void);
 
 struct cartridge_Info cartridge_info;
 
@@ -73,6 +75,8 @@ int cartridge_load_files(void) {
         return -2;
     if(load_map())
         return -3;
+    if(load_sounds())
+        return -4;
     return 0;
 }
 
@@ -134,6 +138,18 @@ static int load_map(void) {
     );
     int err = map_load(filename);
     free(filename);
+
+    return err;
+}
+
+static int load_sounds(void) {
+    char *folder = malloc(PATH_MAX * sizeof(char));
+    snprintf(
+        folder, PATH_MAX,
+        "%s/sfx", game_folder
+    );
+    int err = sound_load(folder);
+    free(folder);
 
     return err;
 }

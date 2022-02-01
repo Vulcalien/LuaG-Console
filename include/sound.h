@@ -24,8 +24,10 @@ extern int sound_init(void);
 // call destroy before destroying the display
 extern void sound_destroy(void);
 
-extern void sound_play(char *name, i32 loops);
-extern void sound_stop(char *name);
+extern int sound_load(char *sfx_folder);
+
+extern int sound_play(const char *name, i32 loops);
+extern int sound_stop(const char *name);
 
 extern void sound_stop_all(void);
 
