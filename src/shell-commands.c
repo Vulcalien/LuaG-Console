@@ -24,6 +24,9 @@
 #include <ctype.h>
 #include <limits.h>
 
+#include <sys/types.h>
+#include <dirent.h>
+
 static char *editor_folder = NULL;
 
 static int check_is_developer(void) {
@@ -59,7 +62,7 @@ static CMD(cmd_run) {
         char *filename = malloc(PATH_MAX * sizeof(char));
         snprintf(filename, PATH_MAX, "%s.luag", argv[0]);
 
-        game_folder = cartridge_extract(filename);
+        game_folder = cartridge_extract(filename, NULL);
         if(game_folder) {
             engine_load(false);
         } else {
@@ -97,6 +100,39 @@ static CMD(cmd_pack) {
 }
 
 static CMD(cmd_setup) {
+    if(check_is_developer())
+        return;
+
+    DIR *dir = opendir(USERDATA_FOLDER);
+    if(dir) {
+        closedir(dir);
+
+        terminal_write(
+            "Error:\n"
+            "'" USERDATA_FOLDER "'\n"
+            "already exists",
+            true
+        );
+        return;
+    }
+
+    char *template_file = malloc(PATH_MAX * sizeof(char));
+    snprintf(
+        template_file, PATH_MAX,
+        "%s/template.luag", res_folder
+    );
+
+    void *result = cartridge_extract(template_file, USERDATA_FOLDER);
+    free(template_file);
+
+    if(!result) {
+        terminal_write(
+            "Error:\n"
+            "could not extract\n"
+            "cartridge template",
+            true
+        );
+    }
 }
 
 static CMD(cmd_cls) {

@@ -50,7 +50,7 @@ void cartridge_destroy(void) {
     // TODO remove TEMP_DIR
 }
 
-char *cartridge_extract(const char *filename) {
+char *cartridge_extract(const char *filename, char *dest_folder) {
     char *result = NULL;
 
     char *entry_path = NULL;
@@ -76,13 +76,16 @@ char *cartridge_extract(const char *filename) {
         goto exit;
     }
 
-    // prepare temporary folder
-    if(cartridge_folder)
-        free(cartridge_folder);
-    cartridge_folder = malloc(PATH_MAX * sizeof(char));
+    if(!dest_folder) {
+        // prepare temporary folder
+        if(!cartridge_folder)
+            cartridge_folder = malloc(PATH_MAX * sizeof(char));
 
-    snprintf(cartridge_folder, PATH_MAX, TEMP_DIR "/XXXXXX");
-    cartridge_folder = mkdtemp(cartridge_folder);
+        snprintf(cartridge_folder, PATH_MAX, TEMP_DIR "/XXXXXX");
+        cartridge_folder = mkdtemp(cartridge_folder);
+
+        dest_folder = cartridge_folder;
+    }
 
     // extract entries
     struct archive_entry *entry;
@@ -106,7 +109,7 @@ char *cartridge_extract(const char *filename) {
         // change output path
         snprintf(
             entry_path, PATH_MAX,
-            "%s/%s", cartridge_folder, archive_entry_pathname(entry)
+            "%s/%s", dest_folder, archive_entry_pathname(entry)
         );
         archive_entry_set_pathname(entry, entry_path);
 
@@ -171,7 +174,7 @@ char *cartridge_extract(const char *filename) {
             goto exit;
         }
     }
-    result = cartridge_folder;
+    result = dest_folder;
 
     exit:
     archive_read_close(a);
