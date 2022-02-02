@@ -27,7 +27,10 @@
 
 #include <stdio.h>
 #include <limits.h>
-#include <dirent.h>
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 static int init(void);
 static void destroy(void);
@@ -112,6 +115,10 @@ static void destroy(void) {
         free(res_folder);
 }
 
+#ifndef S_ISDIR
+    #define S_ISDIR(mode) ((mode & S_IFMT) == S_IFDIR)
+#endif
+
 // the pointer has to be freed
 static int find_res_folder(char **result) {
     *result = NULL;
@@ -132,10 +139,8 @@ static int find_res_folder(char **result) {
             list[i], user_home
         );
 
-        DIR *dir = opendir(path);
-        if(dir) {
-            closedir(dir);
-
+        struct stat st;
+        if(!stat(path, &st) && S_ISDIR(st.st_mode)) {
             printf("Found resource folder: '%s'\n", path);
             *result = path;
             break;

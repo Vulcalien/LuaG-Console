@@ -26,7 +26,8 @@
 #include <limits.h>
 
 #include <sys/types.h>
-#include <dirent.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 static char *editor_folder = NULL;
 
@@ -104,10 +105,8 @@ static CMD(cmd_setup) {
     if(check_is_developer())
         return;
 
-    DIR *dir = opendir(USERDATA_FOLDER);
-    if(dir) {
-        closedir(dir);
-
+    struct stat st;
+    if(!stat(USERDATA_FOLDER, &st)) {
         terminal_write(
             "Error:\n"
             "'" USERDATA_FOLDER "'\n"
