@@ -40,7 +40,7 @@ static int set_window_icon(void) {
     if(!icon) {
         fprintf(
             stderr,
-            "SDL: cannot load window icon\n"
+            "SDL: could not load window icon\n"
             " - IMG_Load: %s\n", IMG_GetError()
         );
         return -1;
@@ -63,7 +63,7 @@ static int load_font(void) {
     if(!font_surf) {
         fprintf(
             stderr,
-            "SDL: cannot load font file\n"
+            "SDL: could not load font file\n"
             " - IMG_Load: %s\n", IMG_GetError()
         );
         err = -1;
@@ -77,7 +77,7 @@ static int load_font(void) {
     if(!font_texture) {
         fprintf(
             stderr,
-            "SDL: cannot create font texture\n"
+            "SDL: could not create font texture\n"
             " - SDL_CreateTextureFromSurface: %s\n", SDL_GetError()
         );
         err = -2;
@@ -172,7 +172,7 @@ int display_load_atlas(char *filename,
     if(!*surface) {
         fprintf(
             stderr,
-            "SDL: cannot load atlas file %s\n"
+            "SDL: could not load atlas file %s\n"
             " - IMG_Load: %s\n",
             filename, IMG_GetError()
         );
@@ -211,7 +211,7 @@ int display_update_atlas(SDL_Surface **surface, SDL_Texture **texture) {
     if(!*texture) {
         fprintf(
             stderr,
-            "SDL: cannot create atlas texture\n"
+            "SDL: could not create atlas texture\n"
             " - SDL_CreateTextureFromSurface: %s\n", SDL_GetError()
         );
         return -1;
