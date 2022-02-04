@@ -44,11 +44,11 @@ static int check_is_developer(void) {
     return 0;
 }
 
-#define CMD(name) void name(u32 argc, char **argv)
+#define CMD(name) static void name(u32 argc, char **argv)
 #define CALL(command) command(argc, argv)
 #define TEST(command) !strcmp(cmd, command)
 
-static CMD(cmd_run) {
+CMD(cmd_run) {
     if(argc == 0) {
         if(dev_mode) {
             game_folder = USERDATA_FOLDER;
@@ -85,7 +85,7 @@ static CMD(cmd_run) {
     }
 }
 
-static CMD(cmd_edit) {
+CMD(cmd_edit) {
     if(check_is_developer())
         return;
 
@@ -98,10 +98,10 @@ static CMD(cmd_edit) {
     engine_load(true);
 }
 
-static CMD(cmd_pack) {
+CMD(cmd_pack) {
 }
 
-static CMD(cmd_setup) {
+CMD(cmd_setup) {
     if(check_is_developer())
         return;
 
@@ -135,17 +135,17 @@ static CMD(cmd_setup) {
     }
 }
 
-static CMD(cmd_cls) {
+CMD(cmd_cls) {
     terminal_clear();
 }
 
-static CMD(cmd_ver) {
+CMD(cmd_ver) {
     terminal_write(LUAG_VERSION, false);
     terminal_write(COPYRIGHT_NOTICE, false);
     terminal_write("This is Free software", false);
 }
 
-static CMD(cmd_help) {
+CMD(cmd_help) {
     if(argc > 0) {
 
     } else {
@@ -162,7 +162,7 @@ static CMD(cmd_help) {
     }
 }
 
-static CMD(cmd_mode) {
+CMD(cmd_mode) {
     if(argc == 0) {
         terminal_write("current mode:", false);
         if(dev_mode)
@@ -196,7 +196,7 @@ static CMD(cmd_mode) {
     }
 }
 
-static CMD(cmd_files) {
+CMD(cmd_files) {
     if(check_is_developer())
         return;
 
@@ -207,10 +207,10 @@ static CMD(cmd_files) {
     #endif
 }
 
-static CMD(cmd_log) {
+CMD(cmd_log) {
 }
 
-static CMD(cmd_exit) {
+CMD(cmd_exit) {
     should_quit = true;
 }
 
