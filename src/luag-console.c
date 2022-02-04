@@ -115,10 +115,6 @@ static void destroy(void) {
         free(res_folder);
 }
 
-#ifndef S_ISDIR
-    #define S_ISDIR(mode) ((mode & S_IFMT) == S_IFDIR)
-#endif
-
 // the pointer has to be freed
 static int find_res_folder(char **result) {
     *result = NULL;

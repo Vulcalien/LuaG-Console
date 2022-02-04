@@ -17,6 +17,7 @@
 
 #include "terminal.h"
 #include "input.h"
+#include "sound.h"
 #include "cartridge.h"
 
 #include <stdio.h>
@@ -239,6 +240,7 @@ void engine_stop(void) {
     if(editor_lib_handle)
         destroy_luag_library(editor_lib_handle);
 
+    sound_stop_all();
     input_set_text_mode(true);
 }
 
