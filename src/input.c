@@ -51,7 +51,7 @@ void input_tick(void) {
         }
 
         if(e.type == SDL_MOUSEWHEEL)
-            terminal_scroll(e.wheel.y);
+            terminal_scroll(-e.wheel.y);
 
         if(text_mode) {
             if(e.type == SDL_TEXTINPUT && !(SDL_GetModState() & KMOD_CTRL)) {

@@ -76,6 +76,8 @@ static char *output_buffer;
 static u32 output_buffer_read_index = 0;
 static u32 output_buffer_write_index = 0;
 
+static void terminal_set_scroll(i32 scroll);
+
 static void terminal_execute(void);
 
 static void allocate_active_line(void);
@@ -234,6 +236,8 @@ void terminal_tick(void) {
             active_line.cursor_pos++;
         }
     }
+
+    terminal_set_scroll(closed_rows_count - ROWS_IN_DISPLAY + 1);
 }
 
 void terminal_render(void) {
@@ -294,8 +298,16 @@ void terminal_receive_input(const char *c) {
     }
 }
 
+static void terminal_set_scroll(i32 scroll) {
+    if(scroll < 0)
+        scroll = 0;
+    else if(scroll > closed_rows_count)
+        scroll = closed_rows_count;
+    scroll_position = scroll;
+}
+
 void terminal_scroll(i32 amount) {
-    // TODO scroll
+    terminal_set_scroll(scroll_position + amount);
 }
 
 void terminal_clear(void) {
@@ -305,6 +317,8 @@ void terminal_clear(void) {
 
     memset(closed_rows, 0, MAX_CLOSED_ROWS * sizeof(struct row));
     closed_rows_count = 0;
+
+    scroll_position = 0;
 }
 
 void terminal_write(const char *text, bool is_error) {
