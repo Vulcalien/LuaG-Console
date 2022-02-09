@@ -21,10 +21,8 @@
 
 static bool text_mode;
 
-struct input_Key input_keys[KEY_COUNT];
-struct input_Btn input_btns[BTN_COUNT];
-
-i32 input_scroll = 0;
+struct input_Key input_keys[KEY_COUNT + BTN_COUNT];
+struct input_Mouse input_mouse;
 
 void input_init(void) {
     input_reset_keys();
@@ -35,7 +33,7 @@ void input_init(void) {
 void input_tick(void) {
     // update is_down based on is_released
     // (is_released only affects is_down one tick *after* the event occurred)
-    for(u32 i = 0; i < KEY_COUNT; i++) {
+    for(u32 i = 0; i < KEY_COUNT + BTN_COUNT; i++) {
         struct input_Key *key = &input_keys[i];
 
         if(key->is_released)
@@ -45,17 +43,7 @@ void input_tick(void) {
         key->is_released = false;
     }
 
-    for(u32 i = 0; i < BTN_COUNT; i++) {
-        struct input_Key *key = &input_btns[i].key;
-
-        if(key->is_released)
-            key->is_down = false;
-
-        key->is_pressed  = false;
-        key->is_released = false;
-    }
-
-    input_scroll = 0;
+    input_mouse.scroll = 0;
 
     SDL_Event e;
     while(SDL_PollEvent(&e)) {
@@ -120,7 +108,7 @@ void input_tick(void) {
                 }
             } else if(e.type == SDL_MOUSEBUTTONDOWN ||
                       e.type == SDL_MOUSEBUTTONUP) {
-                struct input_Btn *btn = NULL;
+                struct input_Key *btn = NULL;
                 switch(e.button.button) {
                     case SDL_BUTTON_LEFT:
                         btn = &input_btns[BTN_LEFT];
@@ -134,29 +122,22 @@ void input_tick(void) {
                 }
                 if(btn) {
                     if(e.type == SDL_MOUSEBUTTONDOWN)
-                        btn->key.is_pressed = true;
+                        btn->is_pressed = true;
                     else
-                        btn->key.is_released = true;
-
-                    btn->pos.x = e.button.x;
-                    btn->pos.y = e.button.y;
+                        btn->is_released = true;
                 }
             } else if(e.type == SDL_MOUSEWHEEL) {
-                input_scroll += -e.wheel.y;
+                input_mouse.scroll += -e.wheel.y;
+            } else if(e.type == SDL_MOUSEMOTION) {
+                input_mouse.x = e.motion.x;
+                input_mouse.y = e.motion.y;
             }
         }
     }
 
     // update is_down based on is_pressed
-    for(u32 i = 0; i < KEY_COUNT; i++) {
+    for(u32 i = 0; i < KEY_COUNT + BTN_COUNT; i++) {
         struct input_Key *key = &input_keys[i];
-
-        if(key->is_pressed)
-            key->is_down = true;
-    }
-
-    for(u32 i = 0; i < BTN_COUNT; i++) {
-        struct input_Key *key = &input_btns[i].key;
 
         if(key->is_pressed)
             key->is_down = true;
@@ -164,22 +145,11 @@ void input_tick(void) {
 }
 
 void input_reset_keys(void) {
-    for(u32 i = 0; i < KEY_COUNT; i++) {
+    for(u32 i = 0; i < KEY_COUNT + BTN_COUNT; i++) {
         input_keys[i] = (struct input_Key) {
             .is_down     = false,
             .is_pressed  = false,
             .is_released = false
-        };
-    }
-
-    for(u32 i = 0; i < BTN_COUNT; i++) {
-        input_btns[i] = (struct input_Btn) {
-            .key = {
-                .is_down     = false,
-                .is_pressed  = false,
-                .is_released = false
-            },
-            .pos = { 0, 0 }
         };
     }
 }

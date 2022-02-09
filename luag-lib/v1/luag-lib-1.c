@@ -149,7 +149,7 @@ F(mouse) {
         return 0;
     }
 
-    lua_pushboolean(L, input_btns[id].key.is_down);
+    lua_pushboolean(L, input_btns[id].is_down);
     return 1;
 }
 
@@ -161,7 +161,7 @@ F(mouse_pressed) {
         return 0;
     }
 
-    lua_pushboolean(L, input_btns[id].key.is_pressed);
+    lua_pushboolean(L, input_btns[id].is_pressed);
     return 1;
 }
 
@@ -173,25 +173,18 @@ F(mouse_released) {
         return 0;
     }
 
-    lua_pushboolean(L, input_btns[id].key.is_released);
+    lua_pushboolean(L, input_btns[id].is_released);
     return 1;
 }
 
 F(mouse_pos) {
-    lua_Integer id = luaL_checkinteger(L, 1);
-
-    if(id < 0 || id >= BTN_COUNT) {
-        throw_lua_error(L, "bad argument: button '%d' does not exist", id);
-        return 0;
-    }
-
-    lua_pushinteger(L, input_btns[id].pos.x);
-    lua_pushinteger(L, input_btns[id].pos.y);
+    lua_pushinteger(L, input_mouse.x);
+    lua_pushinteger(L, input_mouse.y);
     return 2;
 }
 
 F(scroll) {
-    lua_pushinteger(L, input_scroll);
+    lua_pushinteger(L, input_mouse.scroll);
     return 1;
 }
 
