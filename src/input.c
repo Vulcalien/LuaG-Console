@@ -22,6 +22,9 @@
 static bool text_mode;
 
 struct input_Key input_keys[KEY_COUNT];
+struct input_Btn input_btns[BTN_COUNT];
+
+i32 input_scroll = 0;
 
 void input_init(void) {
     input_reset_keys();
@@ -42,6 +45,17 @@ void input_tick(void) {
         key->is_released = false;
     }
 
+    for(u32 i = 0; i < BTN_COUNT; i++) {
+        struct input_Key *key = &input_btns[i].key;
+
+        if(key->is_released)
+            key->is_down = false;
+
+        key->is_pressed  = false;
+        key->is_released = false;
+    }
+
+    input_scroll = 0;
 
     SDL_Event e;
     while(SDL_PollEvent(&e)) {
@@ -49,9 +63,6 @@ void input_tick(void) {
             should_quit = true;
             break;
         }
-
-        if(e.type == SDL_MOUSEWHEEL)
-            terminal_scroll(-e.wheel.y);
 
         if(text_mode) {
             if(e.type == SDL_TEXTINPUT && !(SDL_GetModState() & KMOD_CTRL)) {
@@ -72,38 +83,66 @@ void input_tick(void) {
                 } else if(e.key.keysym.sym == SDLK_RIGHT) {
                     terminal_receive_input("\x14");
                 }
+            } else if(e.type == SDL_MOUSEWHEEL) {
+                terminal_scroll(-e.wheel.y);
             }
         } else {
-            // not in text mode
-            struct input_Key *key = NULL;
-            switch(e.key.keysym.sym) {
-                case SDLK_UP:
-                case SDLK_w:
-                    key = &input_keys[KEY_UP];
-                    break;
-                case SDLK_LEFT:
-                case SDLK_a:
-                    key = &input_keys[KEY_LEFT];
-                    break;
-                case SDLK_DOWN:
-                case SDLK_s:
-                    key = &input_keys[KEY_DOWN];
-                    break;
-                case SDLK_RIGHT:
-                case SDLK_d:
-                    key = &input_keys[KEY_RIGHT];
-                    break;
-            }
-            if(key) {
-                switch(e.type) {
-                    case SDL_KEYDOWN:
-                        if(!e.key.repeat)
-                            key->is_pressed = true;
+            if(e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {
+                struct input_Key *key = NULL;
+                switch(e.key.keysym.sym) {
+                    case SDLK_UP:
+                    case SDLK_w:
+                        key = &input_keys[KEY_UP];
                         break;
-                    case SDL_KEYUP:
-                        key->is_released = true;
+                    case SDLK_LEFT:
+                    case SDLK_a:
+                        key = &input_keys[KEY_LEFT];
+                        break;
+                    case SDLK_DOWN:
+                    case SDLK_s:
+                        key = &input_keys[KEY_DOWN];
+                        break;
+                    case SDLK_RIGHT:
+                    case SDLK_d:
+                        key = &input_keys[KEY_RIGHT];
                         break;
                 }
+                if(key) {
+                    switch(e.type) {
+                        case SDL_KEYDOWN:
+                            if(!e.key.repeat)
+                                key->is_pressed = true;
+                            break;
+                        case SDL_KEYUP:
+                            key->is_released = true;
+                            break;
+                    }
+                }
+            } else if(e.type == SDL_MOUSEBUTTONDOWN ||
+                      e.type == SDL_MOUSEBUTTONUP) {
+                struct input_Btn *btn = NULL;
+                switch(e.button.button) {
+                    case SDL_BUTTON_LEFT:
+                        btn = &input_btns[BTN_LEFT];
+                        break;
+                    case SDL_BUTTON_MIDDLE:
+                        btn = &input_btns[BTN_MIDDLE];
+                        break;
+                    case SDL_BUTTON_RIGHT:
+                        btn = &input_btns[BTN_RIGHT];
+                        break;
+                }
+                if(btn) {
+                    if(e.type == SDL_MOUSEBUTTONDOWN)
+                        btn->key.is_pressed = true;
+                    else
+                        btn->key.is_released = true;
+
+                    btn->pos.x = e.button.x;
+                    btn->pos.y = e.button.y;
+                }
+            } else if(e.type == SDL_MOUSEWHEEL) {
+                input_scroll += -e.wheel.y;
             }
         }
     }
@@ -123,6 +162,17 @@ void input_reset_keys(void) {
             .is_down     = false,
             .is_pressed  = false,
             .is_released = false
+        };
+    }
+
+    for(u32 i = 0; i < BTN_COUNT; i++) {
+        input_btns[i] = (struct input_Btn) {
+            .key = {
+                .is_down     = false,
+                .is_pressed  = false,
+                .is_released = false
+            },
+            .pos = { 0, 0 }
         };
     }
 }

@@ -24,6 +24,14 @@ struct input_Key {
     bool is_released;
 };
 
+struct input_Btn {
+    struct input_Key key;
+    struct {
+        i32 x;
+        i32 y;
+    } pos;
+};
+
 #define KEY_COUNT (4)
 
 #define KEY_UP    (0)
@@ -31,6 +39,15 @@ struct input_Key {
 #define KEY_DOWN  (2)
 #define KEY_RIGHT (3)
 extern struct input_Key input_keys[KEY_COUNT];
+
+#define BTN_COUNT (3)
+
+#define BTN_LEFT   (0)
+#define BTN_MIDDLE (1)
+#define BTN_RIGHT  (2)
+extern struct input_Btn input_btns[BTN_COUNT];
+
+extern i32 input_scroll;
 
 extern void input_init(void);
 extern void input_tick(void);
