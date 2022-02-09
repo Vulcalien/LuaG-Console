@@ -154,6 +154,13 @@ void input_tick(void) {
         if(key->is_pressed)
             key->is_down = true;
     }
+
+    for(u32 i = 0; i < BTN_COUNT; i++) {
+        struct input_Key *key = &input_btns[i].key;
+
+        if(key->is_pressed)
+            key->is_down = true;
+    }
 }
 
 void input_reset_keys(void) {
