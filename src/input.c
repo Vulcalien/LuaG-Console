@@ -31,16 +31,16 @@ void input_init(void) {
 }
 
 void input_tick(void) {
-    // update is_down based on is_released
-    // (is_released only affects is_down one tick *after* the event occurred)
+    // update is_down based on release_count
+    // (release_count only affects is_down one tick *after* the event occurred)
     for(u32 i = 0; i < KEY_COUNT + BTN_COUNT; i++) {
         struct input_Key *key = &input_keys[i];
 
-        if(key->is_released)
+        if(key->release_count)
             key->is_down = false;
 
-        key->is_pressed  = false;
-        key->is_released = false;
+        key->press_count   = 0;
+        key->release_count = 0;
     }
 
     input_mouse.scroll = 0;
@@ -99,10 +99,10 @@ void input_tick(void) {
                     switch(e.type) {
                         case SDL_KEYDOWN:
                             if(!e.key.repeat)
-                                key->is_pressed = true;
+                                key->press_count++;
                             break;
                         case SDL_KEYUP:
-                            key->is_released = true;
+                            key->release_count++;
                             break;
                     }
                 }
@@ -122,9 +122,9 @@ void input_tick(void) {
                 }
                 if(btn) {
                     if(e.type == SDL_MOUSEBUTTONDOWN)
-                        btn->is_pressed = true;
+                        btn->press_count++;
                     else
-                        btn->is_released = true;
+                        btn->release_count++;
                 }
             } else if(e.type == SDL_MOUSEWHEEL) {
                 input_mouse.scroll += -e.wheel.y;
@@ -135,11 +135,11 @@ void input_tick(void) {
         }
     }
 
-    // update is_down based on is_pressed
+    // update is_down based on press_count
     for(u32 i = 0; i < KEY_COUNT + BTN_COUNT; i++) {
         struct input_Key *key = &input_keys[i];
 
-        if(key->is_pressed)
+        if(key->press_count)
             key->is_down = true;
     }
 }
@@ -147,9 +147,9 @@ void input_tick(void) {
 void input_reset_keys(void) {
     for(u32 i = 0; i < KEY_COUNT + BTN_COUNT; i++) {
         input_keys[i] = (struct input_Key) {
-            .is_down     = false,
-            .is_pressed  = false,
-            .is_released = false
+            .is_down       = false,
+            .press_count   = 0,
+            .release_count = 0
         };
     }
 }

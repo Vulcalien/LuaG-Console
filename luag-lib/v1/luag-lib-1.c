@@ -124,7 +124,7 @@ F(key_pressed) {
         return 0;
     }
 
-    lua_pushboolean(L, input_keys[id].is_pressed);
+    lua_pushboolean(L, input_keys[id].press_count);
     return 1;
 }
 
@@ -136,7 +136,7 @@ F(key_released) {
         return 0;
     }
 
-    lua_pushboolean(L, input_keys[id].is_released);
+    lua_pushboolean(L, input_keys[id].release_count);
     return 1;
 }
 
@@ -161,7 +161,7 @@ F(mouse_pressed) {
         return 0;
     }
 
-    lua_pushboolean(L, input_btns[id].is_pressed);
+    lua_pushboolean(L, input_btns[id].press_count);
     return 1;
 }
 
@@ -173,7 +173,7 @@ F(mouse_released) {
         return 0;
     }
 
-    lua_pushboolean(L, input_btns[id].is_released);
+    lua_pushboolean(L, input_btns[id].release_count);
     return 1;
 }
 

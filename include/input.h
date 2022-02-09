@@ -20,8 +20,8 @@
 
 struct input_Key {
     bool is_down;
-    bool is_pressed;
-    bool is_released;
+    u32 press_count;
+    u32 release_count;
 };
 
 struct input_Mouse {
