@@ -85,7 +85,7 @@ static void allocate_active_line(void);
 int terminal_init(void) {
     allocate_active_line();
 
-    closed_rows = calloc(MAX_CLOSED_ROWS, sizeof(struct row));
+    closed_rows     = calloc(MAX_CLOSED_ROWS, sizeof(struct row));
     command_history = malloc(COMMAND_HISTORY_SIZE * sizeof(char *));
 
     user_buffer   = malloc(MAX_BUFFERED_CHARS * sizeof(char));
@@ -106,14 +106,24 @@ void terminal_destroy(void) {
     free(output_buffer);
 }
 
-static inline void check_closed_rows(void) {
+static inline void close_row(void) {
+    closed_rows_count++;
+
     if(closed_rows_count == MAX_CLOSED_ROWS) {
         // overwrite the first half of the closed lines
         memcpy(
             closed_rows,
             closed_rows + MAX_CLOSED_ROWS / 2,
-            MAX_CLOSED_ROWS / 2
+            (MAX_CLOSED_ROWS / 2) * sizeof(struct row)
         );
+
+        // delete second half
+        memset(
+            closed_rows + MAX_CLOSED_ROWS / 2,
+            0,
+            (MAX_CLOSED_ROWS / 2) * sizeof(struct row)
+        );
+
         closed_rows_count = MAX_CLOSED_ROWS / 2;
     }
 }
@@ -149,16 +159,10 @@ void terminal_tick(void) {
     if(c == '\n') {
         // split and save the active line into closed_rows
         struct row *current_row;
-        for(u32 i = 0; i <= active_line.len; i++) {
-            // if this then it is time to switch row
-            if(i % CHARS_IN_ROW == 0 || i == active_line.len) {
-                // close the last row
-                if(i > 0 || active_line.len == 0) {
-                    closed_rows_count++;
-                    check_closed_rows();
-                }
-
-                // grab the next row
+        for(u32 i = 0; i < active_line.len; i++) {
+            if(i % CHARS_IN_ROW == 0) {
+                if(i > 0)
+                    close_row();
                 current_row = &closed_rows[closed_rows_count];
 
                 switch(active_line.type) {
@@ -175,6 +179,7 @@ void terminal_tick(void) {
             }
             current_row->text[i % CHARS_IN_ROW] = active_line.text[i];
         }
+        close_row();
 
         if(active_line.type == LINE_TYPE_INPUT)
             terminal_execute();
@@ -366,7 +371,7 @@ static inline void check_command_history(void) {
         memcpy(
             command_history,
             command_history + COMMAND_HISTORY_SIZE / 2,
-            COMMAND_HISTORY_SIZE / 2
+            (COMMAND_HISTORY_SIZE / 2) * sizeof(char *)
         );
         used_command_history = COMMAND_HISTORY_SIZE / 2;
     }
