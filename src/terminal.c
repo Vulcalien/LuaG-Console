@@ -299,10 +299,12 @@ void terminal_receive_input(const char *c) {
 }
 
 static void terminal_set_scroll(i32 scroll) {
+    if(scroll > ((i32) closed_rows_count) - ROWS_IN_DISPLAY + 1)
+        scroll = closed_rows_count - ROWS_IN_DISPLAY + 1;
+
     if(scroll < 0)
         scroll = 0;
-    else if(scroll > closed_rows_count)
-        scroll = closed_rows_count;
+
     scroll_position = scroll;
 }
 
