@@ -19,10 +19,11 @@ local function btn_render(self)
     )
 end
 
-function button(x, y, icon, highlight_fn)
+function button(x, y, icon, click_fn, highlight_fn)
     local result = element(
         x, y,      -- x, y
         8, 8,      -- w, h
+        click_fn,  -- click
         btn_render -- render
     )
 
