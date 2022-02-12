@@ -15,27 +15,34 @@ function init()
         }
     }
 
-    buttons = {
-        goto_term = {
-            x = 1, y = 1,
-            icon = 1
-        },
-        map_editor = {
-            x = 12, y = 1,
-            icon = 16
-        },
-        sprite_editor = {
-            x = 23, y = 1,
-            icon = 17
-        },
-        save = {
-            x = scr_w - 1 - 8, y = 1,
-            icon = 0,
-            is_highlighted = function()
+    loadscript("gui/element.lua")
+    loadscript("gui/button.lua")
+
+    gui = {
+        goto_term = button(
+            1, -- x
+            1, -- y
+            1  -- icon
+        ),
+        map_editor = button(
+            12, -- x
+            1,  -- y
+            16  -- icon
+        ),
+        sprite_editor = button(
+            23, -- x
+            1,  -- y
+            17  -- icon
+        ),
+        save = button(
+            scr_w - 1 - 8, -- x
+            1,             -- y
+            0,             -- icon
+            function()     -- highlight_fn
                 -- TODO highlight "save" icon
                 return false
             end
-        }
+        )
     }
 
     -- load editors
@@ -71,27 +78,11 @@ function render()
 
     write(current_editor.title, colors.secondary.fg, 2, scr_h - font_h - 1)
 
-    -- draw buttons
-    for _,btn_list in ipairs({ buttons, current_editor.buttons }) do
-        for _,btn in pairs(btn_list) do
-            pix(btn.x, btn.y, colors.secondary.bg, 8, 8)
+    for _,element in pairs(gui) do
+        element:render()
+    end
 
-            local col
-            if btn.is_highlighted and btn.is_highlighted() then
-                col = colors.highlight.fg
-            else
-                col = colors.secondary.fg
-            end
-
-            spr(
-                btn.icon,       -- id
-                btn.x, btn.y,   -- x, y
-                1,              -- scale
-                1, 1,           -- sw, sh,
-                0,              -- rot
-                false, false,   -- h_flip, v_flip
-                col             -- color_mod
-            )
-        end
+    for _,element in pairs(current_editor.gui) do
+        element:render()
     end
 end

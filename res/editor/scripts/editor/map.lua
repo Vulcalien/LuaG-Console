@@ -23,5 +23,5 @@ editors.map = {
         editor_draw_atlas(scr_w / 2 - 64, scr_h - 10 - 37, 0, 4)
     end,
 
-    buttons = {}
+    gui = {}
 }

@@ -29,39 +29,47 @@ editors.sprite = {
         editor_draw_atlas(scr_w / 2 - 64, scr_h - 10 - 69, 0, 8)
     end,
 
-    buttons = {
-        scope_big = {
-            x = xc - 39, y = 31,
-            icon = 48
-        },
-        scope_small = {
-            x = xc - 39, y = 40,
-            icon = 49
-        },
+    gui = {
+        scope_big = button(
+            xc - 39, -- x
+            31,      -- y
+            48       -- icon
+       ),
+        scope_small = button(
+            xc - 39, -- x
+            40,      -- y
+            49       -- icon
+       ),
 
-        tool_pencil = {
-            x = xc - 63, y = 18,
-            icon = 32
-        },
-        tool_bucket = {
-            x = xc - 63, y = 27,
-            icon = 33
-        },
-        tool_pickup = {
-            x = xc - 63, y = 36,
-            icon = 34
-        },
-        undo = {
-            x = xc - 63, y = 45,
-            icon = 2
-        },
-        redo = {
-            x = xc - 63, y = 54,
-            icon = 3
-        },
-        tool_select = {
-            x = xc - 54, y = 18,
-            icon = 35
-        }
+        tool_pencil = button(
+            xc - 63, -- x
+            18,      -- y
+            32       -- icon
+       ),
+        tool_bucket = button(
+            xc - 63, -- x
+            27,      -- y
+            33       -- icon
+       ),
+        tool_pickup = button(
+            xc - 63, -- x
+            36,      -- y
+            34       -- icon
+       ),
+        undo = button(
+            xc - 63, -- x
+            45,      -- y
+            2        -- icon
+       ),
+        redo = button(
+            xc - 63, -- x
+            54,      -- y
+            3        -- icon
+       ),
+        tool_select = button(
+            xc - 54, -- x
+            18,      -- y
+            35       -- icon
+       )
     }
 }
