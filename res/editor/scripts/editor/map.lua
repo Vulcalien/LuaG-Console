@@ -5,14 +5,12 @@ editors.map = {
         self.gui = {
             -- map preview
             element(
-                5,             -- x
-                15,            -- y
-                scr_w - 10,    -- w
-                80,            -- h
-                function(self) -- click
+                5, 15,          -- x, y
+                scr_w - 10, 80, -- w, h
+                function(self)  -- click
                     -- TODO
                 end,
-                function(self) -- render
+                function(self)  -- render
                     pix(self.x, self.y, colors.secondary.bg, self.w, self.h)
                     editor_maprender(1, -self.x, -self.y)
 

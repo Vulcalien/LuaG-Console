@@ -21,10 +21,29 @@ function init()
     loadscript("gui/atlas.lua")
 
     gui = {
+        -- top_bar
+        box(0, 0, scr_w, 10, colors.primary.bg),
+
+        -- bottom_bar
+        element(
+            0, scr_h - 10, -- x, y
+            scr_w, 10,     -- w, h
+            nil,           -- click
+            function(self) -- render
+                pix(self.x, self.y, colors.primary.bg, self.w, self.h)
+
+                write(
+                    current_editor.title,        -- text
+                    colors.secondary.fg,         -- color
+                    self.x + 2,                  -- x
+                    self.y + self.h - font_h - 1 -- y
+                )
+            end
+        ),
+
         -- goto_term
         button(
-            1,         -- x
-            1,         -- y
+            1, 1,      -- x, y
             1,         -- icon
             function() -- click_fn
                 -- TODO
@@ -32,8 +51,7 @@ function init()
         ),
         -- map_editor
         button(
-            12,        -- x
-            1,         -- y
+            12, 1,     -- x, y
             16,        -- icon
             function() -- click_fn
                 current_editor = editors.map
@@ -41,8 +59,7 @@ function init()
         ),
         -- sprite_editor
         button(
-            23,        -- x
-            1,         -- y
+            23, 1,     -- x, y
             17,        -- icon
             function() -- click_fn
                 current_editor = editors.sprite
@@ -89,8 +106,8 @@ function tick()
                    y >= e.y and y < e.y + e.h then
                     if e.click then
                         e:click(x - e.x, y - e.y)
+                        break
                     end
-                    break
                 end
             end
         end
@@ -106,15 +123,6 @@ function render()
         e:render()
     end
 
-    -- draw top bar
-    pix(0, 0, colors.primary.bg, scr_w, 10)
-
-    -- draw bottom bar
-    pix(0, scr_h - 10, colors.primary.bg, scr_w, 10)
-
-    write(current_editor.title, colors.secondary.fg, 2, scr_h - font_h - 1)
-
-    -- render GUI elements
     for _,e in ipairs(gui) do
         e:render()
     end
