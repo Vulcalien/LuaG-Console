@@ -2,7 +2,7 @@ local function btn_render(self)
     pix(self.x, self.y, colors.secondary.bg, self.w, self.h)
 
     local col
-    if self.highlight_fn and self.highlight_fn() then
+    if self.highlight_fn and self:highlight_fn() then
         col = colors.highlight.fg
     else
         col = colors.secondary.fg

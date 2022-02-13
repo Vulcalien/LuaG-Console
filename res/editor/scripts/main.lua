@@ -16,10 +16,13 @@ function init()
     }
 
     loadscript("gui/element.lua")
+    loadscript("gui/box.lua")
     loadscript("gui/button.lua")
+    loadscript("gui/atlas.lua")
 
     gui = {
-        goto_term = button(
+        -- goto_term
+        button(
             1,         -- x
             1,         -- y
             1,         -- icon
@@ -27,7 +30,8 @@ function init()
                 -- TODO
             end
         ),
-        map_editor = button(
+        -- map_editor
+        button(
             12,        -- x
             1,         -- y
             16,        -- icon
@@ -35,7 +39,8 @@ function init()
                 current_editor = editors.map
             end
         ),
-        sprite_editor = button(
+        -- sprite_editor
+        button(
             23,        -- x
             1,         -- y
             17,        -- icon
@@ -43,7 +48,8 @@ function init()
                 current_editor = editors.sprite
             end
         ),
-        save = button(
+        -- save
+        button(
             scr_w - 1 - 8, -- x
             1,             -- y
             0,             -- icon
@@ -63,8 +69,9 @@ function init()
     loadscript("editor/map.lua")
     loadscript("editor/sprite.lua")
 
-    editors.map.init()
-    editors.sprite.init()
+    for _,editor in pairs(editors) do
+        editor:init()
+    end
 
     current_editor = editors.map
 
@@ -72,19 +79,19 @@ function init()
 end
 
 function tick()
-    current_editor.tick()
-
     -- GUI click action
-    if mouse(0) then
+    if mouse_pressed(0) then
         local x, y = mouse_pos()
 
-        for _,e in pairs(gui) do
-            if x >= e.x and x < e.x + e.w and
-               y >= e.y and y < e.y + e.h then
-                if e.click then
-                    e:click(x - e.x, y - e.y)
+        for _,element_list in pairs({ gui, current_editor.gui }) do
+            for _,e in ipairs(element_list) do
+                if x >= e.x and x < e.x + e.w and
+                   y >= e.y and y < e.y + e.h then
+                    if e.click then
+                        e:click(x - e.x, y - e.y)
+                    end
+                    break
                 end
-                break
             end
         end
     end
@@ -95,7 +102,9 @@ end
 function render()
     clear(0x000000)
 
-    current_editor.render()
+    for _,e in ipairs(current_editor.gui) do
+        e:render()
+    end
 
     -- draw top bar
     pix(0, 0, colors.primary.bg, scr_w, 10)
@@ -106,11 +115,7 @@ function render()
     write(current_editor.title, colors.secondary.fg, 2, scr_h - font_h - 1)
 
     -- render GUI elements
-    for _,e in pairs(gui) do
-        e:render()
-    end
-
-    for _,e in pairs(current_editor.gui) do
+    for _,e in ipairs(gui) do
         e:render()
     end
 end

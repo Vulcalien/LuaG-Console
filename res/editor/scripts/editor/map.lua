@@ -1,27 +1,42 @@
 editors.map = {
     title = "Map Editor",
-    init = function()
 
-    end,
+    init = function(self)
+        self.gui = {
+            -- map preview
+            element(
+                5,             -- x
+                15,            -- y
+                scr_w - 10,    -- w
+                80,            -- h
+                function(self) -- click
+                    -- TODO
+                end,
+                function(self) -- render
+                    pix(self.x, self.y, colors.secondary.bg, self.w, self.h)
+                    editor_maprender(1, -self.x, -self.y)
 
-    tick = function()
+                    local col = 0x000000
 
-    end,
+                    local x1 = self.x + self.w
+                    local y1 = self.y + self.h
 
-    render = function()
-        -- draw map and clear the surrounding area
-        pix(5, 15, colors.secondary.bg, scr_w - 10, 80)
-        editor_maprender(1, -5, -15)
-
-        pix(0,         10, 0x000000, scr_w, 5)               --top
-        pix(0,         95, 0x000000, scr_w, scr_h - 20 - 85) --bottom
-        pix(0,         15, 0x000000, 5,     80)              --left
-        pix(scr_w - 5, 15, 0x000000, 5,     80)              --right
-
-        -- TODO draw size selectors
-
-        editor_draw_atlas(scr_w / 2 - 64, scr_h - 10 - 37, 0, 4)
-    end,
-
-    gui = {}
+                    pix(0,  10,     col, scr_w,      self.y - 10)     -- top
+                    pix(0,  y1,     col, scr_w,      scr_h - 10 - y1) -- bottom
+                    pix(0,  self.y, col, self.x,     self.h)          -- left
+                    pix(x1, self.y, col, scr_w - x1, self.h)          -- right
+                end
+            ),
+            -- atlas
+            atlas(
+                self,              -- editor
+                (scr_w - 128) / 2, -- x
+                scr_h - 10 - 37,   -- y
+                4,                 -- rows
+                function(id)       -- select_fn
+                    -- TODO
+                end
+            )
+        }
+    end
 }
