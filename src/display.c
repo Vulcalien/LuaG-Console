@@ -239,6 +239,12 @@ void display_clear(u32 color) {
     display_fill(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT, color);
 }
 
+void display_fill(u32 x, u32 y, u32 w, u32 h, u32 color) {
+    SDL_SetRenderDrawColor(renderer, color >> 16, color >> 8, color, 0xff);
+    SDL_Rect rect = { x, y, w, h };
+    SDL_RenderFillRect(renderer, &rect);
+}
+
 static void display_draw_char(char c, u32 color, i32 x, i32 y) {
     if(c < ' ' || c > '~')
         return;
@@ -255,12 +261,6 @@ static void display_draw_char(char c, u32 color, i32 x, i32 y) {
 
     SDL_SetTextureColorMod(font_texture, color >> 16, color >> 8, color);
     SDL_RenderCopy(renderer, font_texture, &src, &dst);
-}
-
-void display_fill(u32 x, u32 y, u32 w, u32 h, u32 color) {
-    SDL_SetRenderDrawColor(renderer, color >> 16, color >> 8, color, 0xff);
-    SDL_Rect rect = { x, y, w, h };
-    SDL_RenderFillRect(renderer, &rect);
 }
 
 void display_write(const char *text, u32 color, i32 x, i32 y) {
@@ -287,7 +287,7 @@ void display_draw_from_atlas(SDL_Texture *texture,
                              u32 id,    u32 x,       u32 y,
                              u32 scale, u32 sw,      u32 sh,
                              u32 rot,   bool h_flip, bool v_flip,
-                             u32 color_mod) {
+                             u32 col_mod) {
     if(!texture)
         texture = atlas_texture;
 
@@ -303,7 +303,7 @@ void display_draw_from_atlas(SDL_Texture *texture,
 
     SDL_SetTextureColorMod(
         texture,
-        color_mod >> 16, color_mod >> 8, color_mod
+        col_mod >> 16, col_mod >> 8, col_mod
     );
 
     if(rot % 4 == 0 && !h_flip && !v_flip) {

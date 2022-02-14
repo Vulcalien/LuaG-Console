@@ -278,10 +278,9 @@ void terminal_render(void) {
             1, 1 + (CHAR_HEIGHT + LINE_SPACING) * rendered_lines
         );
 
-        if(
-            (active_line.type == LINE_TYPE_INPUT || cursor_animation_ticks != 0)
-            && cursor_animation_ticks / ANIMATION_DELAY % 2 == 0
-        ) {
+        if((active_line.type == LINE_TYPE_INPUT ||
+            cursor_animation_ticks != 0) &&
+           cursor_animation_ticks / ANIMATION_DELAY % 2 == 0) {
             display_write(
                 "_", CURSOR_COLOR,
                 1 + (CHAR_WIDTH + LETTER_SPACING) * active_line.cursor_pos,
