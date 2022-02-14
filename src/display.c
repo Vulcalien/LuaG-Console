@@ -127,6 +127,7 @@ int display_init(void) {
         );
         return -3;
     }
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     SDL_RenderSetLogicalSize(renderer, DISPLAY_WIDTH, DISPLAY_HEIGHT);
 
     IMG_Init(IMG_INIT_PNG);

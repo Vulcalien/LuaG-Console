@@ -91,8 +91,10 @@ static void *load_luag_library(lua_State *L, bool is_editor_lib) {
             );
 
             handle = dlopen(filename, RTLD_LAZY);
-            if(handle)
+            if(handle) {
+                printf("Loading LuaG Library: %s\n", filename);
                 break;
+            }
         }
         free(filename);
 
