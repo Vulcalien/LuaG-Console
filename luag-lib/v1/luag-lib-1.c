@@ -231,8 +231,8 @@ F(pix) {
     lua_Integer y     = luaL_checkinteger(L, 2);
     lua_Integer color = luaL_checkinteger(L, 3);
 
-    lua_Integer w = luaL_opt(L, luaL_checkinteger, 4, 1);
-    lua_Integer h = luaL_opt(L, luaL_checkinteger, 5, 1);
+    lua_Integer w = luaL_optinteger(L, 4, 1);
+    lua_Integer h = luaL_optinteger(L, 5, 1);
 
     display_fill(x, y, w, h, color, 0xff);
     return 0;
@@ -253,17 +253,17 @@ F(spr) {
     lua_Integer x  = luaL_checkinteger(L, 2);
     lua_Integer y  = luaL_checkinteger(L, 3);
 
-    lua_Integer scale = luaL_opt(L, luaL_checkinteger, 4, 1);
+    lua_Integer scale = luaL_optinteger(L, 4, 1);
 
-    lua_Integer sw = luaL_opt(L, luaL_checkinteger, 5, 1);
-    lua_Integer sh = luaL_opt(L, luaL_checkinteger, 6, 1);
+    lua_Integer sw = luaL_optinteger(L, 5, 1);
+    lua_Integer sh = luaL_optinteger(L, 6, 1);
 
-    lua_Integer rot = luaL_opt(L, luaL_checkinteger, 7, 0);
+    lua_Integer rot = luaL_optinteger(L, 7, 0);
 
     bool h_flip = luaL_opt(L, lua_toboolean, 8, false);
     bool v_flip = luaL_opt(L, lua_toboolean, 9, false);
 
-    lua_Integer col_mod = luaL_opt(L, luaL_checkinteger, 10, 0xffffff);
+    lua_Integer col_mod = luaL_optinteger(L, 10, 0xffffff);
 
     char *err_msg = NULL;
     if(id < 0 || id >= 256)
@@ -332,10 +332,10 @@ F(set_tile) {
 }
 
 F(maprender) {
-    lua_Integer scale = luaL_opt(L, luaL_checkinteger, 1, 1);
+    lua_Integer scale = luaL_optinteger(L, 1, 1);
 
-    lua_Integer xoff = luaL_opt(L, luaL_checkinteger, 2, 0);
-    lua_Integer yoff = luaL_opt(L, luaL_checkinteger, 3, 0);
+    lua_Integer xoff = luaL_optinteger(L, 2, 0);
+    lua_Integer yoff = luaL_optinteger(L, 3, 0);
 
     char *err_msg = NULL;
     if(scale <= 0)
