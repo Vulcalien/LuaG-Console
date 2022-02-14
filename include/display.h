@@ -51,6 +51,6 @@ extern void display_draw_from_atlas(SDL_Texture *texture,
                                     u32 id,    u32 x,       u32 y,
                                     u32 scale, u32 sw,      u32 sh,
                                     u32 rot,   bool h_flip, bool v_flip,
-                                    u32 col_mod);
+                                    u8  alpha, u32 col_mod);
 
 #endif // VULC_LUAG_DISPLAY

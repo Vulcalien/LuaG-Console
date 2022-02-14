@@ -106,7 +106,7 @@ F(editor_spr) {
             id, x, y,
             scale, sw, sh,
             0, false, false,
-            0xffffff
+            0xff, 0xffffff
         );
     }
     return 0;
@@ -154,7 +154,7 @@ F(editor_maprender) {
                     id, xt * tile_size - xoff, yt * tile_size - yoff,
                     scale, 1, 1,
                     0, false, false,
-                    0xffffff
+                    0xff, 0xffffff
                 );
             }
         }
@@ -187,7 +187,7 @@ F(editor_draw_atlas) {
                     id, x0 + xs * SPRITE_SIZE, y0 + ys * SPRITE_SIZE,
                     1, 1, 1,
                     0, false, false,
-                    0xffffff
+                    0xff, 0xffffff
                 );
             }
         }

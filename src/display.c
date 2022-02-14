@@ -216,6 +216,8 @@ int display_update_atlas(SDL_Surface **surface, SDL_Texture **texture) {
         );
         return -1;
     }
+    SDL_SetTextureBlendMode(*texture, SDL_BLENDMODE_BLEND);
+
     return 0;
 }
 
@@ -287,7 +289,7 @@ void display_draw_from_atlas(SDL_Texture *texture,
                              u32 id,    u32 x,       u32 y,
                              u32 scale, u32 sw,      u32 sh,
                              u32 rot,   bool h_flip, bool v_flip,
-                             u32 col_mod) {
+                             u8  alpha, u32 col_mod) {
     if(!texture)
         texture = atlas_texture;
 
@@ -300,6 +302,8 @@ void display_draw_from_atlas(SDL_Texture *texture,
         .x = x,                        .y = y,
         .w = sw * SPRITE_SIZE * scale, .h = sh * SPRITE_SIZE * scale
     };
+
+    SDL_SetTextureAlphaMod(texture, alpha);
 
     SDL_SetTextureColorMod(
         texture,

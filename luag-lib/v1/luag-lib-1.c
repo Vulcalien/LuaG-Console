@@ -269,8 +269,8 @@ F(spr) {
     bool v_flip = lua_isnoneornil(L, 9)
                   ? false : lua_toboolean(L, 9);
 
-    lua_Integer color_mod = lua_isnoneornil(L, 10)
-                            ? 0xffffff : luaL_checkinteger(L, 10);
+    lua_Integer col_mod = lua_isnoneornil(L, 10)
+                          ? 0xffffff : luaL_checkinteger(L, 10);
 
     char *err_msg = NULL;
     if(id < 0 || id >= 256)
@@ -290,7 +290,7 @@ F(spr) {
             id, x, y,
             scale, sw, sh,
             rot, h_flip, v_flip,
-            color_mod
+            0xff, col_mod
         );
     }
     return 0;
@@ -380,7 +380,7 @@ F(maprender) {
                     id, xt * tile_size - xoff, yt * tile_size - yoff,
                     scale, 1, 1,
                     0, false, false,
-                    0xffffff
+                    0xff, 0xffffff
                 );
             }
         }
