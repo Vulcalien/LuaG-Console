@@ -231,8 +231,8 @@ F(pix) {
     lua_Integer y     = luaL_checkinteger(L, 2);
     lua_Integer color = luaL_checkinteger(L, 3);
 
-    lua_Integer w = lua_isnoneornil(L, 4) ? 1 : luaL_checkinteger(L, 4);
-    lua_Integer h = lua_isnoneornil(L, 5) ? 1 : luaL_checkinteger(L, 5);
+    lua_Integer w = luaL_opt(L, luaL_checkinteger, 4, 1);
+    lua_Integer h = luaL_opt(L, luaL_checkinteger, 5, 1);
 
     display_fill(x, y, w, h, color, 0xff);
     return 0;
@@ -253,24 +253,17 @@ F(spr) {
     lua_Integer x  = luaL_checkinteger(L, 2);
     lua_Integer y  = luaL_checkinteger(L, 3);
 
-    lua_Integer scale = lua_isnoneornil(L, 4)
-                        ? 1 : luaL_checkinteger(L, 4);
+    lua_Integer scale = luaL_opt(L, luaL_checkinteger, 4, 1);
 
-    lua_Integer sw = lua_isnoneornil(L, 5)
-                     ? 1 : luaL_checkinteger(L, 5);
-    lua_Integer sh = lua_isnoneornil(L, 6)
-                     ? 1 : luaL_checkinteger(L, 6);
+    lua_Integer sw = luaL_opt(L, luaL_checkinteger, 5, 1);
+    lua_Integer sh = luaL_opt(L, luaL_checkinteger, 6, 1);
 
-    lua_Integer rot = lua_isnoneornil(L, 7)
-                      ? 0 : luaL_checkinteger(L, 7);
+    lua_Integer rot = luaL_opt(L, luaL_checkinteger, 7, 0);
 
-    bool h_flip = lua_isnoneornil(L, 8)
-                  ? false : lua_toboolean(L, 8);
-    bool v_flip = lua_isnoneornil(L, 9)
-                  ? false : lua_toboolean(L, 9);
+    bool h_flip = luaL_opt(L, lua_toboolean, 8, false);
+    bool v_flip = luaL_opt(L, lua_toboolean, 9, false);
 
-    lua_Integer col_mod = lua_isnoneornil(L, 10)
-                          ? 0xffffff : luaL_checkinteger(L, 10);
+    lua_Integer col_mod = luaL_opt(L, luaL_checkinteger, 10, 0xffffff);
 
     char *err_msg = NULL;
     if(id < 0 || id >= 256)
@@ -339,13 +332,10 @@ F(set_tile) {
 }
 
 F(maprender) {
-    lua_Integer scale = lua_isnoneornil(L, 1)
-                        ? 1 : luaL_checkinteger(L, 1);
+    lua_Integer scale = luaL_opt(L, luaL_checkinteger, 1, 1);
 
-    lua_Integer xoff = lua_isnoneornil(L, 2)
-                       ? 0 : luaL_checkinteger(L, 2);
-    lua_Integer yoff = lua_isnoneornil(L, 3)
-                       ? 0 : luaL_checkinteger(L, 3);
+    lua_Integer xoff = luaL_opt(L, luaL_checkinteger, 2, 0);
+    lua_Integer yoff = luaL_opt(L, luaL_checkinteger, 3, 0);
 
     char *err_msg = NULL;
     if(scale <= 0)
