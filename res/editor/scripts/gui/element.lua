@@ -1,4 +1,4 @@
-function element(x, y, w, h, click, render)
+function element(x, y, w, h, render, click)
     return {
         x = x, y = y,
         w = w, h = h,

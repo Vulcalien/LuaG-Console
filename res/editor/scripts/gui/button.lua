@@ -21,10 +21,10 @@ end
 
 function button(x, y, icon, click_fn, highlight_fn)
     local result = element(
-        x, y,      -- x, y
-        8, 8,      -- w, h
-        click_fn,  -- click
-        btn_render -- render
+        x, y,       -- x, y
+        8, 8,       -- w, h
+        btn_render, -- render
+        click_fn    -- click
     )
 
     result.icon = icon

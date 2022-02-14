@@ -28,7 +28,6 @@ function init()
         element(
             0, scr_h - 10, -- x, y
             scr_w, 10,     -- w, h
-            nil,           -- click
             function(self) -- render
                 pix(self.x, self.y, colors.primary.bg, self.w, self.h)
 

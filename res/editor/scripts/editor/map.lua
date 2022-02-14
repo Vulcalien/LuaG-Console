@@ -5,15 +5,6 @@ editors.map = {
         self.map = element(
             5, 15,                -- x, y
             scr_w - 10, 80,       -- w, h
-            function(self, x, y)  -- click
-                local xt = math.floor((x + self.offset.x) / 8)
-                local yt = math.floor((y + self.offset.y) / 8)
-
-                if xt >= 0 and xt < map_w and
-                   yt >= 0 and yt < map_h then
-                    set_tile(xt, yt, editors.map.atlas.selected)
-                end
-            end,
             function(self)        -- render
                 pix(self.x, self.y, colors.secondary.bg, self.w, self.h)
                 editor_maprender(
@@ -33,6 +24,15 @@ editors.map = {
                 pix(0,  y1,     col, scr_w,      scr_h - 10 - y1) -- bottom
                 pix(0,  self.y, col, self.x,     self.h)          -- left
                 pix(x1, self.y, col, scr_w - x1, self.h)          -- right
+            end,
+            function(self, x, y)  -- click
+                local xt = math.floor((x + self.offset.x) / 8)
+                local yt = math.floor((y + self.offset.y) / 8)
+
+                if xt >= 0 and xt < map_w and
+                   yt >= 0 and yt < map_h then
+                    set_tile(xt, yt, editors.map.atlas.selected)
+                end
             end
         )
 
