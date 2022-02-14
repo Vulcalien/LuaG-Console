@@ -31,7 +31,10 @@ function init()
             0, scr_h - 10, -- x, y
             scr_w, 10,     -- w, h
             function(self) -- render
-                pix(self.x, self.y, colors.primary.bg, self.w, self.h)
+                pix(
+                    self.x, self.y, colors.primary.bg,
+                    { w = self.w, h = self.h }
+                )
 
                 write(
                     current_editor.title,        -- text

@@ -1,5 +1,8 @@
 local function btn_render(self)
-    pix(self.x, self.y, colors.secondary.bg, self.w, self.h)
+    pix(
+        self.x, self.y, colors.secondary.bg,
+        { w = self.w, h = self.h }
+    )
 
     local col
     if self.highlight_fn and self:highlight_fn() then
@@ -11,11 +14,7 @@ local function btn_render(self)
     spr(
         self.icon,      -- id
         self.x, self.y, -- x, y
-        1,              -- scale
-        1, 1,           -- sw, sh,
-        0,              -- rot
-        false, false,   -- h_flip, v_flip
-        col             -- color_mod
+        { col_mod = col }
     )
 end
 

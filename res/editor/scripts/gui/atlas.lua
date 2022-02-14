@@ -21,10 +21,7 @@ function atlas(editor, x, y, rows, select_fn)
                 4,                       -- id
                 self.x + selected_x * 8, -- x
                 self.y + selected_y * 8, -- y
-                1,                       -- scale -- TODO
-                1, 1,                    -- sw, sh
-                0,                       -- rot
-                false, false             -- h_flip, v_flip
+                { scale = 1 } -- TODO scale
             )
         end,
         function(self, x, y) -- click

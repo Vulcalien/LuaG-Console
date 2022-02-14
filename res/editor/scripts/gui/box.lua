@@ -3,7 +3,7 @@ function box(x, y, w, h, col)
         x, y,      -- x, y
         w, h,      -- w, h
         function() -- render
-            pix(x, y, col, w, h)
+            pix(x, y, col, { w = w, h = h })
         end
     )
 end
