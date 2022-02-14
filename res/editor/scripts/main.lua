@@ -1,4 +1,6 @@
 function init()
+    ticks = 0
+
     editor_load_files()
 
     colors = {
@@ -115,6 +117,8 @@ function tick()
     end
 
     render()
+
+    ticks = ticks + 1
 end
 
 function render()
