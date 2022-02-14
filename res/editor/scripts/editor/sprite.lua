@@ -74,10 +74,14 @@ editors.sprite = {
                 (scr_w - 128) / 2, -- x
                 scr_h - 10 - 69,   -- y
                 8,                 -- rows
-                function(id)       -- select_fn
+                function()         -- on_select
                     -- TODO
                 end
             )
         }
+    end,
+
+    tick = function(self)
+
     end
 }

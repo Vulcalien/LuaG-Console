@@ -41,11 +41,11 @@ static void throw_lua_error(lua_State *L, char *msg_format, ...) {
     va_end(args);
 }
 
-static int load_atlas(char *filename) {
+static int load_atlas(lua_State *L, char *filename) {
     return display_load_atlas(filename, &atlas_surface, &atlas_texture);
 }
 
-static void load_map(char *filename) {
+static void load_map(lua_State *L, char *filename) {
     if(map_load(filename)) {
         map = (struct Map) {
             .width = 10,
@@ -53,17 +53,24 @@ static void load_map(char *filename) {
             .tiles = calloc(10 * 10, sizeof(u8))
         };
     }
+
+    // update value of map_w and map_h
+    lua_pushinteger(L, map.width);
+    lua_setglobal(L, "map_w");
+
+    lua_pushinteger(L, map.height);
+    lua_setglobal(L, "map_h");
 }
 
 F(editor_load_files) {
     int err = 0;
 
-    if(load_atlas(USERDATA_FOLDER "/atlas.png")) {
+    if(load_atlas(L, USERDATA_FOLDER "/atlas.png")) {
         err = -1;
         goto exit;
     }
 
-    load_map(USERDATA_FOLDER "/map");
+    load_map(L, USERDATA_FOLDER "/map");
 
     exit:
     lua_pushinteger(L, err);

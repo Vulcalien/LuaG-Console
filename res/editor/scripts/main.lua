@@ -96,6 +96,8 @@ function init()
 end
 
 function tick()
+    current_editor:tick()
+
     -- GUI click action
     if mouse_pressed(0) then
         local x, y = mouse_pos()
