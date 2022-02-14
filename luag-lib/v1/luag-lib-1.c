@@ -234,7 +234,7 @@ F(pix) {
     lua_Integer w = lua_isnoneornil(L, 4) ? 1 : luaL_checkinteger(L, 4);
     lua_Integer h = lua_isnoneornil(L, 5) ? 1 : luaL_checkinteger(L, 5);
 
-    display_fill(x, y, w, h, color);
+    display_fill(x, y, w, h, color, 0xff);
     return 0;
 }
 
@@ -244,7 +244,7 @@ F(write) {
     lua_Integer x     = luaL_checkinteger(L, 3);
     lua_Integer y     = luaL_checkinteger(L, 4);
 
-    display_write(text, color, x, y);
+    display_write(text, color, 0xff, x, y);
     return 0;
 }
 

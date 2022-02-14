@@ -84,6 +84,8 @@ static int load_font(void) {
         goto exit;
     }
 
+    SDL_SetTextureBlendMode(font_texture, SDL_BLENDMODE_BLEND);
+
     exit:
     if(font_surf)
         SDL_FreeSurface(font_surf);
@@ -238,11 +240,15 @@ void display_refresh(void) {
 }
 
 void display_clear(u32 color) {
-    display_fill(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT, color);
+    display_fill(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT, color, 0xff);
 }
 
-void display_fill(u32 x, u32 y, u32 w, u32 h, u32 color) {
-    SDL_SetRenderDrawColor(renderer, color >> 16, color >> 8, color, 0xff);
+void display_fill(u32 x, u32 y, u32 w, u32 h, u32 color, u8 alpha) {
+    SDL_SetRenderDrawColor(
+        renderer,
+        color >> 16, color >> 8, color, alpha
+    );
+
     SDL_Rect rect = { x, y, w, h };
     SDL_RenderFillRect(renderer, &rect);
 }
@@ -261,15 +267,18 @@ static void display_draw_char(char c, u32 color, i32 x, i32 y) {
         .w = CHAR_WIDTH, .h = CHAR_HEIGHT
     };
 
-    SDL_SetTextureColorMod(font_texture, color >> 16, color >> 8, color);
     SDL_RenderCopy(renderer, font_texture, &src, &dst);
 }
 
-void display_write(const char *text, u32 color, i32 x, i32 y) {
+void display_write(const char *text, u32 color, u8 alpha,
+                   i32 x, i32 y) {
     u32 len = strlen(text);
 
     i32 xdraw = x;
     i32 ydraw = y;
+
+    SDL_SetTextureColorMod(font_texture, color >> 16, color >> 8, color);
+    SDL_SetTextureAlphaMod(font_texture, alpha);
 
     for(u32 i = 0; i < len; i++) {
         char c = text[i];
