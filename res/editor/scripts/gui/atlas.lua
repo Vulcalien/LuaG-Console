@@ -9,19 +9,18 @@ function atlas(editor, x, y, rows, select_fn)
             local selected_x = self.selected % 16
             local selected_y = math.floor(self.selected / 16)
 
-            -- TODO
-            --local alpha
-            --if math.floor(ticks / 50) % 2 == 0 then
-                --alpha = 0xaa
-            --else
-                --alpha = 0xdd
-            --end
+            local alpha
+            if math.floor(ticks / 50) % 2 == 0 then
+                alpha = 0xaa
+            else
+                alpha = 0xdd
+            end
 
             spr(
                 4,                       -- id
                 self.x + selected_x * 8, -- x
                 self.y + selected_y * 8, -- y
-                { scale = 1 } -- TODO scale
+                { scale = 1, alpha = alpha } -- TODO scale
             )
         end,
         function(self, x, y) -- click
