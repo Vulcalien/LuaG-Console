@@ -179,9 +179,9 @@ F(editor_draw_atlas) {
     if(err_msg) {
         throw_lua_error(L, err_msg);
     } else {
-        for(u32 ys = row0; ys < row0 + rows; ys++) {
+        for(u32 ys = 0; ys < rows; ys++) {
             for(u32 xs = 0; xs < 16; xs++) {
-                u32 id = xs + ys * 16;
+                u32 id = xs + (ys + row0) * 16;
                 display_draw_from_atlas(
                     atlas_texture,
                     id, x0 + xs * SPRITE_SIZE, y0 + ys * SPRITE_SIZE,

@@ -102,22 +102,39 @@ end
 function tick()
     current_editor:tick()
 
+    local x, y = mouse_pos()
+
     -- GUI click action
     if mouse_pressed(0) then
-        local x, y = mouse_pos()
-
         for _,element_list in pairs({ gui, current_editor.gui }) do
             for _,e in ipairs(element_list) do
                 if x >= e.x and x < e.x + e.w and
                    y >= e.y and y < e.y + e.h then
                     if e.click then
                         e:click(x - e.x, y - e.y)
-                        break
+                        goto end_click
                     end
                 end
             end
         end
     end
+    ::end_click::
+
+    -- GUI scroll action
+    if scroll() ~= 0 then
+        for _,element_list in pairs({ gui, current_editor.gui }) do
+            for _,e in ipairs(element_list) do
+                if x >= e.x and x < e.x + e.w and
+                   y >= e.y and y < e.y + e.h then
+                    if e.scroll then
+                        e:scroll(x - e.x, y - e.y, scroll())
+                        goto end_scroll
+                    end
+                end
+            end
+        end
+    end
+    ::end_scroll::
 
     render()
 
