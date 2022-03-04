@@ -104,41 +104,31 @@ function tick()
 
     local x, y = mouse_pos()
 
-    -- GUI click action
     if mouse_pressed(0) then
-        for _,element_list in pairs({ gui, current_editor.gui }) do
-            for _,e in ipairs(element_list) do
-                if x >= e.x and x < e.x + e.w and
-                   y >= e.y and y < e.y + e.h then
-                    if e.click then
-                        e:click(x - e.x, y - e.y)
-                        goto end_click
-                    end
-                end
-            end
-        end
+        gui_action("click", x, y)
     end
-    ::end_click::
 
-    -- GUI scroll action
     if scroll() ~= 0 then
-        for _,element_list in pairs({ gui, current_editor.gui }) do
-            for _,e in ipairs(element_list) do
-                if x >= e.x and x < e.x + e.w and
-                   y >= e.y and y < e.y + e.h then
-                    if e.scroll then
-                        e:scroll(x - e.x, y - e.y, scroll())
-                        goto end_scroll
-                    end
-                end
-            end
-        end
+        gui_action("scroll", x, y, scroll())
     end
-    ::end_scroll::
 
     render()
 
     ticks = ticks + 1
+end
+
+function gui_action(func_name, x, y, ...)
+    for _,element_list in pairs({ gui, current_editor.gui }) do
+        for _,e in ipairs(element_list) do
+            if x >= e.x and x < e.x + e.w and
+               y >= e.y and y < e.y + e.h then
+                if e[func_name] then
+                    e[func_name](e, x - e.x, y - e.y, ...)
+                    return
+                end
+            end
+        end
+    end
 end
 
 function render()
