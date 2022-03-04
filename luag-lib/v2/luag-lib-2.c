@@ -377,10 +377,13 @@ F(set_tile) {
 
     if(err_msg) {
         throw_lua_error(L, err_msg);
+        return 0;
     } else {
+        u8 old_tile = map_get_tile(x, y);
         map_set_tile(x, y, id);
+        lua_pushboolean(L, old_tile != id);
+        return 1;
     }
-    return 0;
 }
 
 F(maprender) {

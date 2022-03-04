@@ -7,3 +7,5 @@
     This will remove the transparent color (aka color key).
 3. mouse functions: `mouse` (or `mouse_down`), `mouse_pressed`,
    `mouse_released`, `mouse_pos`, `scroll`.
+4. `set_tile` returns true if the new tile is different from the old one,\
+    false otherwise
