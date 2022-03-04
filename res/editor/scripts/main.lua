@@ -1,5 +1,6 @@
 function init()
     ticks = 0
+    is_edited = false
 
     editor_load_files()
 
@@ -76,10 +77,10 @@ function init()
             0,             -- icon
             function()     -- click_fn
                 -- TODO save click
+                is_edited = false
             end,
             function()     -- highlight_fn
-                -- TODO highlight "save" icon
-                return false
+                return is_edited
             end
         )
     }

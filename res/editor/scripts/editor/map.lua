@@ -75,6 +75,7 @@ editors.map = {
                     if xt >= 0 and xt < map_w and
                        yt >= 0 and yt < map_h then
                         set_tile(xt, yt, self.atlas.selected)
+                        is_edited = true
                     end
                end
             end
