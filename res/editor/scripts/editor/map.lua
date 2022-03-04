@@ -27,15 +27,6 @@ editors.map = {
                 pix(0,  y1,     col, { w = scr_w,      h = scr_h - 10 - y1 }) -- bottom
                 pix(0,  self.y, col, { w = self.x,     h = self.h })          -- left
                 pix(x1, self.y, col, { w = scr_w - x1, h = self.h })          -- right
-            end,
-            function(self, x, y)  -- click
-                local xt = math.floor((x + self.offset.x) / 8)
-                local yt = math.floor((y + self.offset.y) / 8)
-
-                if xt >= 0 and xt < map_w and
-                   yt >= 0 and yt < map_h then
-                    set_tile(xt, yt, editors.map.atlas.selected)
-                end
             end
         )
 
@@ -69,6 +60,24 @@ editors.map = {
 
             map.offset.x = map.offset.x + xm * 2
             map.offset.y = map.offset.y + ym * 2
+
+            if mouse(0) then
+                local x, y = mouse_pos()
+
+                if x >= map.x and x < map.x + map.w and
+                   y >= map.y and y < map.y + map.h then
+                    x = x - map.x
+                    y = y - map.y
+
+                    local xt = math.floor((x + map.offset.x) / 8)
+                    local yt = math.floor((y + map.offset.y) / 8)
+
+                    if xt >= 0 and xt < map_w and
+                       yt >= 0 and yt < map_h then
+                        set_tile(xt, yt, self.atlas.selected)
+                    end
+               end
+            end
         end
     end
 }
