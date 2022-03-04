@@ -15,6 +15,7 @@
  */
 #include "input.h"
 
+#include "lua-engine.h"
 #include "terminal.h"
 
 #include <SDL2/SDL.h>
@@ -52,32 +53,19 @@ void input_tick(void) {
             break;
         }
 
-        if(text_mode) {
-            if(e.type == SDL_TEXTINPUT && !(SDL_GetModState() & KMOD_CTRL)) {
-                terminal_receive_input(e.text.text);
-            } else if(e.type == SDL_KEYDOWN) {
-                if(e.key.keysym.sym == SDLK_RETURN) {
-                    terminal_receive_input("\n");
-                } else if(e.key.keysym.sym == SDLK_BACKSPACE) {
-                    terminal_receive_input("\b");
-                } else if(e.key.keysym.sym == SDLK_DELETE) {
-                    terminal_receive_input("\x7f");
-                } else if(e.key.keysym.sym == SDLK_UP) {
-                    terminal_receive_input("\x11");
-                } else if(e.key.keysym.sym == SDLK_LEFT) {
-                    terminal_receive_input("\x12");
-                } else if(e.key.keysym.sym == SDLK_DOWN) {
-                    terminal_receive_input("\x13");
-                } else if(e.key.keysym.sym == SDLK_RIGHT) {
-                    terminal_receive_input("\x14");
-                }
-            } else if(e.type == SDL_MOUSEWHEEL) {
-                terminal_scroll(-e.wheel.y);
-            }
-        } else {
+        if(engine_running) {
             if(e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {
                 struct input_Key *key = NULL;
                 switch(e.key.keysym.sym) {
+                    // ctrl+F4 or ctrl+F8: stop
+                    case SDLK_F4:
+                    case SDLK_F8:
+                        if(e.key.keysym.mod & KMOD_CTRL) {
+                            engine_stop();
+                            return;
+                        }
+                        break;
+
                     case SDLK_UP:
                     case SDLK_w:
                         key = &input_keys[KEY_UP];
@@ -131,6 +119,29 @@ void input_tick(void) {
             } else if(e.type == SDL_MOUSEMOTION) {
                 input_mouse.x = e.motion.x;
                 input_mouse.y = e.motion.y;
+            }
+        } else {
+            // engine is not running: send input to terminal
+            if(e.type == SDL_TEXTINPUT && !(SDL_GetModState() & KMOD_CTRL)) {
+                terminal_receive_input(e.text.text);
+            } else if(e.type == SDL_KEYDOWN) {
+                if(e.key.keysym.sym == SDLK_RETURN) {
+                    terminal_receive_input("\n");
+                } else if(e.key.keysym.sym == SDLK_BACKSPACE) {
+                    terminal_receive_input("\b");
+                } else if(e.key.keysym.sym == SDLK_DELETE) {
+                    terminal_receive_input("\x7f");
+                } else if(e.key.keysym.sym == SDLK_UP) {
+                    terminal_receive_input("\x11");
+                } else if(e.key.keysym.sym == SDLK_LEFT) {
+                    terminal_receive_input("\x12");
+                } else if(e.key.keysym.sym == SDLK_DOWN) {
+                    terminal_receive_input("\x13");
+                } else if(e.key.keysym.sym == SDLK_RIGHT) {
+                    terminal_receive_input("\x14");
+                }
+            } else if(e.type == SDL_MOUSEWHEEL) {
+                terminal_scroll(-e.wheel.y);
             }
         }
     }

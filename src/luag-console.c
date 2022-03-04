@@ -95,8 +95,6 @@ static int init(void) {
     if(map_init())
         return -7;
 
-    input_set_text_mode(true);
-
     return 0;
 }
 

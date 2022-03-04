@@ -243,7 +243,6 @@ void engine_stop(void) {
         destroy_luag_library(editor_lib_handle);
 
     sound_stop_all();
-    input_set_text_mode(true);
 }
 
 void engine_tick(void) {
