@@ -115,6 +115,9 @@ static void *load_luag_library(lua_State *L, bool is_editor_lib) {
         );
 
         handle = dlopen(filename, RTLD_LAZY);
+        if(handle)
+            printf("Loading LuaG Editor Library: %s\n", filename);
+
         free(filename);
 
         if(!handle) {
@@ -221,6 +224,13 @@ void engine_load(bool is_editor) {
     input_set_text_mode(false);
 }
 
+void engine_reload(void) {
+    bool is_editor = editor_lib_handle != NULL;
+
+    engine_stop();
+    engine_load(is_editor);
+}
+
 void engine_stop(void) {
     if(!engine_running) {
         fputs(
@@ -236,11 +246,15 @@ void engine_stop(void) {
         L = NULL;
     }
 
-    if(core_lib_handle)
+    if(core_lib_handle) {
         destroy_luag_library(core_lib_handle);
+        core_lib_handle = NULL;
+    }
 
-    if(editor_lib_handle)
+    if(editor_lib_handle) {
         destroy_luag_library(editor_lib_handle);
+        editor_lib_handle = NULL;
+    }
 
     sound_stop_all();
 }

@@ -54,18 +54,27 @@ void input_tick(void) {
         }
 
         if(engine_running) {
-            if(e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {
-                struct input_Key *key = NULL;
+            // check for stop and restart
+            if(e.type == SDL_KEYDOWN &&
+               e.key.keysym.mod & KMOD_CTRL &&
+               !e.key.repeat) {
                 switch(e.key.keysym.sym) {
                     // ctrl+F4 or ctrl+F8: stop
                     case SDLK_F4:
                     case SDLK_F8:
-                        if(e.key.keysym.mod & KMOD_CTRL) {
-                            engine_stop();
-                            return;
-                        }
-                        break;
+                        engine_stop();
+                        return;
+                    // ctrl+F5 or ctrl+F7: restart
+                    case SDLK_F5:
+                    case SDLK_F7:
+                        engine_reload();
+                        return;
+                }
+            }
 
+            if(e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {
+                struct input_Key *key = NULL;
+                switch(e.key.keysym.sym) {
                     case SDLK_UP:
                     case SDLK_w:
                         key = &input_keys[KEY_UP];
