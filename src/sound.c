@@ -64,7 +64,7 @@ static void load_sounds(DIR *dir, char *folder_path, u32 root_index) {
         if(!strcmp(file->d_name, ".") || !strcmp(file->d_name, ".."))
             continue;
 
-        char *filename = malloc(PATH_MAX * sizeof(char));
+        char filename[PATH_MAX];
         snprintf(filename, PATH_MAX, "%s/%s", folder_path, file->d_name);
 
         struct stat st;
@@ -74,7 +74,7 @@ static void load_sounds(DIR *dir, char *folder_path, u32 root_index) {
                 "Sound: could not retrieve stat for file '%s'\n",
                 filename
             );
-            goto while_end;
+            return;
         }
 
         if(S_ISDIR(st.st_mode)) {
@@ -85,7 +85,7 @@ static void load_sounds(DIR *dir, char *folder_path, u32 root_index) {
                     "Sound: could not open folder '%s'\n",
                     filename
                 );
-                goto while_end;
+                return;
             }
 
             load_sounds(subdir, filename, root_index);
@@ -96,7 +96,7 @@ static void load_sounds(DIR *dir, char *folder_path, u32 root_index) {
             // check if the filename ends with '.wav'
             u32 str_len = strlen(short_name);
             if(strcmp(short_name + str_len - 4, ".wav"))
-                goto while_end;
+                return;
 
             Mix_Chunk *chunk = Mix_LoadWAV(filename);
             if(!chunk) {
@@ -106,7 +106,7 @@ static void load_sounds(DIR *dir, char *folder_path, u32 root_index) {
                     " - Mix_LoadWAV: %s\n",
                     filename, Mix_GetError()
                 );
-                goto while_end;
+                return;
             }
 
             // copy the name without the '.wav' suffix
@@ -122,9 +122,6 @@ static void load_sounds(DIR *dir, char *folder_path, u32 root_index) {
             };
             hashtable_set(sounds_table, sound_name, sound);
         }
-
-        while_end:
-        free(filename);
     }
 }
 

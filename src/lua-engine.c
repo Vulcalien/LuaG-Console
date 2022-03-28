@@ -78,7 +78,7 @@ static void *load_luag_library(lua_State *L, bool is_editor_lib) {
     void *handle;
 
     if(!is_editor_lib) {
-        char *filename = malloc(PATH_MAX * sizeof(char));
+        char filename[PATH_MAX];
 
         // check at most 100 times
         // i'm pretty sure there is a better way
@@ -96,7 +96,6 @@ static void *load_luag_library(lua_State *L, bool is_editor_lib) {
                 break;
             }
         }
-        free(filename);
 
         if(!handle) {
             fprintf(
@@ -108,7 +107,7 @@ static void *load_luag_library(lua_State *L, bool is_editor_lib) {
             return NULL;
         }
     } else {
-        char *filename = malloc(PATH_MAX * sizeof(char));
+        char filename[PATH_MAX];
         snprintf(
             filename, PATH_MAX,
             "%s/luag-lib/luag-lib-editor.so", res_folder
@@ -117,8 +116,6 @@ static void *load_luag_library(lua_State *L, bool is_editor_lib) {
         handle = dlopen(filename, RTLD_LAZY);
         if(handle)
             printf("Loading LuaG Editor Library: %s\n", filename);
-
-        free(filename);
 
         if(!handle) {
             fprintf(
@@ -144,15 +141,13 @@ static void destroy_luag_library(void *handle) {
 }
 
 static int load_main_file(void) {
-    char *filename = malloc(PATH_MAX * sizeof(char));
+    char filename[PATH_MAX];
     snprintf(
         filename, PATH_MAX,
         "%s/scripts/main.lua", game_folder
     );
 
     int status = luaL_dofile(L, filename);
-
-    free(filename);
 
     return check_error(L, status);
 }

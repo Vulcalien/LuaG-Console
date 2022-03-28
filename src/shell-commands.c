@@ -61,14 +61,14 @@ CMD(cmd_run) {
             );
         }
     } else {
-        char *filename = malloc(PATH_MAX * sizeof(char));
+        char filename[PATH_MAX];
         snprintf(filename, PATH_MAX, "%s.luag", argv[0]);
 
         game_folder = cartridge_extract(filename, NULL);
         if(game_folder) {
             engine_load(false);
         } else {
-            char *error_msg = malloc(128 * sizeof(char));
+            char error_msg[128];
             snprintf(
                 error_msg, 128,
                 "Error:\n"
@@ -78,10 +78,7 @@ CMD(cmd_run) {
             );
 
             terminal_write(error_msg, true);
-            free(error_msg);
         }
-
-        free(filename);
     }
 }
 
@@ -116,16 +113,13 @@ CMD(cmd_setup) {
         return;
     }
 
-    char *template_file = malloc(PATH_MAX * sizeof(char));
+    char template_file[PATH_MAX];
     snprintf(
         template_file, PATH_MAX,
         "%s/template.luag", res_folder
     );
 
-    int err = archiveutil_extract(template_file, USERDATA_FOLDER);
-    free(template_file);
-
-    if(err) {
+    if(archiveutil_extract(template_file, USERDATA_FOLDER)) {
         terminal_write(
             "Error:\n"
             "could not extract\n"
