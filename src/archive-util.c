@@ -15,6 +15,7 @@
  */
 #include "archive-util.h"
 
+#include <string.h>
 #include <limits.h>
 
 #include <archive.h>
@@ -163,6 +164,112 @@ static int copy_entries(struct archive *in, struct archive *out,
     exit:
     if(entry_path)
         free(entry_path);
+
+    return err;
+}
+
+int archiveutil_pack(const char *archive_filename,
+                     const char *src_folder) {
+    int err = -1;
+    u32 folder_name_len = strlen(src_folder);
+
+    // in
+    struct archive *in = archive_read_disk_new();
+    archive_read_disk_set_standard_lookup(in);
+
+    // out
+    struct archive *out = archive_write_new();
+    archive_write_set_format_ustar(out);
+    archive_write_add_filter_gzip(out);
+
+    // open folder (in)
+    if(archive_read_disk_open(in, src_folder)) {
+        fprintf(
+            stderr,
+            "Archive Util: could not open folder '%s\n'"
+            " - archive_read_disk_open: %s\n",
+            src_folder, archive_error_string(in)
+        );
+    }
+
+    // open archive file (out)
+    if(archive_write_open_filename(out, archive_filename)) {
+        fprintf(
+            stderr,
+            "Archive Util: coult not create file '%s'\n"
+            " - archive_write_open_filename: %s\n",
+            archive_filename, archive_error_string(out)
+        );
+        goto exit;
+    }
+
+    // copy entries
+    while(true) {
+        struct archive_entry *entry = archive_entry_new();
+
+        // read header
+        int r = archive_read_next_header2(in, entry);
+
+        if(r == ARCHIVE_EOF) {
+            break;
+        } else if(r != ARCHIVE_OK) {
+            fprintf(
+                stderr,
+                "Archive Util: error\n" // TODO what error?
+                " - archive_read_next_header2: %s\n",
+                archive_error_string(in)
+            );
+            goto exit;
+        }
+
+        archive_read_disk_descend(in);
+
+        // change output path
+        archive_entry_set_pathname(
+            entry, archive_entry_sourcepath(entry) + folder_name_len
+        );
+
+        // write header
+        r = archive_write_header(out, entry);
+
+        if(r != ARCHIVE_OK) {
+            fprintf(
+                stderr,
+                "Archive Util: error\n" // TODO what error?
+                " - archive_write_header: %s\n",
+                archive_error_string(out)
+            );
+            goto exit;
+        }
+
+        // copy data
+        FILE *file = fopen(archive_entry_sourcepath(entry), "r");
+
+        char buffer[4096];
+        u32 len;
+        while(true) {
+            len = fread(
+                buffer,
+                sizeof(char), sizeof(buffer) / sizeof(char),
+                file
+            );
+            if(len <= 0)
+                break;
+
+            archive_write_data(out, buffer, len);
+        }
+        fclose(file);
+
+        archive_entry_free(entry);
+    }
+    err = 0;
+
+    exit:
+    archive_read_close(in);
+    archive_read_free(in);
+
+    archive_write_close(out);
+    archive_write_free(out);
 
     return err;
 }

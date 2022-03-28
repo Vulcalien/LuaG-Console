@@ -21,4 +21,7 @@
 extern int archiveutil_extract(const char *archive_filename,
                                const char *dest_folder);
 
+extern int archiveutil_pack(const char *archive_filename,
+                            const char *src_folder);
+
 #endif // VULC_LUAG_ARCHIVE_UTIL

@@ -96,6 +96,46 @@ CMD(cmd_edit) {
 }
 
 CMD(cmd_pack) {
+    if(check_is_developer())
+        return;
+
+    if(argc == 0) {
+        terminal_write(
+            "Error: missing argument\n"
+            "pack [cartridge-name]",
+            true
+        );
+    } else {
+        // check if 'cartridge-info' exists and if not then create it
+        char cartridge_info_filename[PATH_MAX];
+        snprintf(
+            cartridge_info_filename, PATH_MAX,
+            "%s/cartridge-info", USERDATA_FOLDER
+        );
+
+        struct stat st;
+        if(stat(cartridge_info_filename, &st)) {
+            FILE *file = fopen(cartridge_info_filename, "w");
+            fprintf(
+                file, "library-version=%u.%u",
+                CARTRIDGE_DEFAULT_MAJOR_V, CARTRIDGE_DEFAULT_MINOR_V
+            );
+            fclose(file);
+        }
+
+        // pack cartridge
+        char filename[PATH_MAX];
+        snprintf(filename, PATH_MAX, "%s.luag", argv[0]);
+
+        if(archiveutil_pack(filename, USERDATA_FOLDER)) {
+            terminal_write(
+                "Error:\n"
+                "could not create\n"
+                "cartridge file",
+                true
+            );
+        }
+    }
 }
 
 CMD(cmd_setup) {
