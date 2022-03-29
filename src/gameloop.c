@@ -15,9 +15,11 @@
  */
 #include "gameloop.h"
 
-#include <SDL2/SDL.h>
-
 #include "compile-options.h"
+
+#include <stdio.h>
+
+#include <SDL2/SDL.h>
 
 #ifdef PERFORMANCE_THREAD
     #include <stdio.h>

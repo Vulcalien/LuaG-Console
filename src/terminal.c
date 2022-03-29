@@ -15,10 +15,10 @@
  */
 #include "terminal.h"
 
-#include <string.h>
-
 #include "display.h"
 #include "shell-commands.h"
+
+#include <string.h>
 
 // colors
 #define TERM_COLOR_NORMAL (0xffffff)
