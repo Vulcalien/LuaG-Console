@@ -46,8 +46,6 @@ int cartridge_init(void) {
 void cartridge_destroy(void) {
     if(cartridge_folder)
         free(cartridge_folder);
-
-    // TODO remove TEMP_DIR
 }
 
 char *cartridge_extract(const char *filename, char *dest_folder) {
