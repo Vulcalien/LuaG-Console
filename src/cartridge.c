@@ -39,7 +39,12 @@ struct cartridge_Info cartridge_info;
 static char *cartridge_folder;
 
 int cartridge_init(void) {
-    mkdir(TEMP_DIR, 0700);
+    #ifdef __unix__
+        mkdir(TEMP_DIR, 0700);
+    #elif _WIN32
+        mkdir(TEMP_DIR);
+    #endif
+
     return 0;
 }
 
