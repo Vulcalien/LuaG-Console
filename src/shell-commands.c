@@ -138,6 +138,42 @@ CMD(cmd_pack) {
     }
 }
 
+CMD(cmd_unpack) {
+    if(check_is_developer())
+        return;
+
+    if(argc == 0) {
+        terminal_write(
+            "Error: missing argument\n"
+            "unpack [cartridge-name]",
+            true
+        );
+    } else {
+        struct stat st;
+        if(!stat(USERDATA_FOLDER, &st)) {
+            terminal_write(
+                "Error:\n"
+                "'" USERDATA_FOLDER "'\n"
+                "already exists",
+                true
+            );
+            return;
+        }
+
+        char filename[PATH_MAX];
+        snprintf(filename, PATH_MAX, "%s.luag", argv[0]);
+
+        if(archiveutil_extract(filename, USERDATA_FOLDER)) {
+            terminal_write(
+                "Error:\n"
+                "could not unpack\n"
+                "cartridge file",
+                true
+            );
+        }
+    }
+}
+
 CMD(cmd_setup) {
     if(check_is_developer())
         return;
@@ -269,6 +305,8 @@ bool execute_command(char *cmd, u32 argc, char **argv) {
         CALL(cmd_edit);
     else if(TEST("pack"))
         CALL(cmd_pack);
+    else if(TEST("unpack"))
+        CALL(cmd_unpack);
     else if(TEST("setup"))
         CALL(cmd_setup);
     else if(TEST("cls") || TEST("clear"))
