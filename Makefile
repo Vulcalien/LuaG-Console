@@ -23,7 +23,7 @@ OBJ_DIR := obj
 BIN_DIR := bin
 
 CPPFLAGS := -Iinclude -MMD -MP
-CFLAGS   := -Wall -pedantic
+CFLAGS   := -Wall -pedantic -Wno-format-truncation
 
 ifeq ($(TARGET_OS),UNIX)
 	# UNIX
