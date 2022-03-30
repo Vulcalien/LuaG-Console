@@ -137,7 +137,7 @@ static int find_res_folder(char **result) {
         char *list[][2] = {
             { "%s/luag-console" },
             { "%s/luag-console" },
-            { "%s/luag-console" }
+            { "%s/luag-console" },
             { NULL }
         };
 
