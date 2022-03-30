@@ -31,6 +31,12 @@
 
 #define BUFFER_SIZE (4 * 1024)
 
+#ifdef __unix__
+    #define LIB_EXT ".so"
+#elif _WIN32
+    #define LIB_EXT ".dll"
+#endif
+
 bool engine_running = false;
 
 static lua_State *L = NULL;
@@ -86,7 +92,7 @@ static void *load_luag_library(lua_State *L, bool is_editor_lib) {
         for(u32 i = 0; i < 100; i++) {
             snprintf(
                 filename, PATH_MAX,
-                "%s/luag-lib/luag-lib-%d.%d.so",
+                "%s/luag-lib/luag-lib-%d.%d" LIB_EXT,
                 res_folder,
                 cartridge_info.major_v, (cartridge_info.minor_v + i)
             );
@@ -111,7 +117,7 @@ static void *load_luag_library(lua_State *L, bool is_editor_lib) {
         char filename[PATH_MAX];
         snprintf(
             filename, PATH_MAX,
-            "%s/luag-lib/luag-lib-editor.so", res_folder
+            "%s/luag-lib/luag-lib-editor" LIB_EXT, res_folder
         );
 
         handle = dlopen(filename, RTLD_LAZY);
