@@ -26,6 +26,7 @@
 #include "map.h"
 
 #include <stdio.h>
+#include <string.h>
 #include <limits.h>
 
 #include <sys/types.h>
@@ -113,24 +114,43 @@ static void destroy(void) {
         free(res_folder);
 }
 
+static char *clone_str(char *src) {
+    char *result = malloc((strlen(src) + 1) * sizeof(char));
+    strcpy(result, src);
+    return result;
+}
+
 // the pointer has to be freed
 static int find_res_folder(char **result) {
     *result = NULL;
 
-    char *list[] = {
-        "/usr/share/luag-console",
-        "/usr/local/share/luag-console",
-        "%s/.local/share/luag-console",
-        NULL
-    };
+    #ifdef __unix__
+        char *list[][2] = {
+            { "/usr/share/luag-console" },
+            { "/usr/local/share/luag-console" },
+            { "%s/.local/share/luag-console" },
+            { NULL }
+        };
 
-    const char *user_home = getenv("HOME");
+        list[2][1] = clone_str(getenv("HOME"));
+    #elif _WIN32
+        char *list[][2] = {
+            { "%s/luag-console" },
+            { "%s/luag-console" },
+            { "%s/luag-console" }
+            { NULL }
+        };
+
+        list[0][1] = clone_str(getenv("PROGRAMFILES"));
+        list[1][1] = clone_str(getenv("PROGRAMFILES(x86)"));
+        list[2][1] = clone_str(getenv("LOCALAPPDATA"));
+    #endif
 
     char *path = malloc(PATH_MAX * sizeof(char));
-    for(u32 i = 0; list[i] != NULL; i++) {
+    for(u32 i = 0; list[i][0] != NULL; i++) {
         snprintf(
             path, PATH_MAX,
-            list[i], user_home
+            list[i][0], list[i][1]
         );
 
         struct stat st;
@@ -139,6 +159,11 @@ static int find_res_folder(char **result) {
             *result = path;
             break;
         }
+    }
+
+    for(u32 i = 0; list[i][0] != NULL; i++) {
+        if(list[i][1])
+            free(list[i][1]);
     }
 
     if(!*result) {
