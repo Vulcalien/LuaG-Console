@@ -1,0 +1,12 @@
+# Binary
+/obj
+/bin
+
+# Libraries
+/include
+/lib
+
+# development libraries
+/SDL2*
+/lua54
+/libarchive
