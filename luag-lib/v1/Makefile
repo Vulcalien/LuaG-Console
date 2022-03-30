@@ -27,7 +27,7 @@ CFLAGS_SHARED := -fPIC -Wall -pedantic
 ifeq ($(TARGET_OS),UNIX)
 	# UNIX
 	LDFLAGS := -shared -Llib
-	LDLIBS  := -llua5.4
+	LDLIBS  :=
 else ifeq ($(TARGET_OS),WINDOWS)
 	# WINDOWS
 	LDFLAGS := -shared -Llib
@@ -79,7 +79,7 @@ OUT_SHARED := $(BIN_DIR)/$(OUT_FILENAME)$(SHARED_EXT)
 # === TARGETS ===
 .PHONY: all build-static build-shared clean
 
-all: build-static build-shared
+all: build-shared
 build-static: $(OUT_STATIC)
 build-shared: $(OUT_SHARED)
 
