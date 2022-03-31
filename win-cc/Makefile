@@ -73,6 +73,7 @@ clean:
 
 $(OUT): $(OBJ) | $(BIN_DIR)
 	$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
+	x86_64-w64-mingw32-dlltool $@ -l $@.lib --export-all-symbols
 
 $(OBJ_DIR)/%$(OBJ_EXT): $(SRC_DIR)/%.c | $(OBJ_DIR)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
