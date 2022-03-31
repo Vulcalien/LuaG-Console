@@ -23,6 +23,9 @@
 #include <stdio.h>
 #include <limits.h>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <dlfcn.h>
 
 #include <lua5.4/lua.h>
@@ -89,6 +92,7 @@ static void *load_luag_library(lua_State *L, bool is_editor_lib) {
 
         // check at most 100 times
         // i'm pretty sure there is a better way
+        bool found = false;
         for(u32 i = 0; i < 100; i++) {
             snprintf(
                 filename, PATH_MAX,
@@ -97,19 +101,31 @@ static void *load_luag_library(lua_State *L, bool is_editor_lib) {
                 cartridge_info.major_v, (cartridge_info.minor_v + i)
             );
 
-            handle = dlopen(filename, RTLD_LAZY);
-            if(handle) {
-                printf("Loading LuaG Library: %s\n", filename);
+            struct stat st;
+            if(!stat(filename, &st)) {
+                found = true;
                 break;
             }
         }
 
-        if(!handle) {
+        if(!found) {
             fprintf(
                 stderr,
                 "Engine: could not find a version of LuaG Library compatible "
                 "with %d.%d\n",
                 cartridge_info.major_v, cartridge_info.minor_v
+            );
+            return NULL;
+        }
+
+        printf("Loading LuaG Library: %s\n", filename);
+        handle = dlopen(filename, RTLD_LAZY);
+
+        if(!handle) {
+            fprintf(
+                stderr,
+                "Engine: could not load LuaG Library\n"
+                " - dlopen: %s\n", dlerror()
             );
             return NULL;
         }
