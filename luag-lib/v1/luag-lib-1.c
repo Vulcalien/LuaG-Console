@@ -49,16 +49,16 @@ static void throw_lua_error(lua_State *L, char *msg_format, ...) {
 F(loadscript) {
     const char *script_filename = luaL_checkstring(L, 1);
 
-    char *file_rel_path          = malloc(PATH_MAX * sizeof(char));
-    char *file_abs_path_m        = malloc(PATH_MAX * sizeof(char));
-    char *game_folder_abs_path_m = malloc(PATH_MAX * sizeof(char));
+    char *file_rel_path        = malloc(PATH_MAX * sizeof(char));
+    char *file_abs_path        = NULL;
+    char *game_folder_abs_path = NULL;
 
     snprintf(
         file_rel_path, PATH_MAX,
         "%s/scripts/%s", game_folder, script_filename
     );
 
-    char *file_abs_path = realpath(file_rel_path, file_abs_path_m);
+    file_abs_path = realpath(file_rel_path, NULL);
     if(!file_abs_path) {
         char *err_msg;
         if(errno == EACCES)
@@ -73,7 +73,7 @@ F(loadscript) {
         goto exit;
     }
 
-    char *game_folder_abs_path = realpath(game_folder, game_folder_abs_path_m);
+    game_folder_abs_path = realpath(game_folder, NULL);
     if(!game_folder_abs_path) {
         fputs("Error: could not find realpath of cartridge folder\n", stderr);
         goto exit;
@@ -93,8 +93,10 @@ F(loadscript) {
 
     exit:
     free(file_rel_path);
-    free(file_abs_path_m);
-    free(game_folder_abs_path_m);
+    if(file_abs_path)
+        free(file_abs_path);
+    if(game_folder_abs_path)
+        free(game_folder_abs_path);
     return 0;
 }
 
