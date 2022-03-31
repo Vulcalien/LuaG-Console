@@ -135,9 +135,9 @@ static int find_res_folder(char **result) {
         list[2][1] = clone_str(getenv("HOME"));
     #elif _WIN32
         char *list[][2] = {
-            { "%s/luag-console" },
-            { "%s/luag-console" },
-            { "%s/luag-console" },
+            { "%s/LuaG Console/res" },
+            { "%s/LuaG Console/res" },
+            { "%s/LuaG Console/res" },
             { NULL }
         };
 
