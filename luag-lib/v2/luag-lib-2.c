@@ -45,6 +45,26 @@ static void throw_lua_error(lua_State *L, char *msg_format, ...) {
     va_end(args);
 }
 
+#ifdef _WIN32
+    #include <fileapi.h>
+
+    char *realpath(char *path, char *resolved_path) {
+        bool is_allocated = (resolved_path == NULL);
+        if(is_allocated)
+            resolved_path = malloc(PATH_MAX * sizeof(char));
+
+        if(!GetFullPathNameA(
+            path, PATH_MAX,
+            resolved_path, NULL
+        )) {
+            if(is_allocated)
+                free(resolved_path);
+            return NULL;
+        }
+        return resolved_path;
+    }
+#endif
+
 // generic
 F(loadscript) {
     const char *script_filename = luaL_checkstring(L, 1);
