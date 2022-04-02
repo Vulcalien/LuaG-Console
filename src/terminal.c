@@ -128,6 +128,32 @@ static inline void close_row(void) {
     }
 }
 
+static void close_active_line(void) {
+    // split and save the active line into closed_rows
+    struct row *current_row;
+    for(u32 i = 0; i < active_line.len; i++) {
+        if(i % CHARS_IN_ROW == 0) {
+            if(i > 0)
+                close_row();
+            current_row = &closed_rows[closed_rows_count];
+
+            switch(active_line.type) {
+                case LINE_TYPE_NORMAL:
+                    current_row->color = TERM_COLOR_NORMAL;
+                    break;
+                case LINE_TYPE_ERROR:
+                    current_row->color = TERM_COLOR_ERROR;
+                    break;
+                case LINE_TYPE_INPUT:
+                    current_row->color = TERM_COLOR_INPUT;
+                    break;
+            }
+        }
+        current_row->text[i % CHARS_IN_ROW] = active_line.text[i];
+    }
+    close_row();
+}
+
 void terminal_tick(void) {
     // TODO implement ctrl+backspace (= ctrl+w), ctrl+del, ctrl+u
 
@@ -157,29 +183,7 @@ void terminal_tick(void) {
     cursor_animation_ticks = 0;
 
     if(c == '\n') {
-        // split and save the active line into closed_rows
-        struct row *current_row;
-        for(u32 i = 0; i < active_line.len; i++) {
-            if(i % CHARS_IN_ROW == 0) {
-                if(i > 0)
-                    close_row();
-                current_row = &closed_rows[closed_rows_count];
-
-                switch(active_line.type) {
-                    case LINE_TYPE_NORMAL:
-                        current_row->color = TERM_COLOR_NORMAL;
-                        break;
-                    case LINE_TYPE_ERROR:
-                        current_row->color = TERM_COLOR_ERROR;
-                        break;
-                    case LINE_TYPE_INPUT:
-                        current_row->color = TERM_COLOR_INPUT;
-                        break;
-                }
-            }
-            current_row->text[i % CHARS_IN_ROW] = active_line.text[i];
-        }
-        close_row();
+        close_active_line();
 
         if(active_line.type == LINE_TYPE_INPUT)
             terminal_execute();
