@@ -64,6 +64,7 @@ static u32 closed_rows_count = 0;
 // command history
 static char **command_history;
 static u32 used_command_history = 0;
+static u32 history_index = 0;
 
 // BUFFERS
 // user buffer
@@ -219,14 +220,32 @@ void terminal_tick(void) {
         }
     } else if(c == '\x11') {
         // up key
-        // TODO history ...
+        if(history_index > 0) {
+            history_index--;
+
+            strcpy(active_line.text, command_history[history_index]);
+            active_line.len = strlen(active_line.text);
+            active_line.cursor_pos = active_line.len;
+        }
     } else if(c == '\x12') {
         // left key
         if(active_line.cursor_pos != 0)
             active_line.cursor_pos--;
     } else if(c == '\x13') {
         // down key
-        // TODO history ...
+        if(history_index < used_command_history - 1) {
+            history_index++;
+
+            strcpy(active_line.text, command_history[history_index]);
+            active_line.len = strlen(active_line.text);
+            active_line.cursor_pos = active_line.len;
+        } else if(history_index == used_command_history - 1) {
+            history_index++;
+
+            strcpy(active_line.text, "");
+            active_line.len = 0;
+            active_line.cursor_pos = 0;
+        }
     } else if(c == '\x14') {
         // right key
         if(active_line.cursor_pos != active_line.len)
@@ -241,6 +260,7 @@ void terminal_tick(void) {
                 );
             }
             active_line.text[active_line.cursor_pos] = c;
+            active_line.text[active_line.cursor_pos + 1] = '\0';
             active_line.len++;
             active_line.cursor_pos++;
         }
@@ -260,11 +280,11 @@ void terminal_render(void) {
         );
 
         rendered_lines++;
-        if(rendered_lines >= ROWS_IN_DISPLAY) // TODO test this
+        if(rendered_lines >= ROWS_IN_DISPLAY)
             break;
     }
 
-    if(rendered_lines < ROWS_IN_DISPLAY) { // TODO test this
+    if(rendered_lines < ROWS_IN_DISPLAY) {
         u32 color;
         switch(active_line.type) {
             case LINE_TYPE_NORMAL:
@@ -380,10 +400,22 @@ static inline void check_command_history(void) {
     }
 }
 
+static bool is_empty(char *str) {
+    for(u32 i = 0; str[i] != '\0'; i++) {
+        if(str[i] != ' ')
+            return false;
+    }
+    return true;
+}
+
 static void terminal_execute(void) {
-    check_command_history();
-    command_history[used_command_history] = active_line.text;
-    used_command_history++;
+    if(!is_empty(active_line.text)) {
+        check_command_history();
+
+        command_history[used_command_history] = active_line.text;
+        used_command_history++;
+        history_index = used_command_history;
+    }
 
     // parse command and arguments
     u32 splits_count = 0;
@@ -418,7 +450,9 @@ static void terminal_execute(void) {
 }
 
 static void allocate_active_line(void) {
-    active_line.text = calloc((MAX_LINE_LEN + 1), sizeof(char));
+    active_line.text = malloc((MAX_LINE_LEN + 1) * sizeof(char));
+    active_line.text[0] = '\0';
+
     active_line.len = 0;
     active_line.cursor_pos = 0;
     active_line.type = LINE_TYPE_NORMAL;
