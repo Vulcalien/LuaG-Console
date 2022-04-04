@@ -55,8 +55,8 @@ CMD(cmd_run) {
             engine_load(false);
         } else {
             terminal_write(
-                "Error:\n"
-                "insert cartridge name",
+                "Error: missing argument\n"
+                "run [cartridge-name]",
                 true
             );
         }
@@ -64,20 +64,30 @@ CMD(cmd_run) {
         char filename[PATH_MAX];
         snprintf(filename, PATH_MAX, "%s.luag", argv[0]);
 
-        game_folder = cartridge_extract(filename);
-        if(game_folder) {
-            engine_load(false);
-        } else {
+        struct stat st;
+        if(stat(filename, &st)) {
             char error_msg[128];
             snprintf(
                 error_msg, 128,
                 "Error:\n"
-                "'%s'\n"
-                "cartridge not found",
+                "cartridge not found\n"
+                "'%s'",
                 filename
             );
-
             terminal_write(error_msg, true);
+            return;
+        }
+
+        game_folder = cartridge_extract(filename);
+        if(game_folder) {
+            engine_load(false);
+        } else {
+            terminal_write(
+                "Error:\n"
+                "could not extract\n"
+                "cartridge",
+                true
+            );
         }
     }
 }

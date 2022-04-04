@@ -171,7 +171,7 @@ static int find_res_folder(char **result) {
     if(!*result) {
         free(path);
 
-        fputs("LuaG: could not find resource folder\n", stderr);
+        fputs("LuaG: resource folder not found\n", stderr);
         return -1;
     }
     return 0;

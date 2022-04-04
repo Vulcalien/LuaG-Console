@@ -133,7 +133,7 @@ int sound_load(char *sfx_folder) {
 
     DIR *dir = opendir(sfx_folder);
     if(!dir) {
-        fputs("Sound: could not find sound folder\n", stderr);
+        fputs("Sound: sound folder not found\n", stderr);
         return 0;
     }
     load_sounds(dir, sfx_folder, strlen(sfx_folder) + 1);
