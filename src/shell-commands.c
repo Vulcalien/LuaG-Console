@@ -31,6 +31,11 @@
 
 static char *editor_folder = NULL;
 
+static inline bool exists(char *filename) {
+    struct stat st;
+    return !stat(filename, &st);
+}
+
 static int check_is_developer(void) {
     if(!dev_mode) {
         terminal_write(
@@ -51,6 +56,19 @@ static int check_is_developer(void) {
 CMD(cmd_run) {
     if(argc == 0) {
         if(dev_mode) {
+            // check if USERDATA_FOLDER exists before running
+            if(!exists(USERDATA_FOLDER)) {
+                terminal_write(
+                    "Error:\n"
+                    "'" USERDATA_FOLDER "'\n"
+                    "does not exist;\n"
+                    "run 'setup' to generate\n"
+                    "an empty project",
+                    true
+                );
+                return;
+            }
+
             game_folder = USERDATA_FOLDER;
             engine_load(false);
         } else {
@@ -64,8 +82,7 @@ CMD(cmd_run) {
         char filename[PATH_MAX];
         snprintf(filename, PATH_MAX, "%s.luag", argv[0]);
 
-        struct stat st;
-        if(stat(filename, &st)) {
+        if(!exists(filename)) {
             char error_msg[128];
             snprintf(
                 error_msg, 128,
@@ -116,15 +133,21 @@ CMD(cmd_pack) {
             true
         );
     } else {
-        // check if 'cartridge-info' exists and if not then create it
-        char cartridge_info_filename[PATH_MAX];
-        snprintf(
-            cartridge_info_filename, PATH_MAX,
-            "%s/cartridge-info", USERDATA_FOLDER
-        );
+        // check if USERDATA_FOLDER exists before trying to pack it
+        if(!exists(USERDATA_FOLDER)) {
+            terminal_write(
+                "Error:\n"
+                "'" USERDATA_FOLDER "'\n"
+                "does not exist",
+                true
+            );
+            return;
+        }
 
-        struct stat st;
-        if(stat(cartridge_info_filename, &st)) {
+        // check if 'cartridge-info' exists and if not then create it
+        char *cartridge_info_filename = USERDATA_FOLDER "/cartridge-info";
+
+        if(!exists(cartridge_info_filename)) {
             FILE *file = fopen(cartridge_info_filename, "w");
             fprintf(
                 file, "library-version=%u.%u",
@@ -159,8 +182,7 @@ CMD(cmd_unpack) {
             true
         );
     } else {
-        struct stat st;
-        if(!stat(USERDATA_FOLDER, &st)) {
+        if(exists(USERDATA_FOLDER)) {
             terminal_write(
                 "Error:\n"
                 "'" USERDATA_FOLDER "'\n"
@@ -188,8 +210,7 @@ CMD(cmd_setup) {
     if(check_is_developer())
         return;
 
-    struct stat st;
-    if(!stat(USERDATA_FOLDER, &st)) {
+    if(exists(USERDATA_FOLDER)) {
         terminal_write(
             "Error:\n"
             "'" USERDATA_FOLDER "'\n"
