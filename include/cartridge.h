@@ -33,10 +33,8 @@ extern int cartridge_init(void);
 extern void cartridge_destroy(void);
 
 // returns the folder the cartridge was extracted into
-// or NULL if the cartridge could not be found
-//
-// if dest_folder is NULL, a temporary directory is created
-extern char *cartridge_extract(const char *filename, char *dest_folder);
+// or NULL if the cartridge could not be extracted
+extern char *cartridge_extract(const char *filename);
 
 extern int cartridge_load_files(void);
 

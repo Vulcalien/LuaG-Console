@@ -53,22 +53,18 @@ void cartridge_destroy(void) {
         free(cartridge_folder);
 }
 
-char *cartridge_extract(const char *filename, char *dest_folder) {
-    if(!dest_folder) {
-        // prepare temporary folder
-        if(!cartridge_folder)
-            cartridge_folder = malloc(PATH_MAX * sizeof(char));
+char *cartridge_extract(const char *filename) {
+    // prepare temporary folder
+    if(!cartridge_folder)
+        cartridge_folder = malloc(PATH_MAX * sizeof(char));
 
-        snprintf(cartridge_folder, PATH_MAX, TEMP_DIR "/XXXXXX");
-        cartridge_folder = mkdtemp(cartridge_folder);
+    snprintf(cartridge_folder, PATH_MAX, TEMP_DIR "/XXXXXX");
+    cartridge_folder = mkdtemp(cartridge_folder);
 
-        dest_folder = cartridge_folder;
-    }
-
-    if(archiveutil_extract(filename, dest_folder))
+    if(archiveutil_extract(filename, cartridge_folder))
         return NULL;
 
-    return dest_folder;
+    return cartridge_folder;
 }
 
 int cartridge_load_files(void) {

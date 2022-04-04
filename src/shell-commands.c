@@ -64,7 +64,7 @@ CMD(cmd_run) {
         char filename[PATH_MAX];
         snprintf(filename, PATH_MAX, "%s.luag", argv[0]);
 
-        game_folder = cartridge_extract(filename, NULL);
+        game_folder = cartridge_extract(filename);
         if(game_folder) {
             engine_load(false);
         } else {
