@@ -1,8 +1,11 @@
-# Vulcalien's Executable Makefile
-# version 0.1.4
+# Vulcalien's Library Makefile
+# version 0.1.9
 #
 # One Makefile for Unix and Windows
 # Made for the 'gcc' compiler
+#
+# This Makefile can create both
+# Static and Shared libraries
 
 # === DETECT OS ===
 ifeq ($(OS),Windows_NT)
@@ -23,20 +26,24 @@ CC := x86_64-w64-mingw32-gcc
 TARGET_OS := WINDOWS
 
 CPPFLAGS := -I../include -Iinclude -MMD -MP
-CFLAGS   := -Wall -pedantic -Wno-format-truncation
 
-LDFLAGS := -Llib
+CFLAGS_STATIC := -Wall -pedantic
+CFLAGS_SHARED := -fPIC -Wall -pedantic -Wno-format-truncation
+
+LDFLAGS := -shared -Llib
 LDLIBS  := `SDL2-2.0.20/x86_64-w64-mingw32/bin/sdl2-config --libs`\
 		   -lSDL2_image -lSDL2_mixer -ldlfcn -llua54 -larchive
 # =============================
 
 # === OS SPECIFIC ===
 ifeq ($(TARGET_OS),UNIX)
-	OBJ_EXT := .o
-	OUT_EXT :=
+	OBJ_EXT    := .o
+	STATIC_EXT := .a
+	SHARED_EXT := .so
 else ifeq ($(TARGET_OS),WINDOWS)
-	OBJ_EXT := .obj
-	OUT_EXT := .exe
+	OBJ_EXT    := .obj
+	STATIC_EXT := .a
+	SHARED_EXT := .dll
 endif
 
 ifeq ($(CURRENT_OS),UNIX)
@@ -55,30 +62,42 @@ endif
 
 # === OTHER ===
 SRC := $(wildcard $(SRC_DIR)/*.c)
-OBJ := $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%$(OBJ_EXT))
-OUT := $(BIN_DIR)/$(OUT_FILENAME)$(OUT_EXT)
+
+OBJ_STATIC_DIR := $(OBJ_DIR)/static
+OBJ_SHARED_DIR := $(OBJ_DIR)/shared
+
+OBJ_STATIC := $(SRC:$(SRC_DIR)/%.c=$(OBJ_STATIC_DIR)/%$(OBJ_EXT))
+OBJ_SHARED := $(SRC:$(SRC_DIR)/%.c=$(OBJ_SHARED_DIR)/%$(OBJ_EXT))
+
+OUT_STATIC := $(BIN_DIR)/$(OUT_FILENAME)$(STATIC_EXT)
+OUT_SHARED := $(BIN_DIR)/$(OUT_FILENAME)$(SHARED_EXT)
 
 # === TARGETS ===
-.PHONY: all run build clean
+.PHONY: all build-static build-shared clean
 
-all: build
-
-run:
-	./$(OUT)
-
-build: $(OUT)
+all: build-shared
+build-static: $(OUT_STATIC)
+build-shared: $(OUT_SHARED)
 
 clean:
 	@$(RM) $(RMFLAGS) $(BIN_DIR) $(OBJ_DIR)
 
-$(OUT): $(OBJ) | $(BIN_DIR)
+$(OUT_STATIC): $(OBJ_STATIC) | $(BIN_DIR)
+	$(AR) rcs $@ $^
+
+$(OUT_SHARED): $(OBJ_SHARED) | $(BIN_DIR)
+	x86_64-w64-mingw32-objcopy --redefine-sym\
+		main=luag_main $(OBJ_SHARED_DIR)/luag-console.obj
 	$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
-	x86_64-w64-mingw32-dlltool $@ -l $@.lib --export-all-symbols
 
-$(OBJ_DIR)/%$(OBJ_EXT): $(SRC_DIR)/%.c | $(OBJ_DIR)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+$(OBJ_STATIC_DIR)/%$(OBJ_EXT): $(SRC_DIR)/%.c | $(OBJ_STATIC_DIR)
+	$(CC) $(CPPFLAGS) $(CFLAGS_STATIC) -c $< -o $@
 
-$(BIN_DIR) $(OBJ_DIR):
+$(OBJ_SHARED_DIR)/%$(OBJ_EXT): $(SRC_DIR)/%.c | $(OBJ_SHARED_DIR)
+	$(CC) $(CPPFLAGS) $(CFLAGS_SHARED) -c $< -o $@
+
+$(BIN_DIR) $(OBJ_STATIC_DIR) $(OBJ_SHARED_DIR):
 	$(MKDIR) $(MKDIRFLAGS) "$@"
 
--include $(OBJ:$(OBJ_EXT)=.d)
+-include $(OBJ_STATIC:$(OBJ_EXT)=.d)
+-include $(OBJ_SHARED:$(OBJ_EXT)=.d)

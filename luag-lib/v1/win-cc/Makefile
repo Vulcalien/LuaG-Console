@@ -31,7 +31,7 @@ CFLAGS_STATIC := -Wall -pedantic
 CFLAGS_SHARED := -fPIC -Wall -pedantic
 
 LDFLAGS := -shared -L../../../win-cc/lib -L../../../win-cc/bin
-LDLIBS  := -llua54 -lluag-console.exe
+LDLIBS  := -llua54 -lluag-console
 # =============================
 
 # === OS SPECIFIC ===
