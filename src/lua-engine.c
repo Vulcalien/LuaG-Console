@@ -289,3 +289,20 @@ void engine_tick(void) {
     if(check_error(L, status))
         return;
 }
+
+void engine_render(void) {
+    // 'render' was introduced in LuaG Library 2.0
+    if(cartridge_info.major_v < 2)
+        return;
+
+    lua_getglobal(L, "render");
+    if(!lua_isfunction(L, -1)) {
+        fputs("Engine: a function 'render()' must be defined\n", stderr);
+        engine_stop();
+        return;
+    }
+
+    int status = lua_pcall(L, 0, 0, 0);
+    if(check_error(L, status))
+        return;
+}

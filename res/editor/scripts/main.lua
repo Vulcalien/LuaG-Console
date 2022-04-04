@@ -113,8 +113,6 @@ function tick()
         gui_action("scroll", x, y, scroll())
     end
 
-    render()
-
     ticks = ticks + 1
 end
 

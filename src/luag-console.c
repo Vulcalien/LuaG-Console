@@ -71,7 +71,9 @@ void tick(void) {
 }
 
 void render(void) {
-    if(!engine_running)
+    if(engine_running)
+        engine_render();
+    else
         terminal_render();
 
     display_refresh();

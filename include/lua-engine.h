@@ -25,5 +25,6 @@ extern void engine_reload(void);
 extern void engine_stop(void);
 
 extern void engine_tick(void);
+extern void engine_render(void);
 
 #endif // VULC_LUAG_LUA_ENGINE
