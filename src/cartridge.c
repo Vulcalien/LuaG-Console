@@ -27,7 +27,13 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#define TEMP_DIR "/tmp/luag-console"
+#ifdef __unix__
+    #define TEMP_DIR "/tmp/luag-console"
+#elif _WIN32
+    #include <fileapi.h>
+
+    static char *temp_dir;
+#endif
 
 static int load_cartridge_info(void);
 static int load_atlas(void);
@@ -42,7 +48,13 @@ int cartridge_init(void) {
     #ifdef __unix__
         mkdir(TEMP_DIR, 0700);
     #elif _WIN32
-        mkdir(TEMP_DIR);
+        char temp_dir_win[PATH_MAX];
+        GetTempPathA(PATH_MAX, temp_dir_win);
+
+        temp_dir = malloc(PATH_MAX * sizeof(char));
+        snprintf(temp_dir, PATH_MAX, "%sluag-console", temp_dir_win);
+
+        mkdir(temp_dir);
     #endif
 
     return 0;
@@ -51,6 +63,10 @@ int cartridge_init(void) {
 void cartridge_destroy(void) {
     if(cartridge_folder)
         free(cartridge_folder);
+
+    #ifdef _WIN32
+        free(temp_dir);
+    #endif
 }
 
 char *cartridge_extract(const char *filename) {
@@ -58,8 +74,29 @@ char *cartridge_extract(const char *filename) {
     if(!cartridge_folder)
         cartridge_folder = malloc(PATH_MAX * sizeof(char));
 
-    snprintf(cartridge_folder, PATH_MAX, TEMP_DIR "/XXXXXX");
-    cartridge_folder = mkdtemp(cartridge_folder);
+    #ifdef __unix__
+        snprintf(cartridge_folder, PATH_MAX, TEMP_DIR "/XXXXXX");
+        cartridge_folder = mkdtemp(cartridge_folder);
+    #elif _WIN32
+        #define CHAR_POOL "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+        #define CHAR_POOL_LEN (sizeof(CHAR_POOL) / sizeof(char) - 1)
+
+        #define NAME_BUFFER_SIZE 16
+        char random_name[NAME_BUFFER_SIZE + 1];
+
+        for(u32 i = 0; i < NAME_BUFFER_SIZE; i++)
+            random_name[i] = CHAR_POOL[rand() % CHAR_POOL_LEN];
+        random_name[NAME_BUFFER_SIZE] = '\0';
+
+        snprintf(
+            cartridge_folder, PATH_MAX,
+            "%s/%s", temp_dir, random_name
+        );
+
+        #undef CHAR_POOL
+        #undef CHAR_POOL_LEN
+        #undef NAME_BUFFER_SIZE
+    #endif
 
     if(archiveutil_extract(filename, cartridge_folder))
         return NULL;

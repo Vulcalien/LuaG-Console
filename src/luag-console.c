@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <limits.h>
+#include <time.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -97,6 +98,8 @@ static int init(void) {
         return -6;
     if(map_init())
         return -7;
+
+    srand(time(NULL));
 
     return 0;
 }
