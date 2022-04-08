@@ -74,6 +74,7 @@ void input_tick(void) {
 
             if(e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {
                 struct input_Key *key = NULL;
+                // TODO find a way to let the end user choose these
                 switch(e.key.keysym.sym) {
                     case SDLK_UP:
                     case SDLK_w:
@@ -90,6 +91,22 @@ void input_tick(void) {
                     case SDLK_RIGHT:
                     case SDLK_d:
                         key = &input_keys[KEY_RIGHT];
+                        break;
+                    case SDLK_p:
+                    case SDLK_l:
+                    case SDLK_m:
+                        key = &input_keys[KEY_A];
+                        break;
+                    case SDLK_o:
+                    case SDLK_k:
+                    case SDLK_n:
+                        key = &input_keys[KEY_B];
+                        break;
+                    case SDLK_INSERT:
+                        key = &input_keys[KEY_START];
+                        break;
+                    case SDLK_BACKSPACE:
+                        key = &input_keys[KEY_SELECT];
                         break;
                 }
                 if(key) {

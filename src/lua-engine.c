@@ -33,8 +33,6 @@
 #include <lua5.4/lualib.h>
 #include <lua5.4/lauxlib.h>
 
-#define BUFFER_SIZE (4 * 1024)
-
 #ifdef __unix__
     #define LIB_EXT ".so"
 #elif _WIN32
@@ -72,6 +70,7 @@ static int check_error(lua_State *L, int status) {
     }
 
     if(status != LUA_OK) {
+        // TODO sometimes the "where" is not printed
         const char *error_msg = lua_tostring(L, -1);
         fprintf(stderr, "%s\n", error_msg);
         lua_pop(L, 1);

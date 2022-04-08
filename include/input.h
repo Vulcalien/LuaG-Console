@@ -31,13 +31,18 @@ struct input_Mouse {
     i32 scroll;
 };
 
-#define KEY_COUNT (4)
+#define KEY_COUNT (8)
 #define BTN_COUNT (3)
 
-#define KEY_UP    (0)
-#define KEY_LEFT  (1)
-#define KEY_DOWN  (2)
-#define KEY_RIGHT (3)
+#define KEY_UP     (0)
+#define KEY_LEFT   (1)
+#define KEY_DOWN   (2)
+#define KEY_RIGHT  (3)
+#define KEY_A      (4)
+#define KEY_B      (5)
+#define KEY_START  (6)
+#define KEY_SELECT (7)
+// TODO add more?
 
 #define BTN_LEFT   (0)
 #define BTN_MIDDLE (1)
