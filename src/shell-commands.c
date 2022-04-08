@@ -236,7 +236,7 @@ CMD(cmd_setup) {
     }
 }
 
-CMD(cmd_cls) {
+CMD(cmd_clear) {
     terminal_clear();
 }
 
@@ -250,16 +250,17 @@ CMD(cmd_help) {
     if(argc > 0) {
 
     } else {
-        terminal_write("run: runs game", false);
-        terminal_write("edit: opens editor", false);
-        terminal_write("pack: creates cartridge", false);
-        terminal_write("setup: creates game files", false);
-        terminal_write("cls: clears shell", false);
-        terminal_write("ver: prints version", false);
-        terminal_write("help: prints this list", false);
-        terminal_write("mode: changes console mode", false);
-        terminal_write("files: opens game folder", false);
-        terminal_write("log: opens log file", false);
+        terminal_write("run:    run game",          false);
+        terminal_write("edit:   open editor",       false);
+        terminal_write("pack:   create cartridge",  false);
+        terminal_write("unpack: extract cartridge", false);
+        terminal_write("setup:  create game files", false);
+        terminal_write("clear:  clear shell",       false);
+        terminal_write("ver:    print version",     false);
+        terminal_write("help:   print this list",   false);
+        terminal_write("mode:   change mode",       false);
+        terminal_write("files:  open game folder",  false);
+        terminal_write("log:    open log file",     false);
     }
 }
 
@@ -340,8 +341,8 @@ bool execute_command(char *cmd, u32 argc, char **argv) {
         CALL(cmd_unpack);
     else if(TEST("setup"))
         CALL(cmd_setup);
-    else if(TEST("cls") || TEST("clear"))
-        CALL(cmd_cls);
+    else if(TEST("clear") || TEST("cls"))
+        CALL(cmd_clear);
     else if(TEST("ver") || TEST("version"))
         CALL(cmd_ver);
     else if(TEST("help"))
