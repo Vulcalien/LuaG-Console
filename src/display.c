@@ -100,7 +100,7 @@ int display_init(void) {
     }
 
     window = SDL_CreateWindow(
-        "LuaG Console - C",
+        "LuaG Console",
         SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
         DISPLAY_WIDTH * 4, DISPLAY_HEIGHT * 4,
         SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN

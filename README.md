@@ -3,7 +3,7 @@
 LuaG is a virtual console that runs lua games.
 
 # C port
-This project is a C port with improvements to the <!-- REMEMBER TO CHANGE THE LINK -->[Java version](https://github.com/Vulcalien/LuaG-Console).\
+This project is a C port with improvements to the [Java version](https://github.com/Vulcalien/LuaG-Console-java).\
 Cartridges made for the Java version of LuaG Console are supposed to work in the C port without any changes.
 
 # Built With
