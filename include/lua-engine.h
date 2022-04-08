@@ -24,6 +24,8 @@ extern void engine_load(bool is_editor);
 extern void engine_reload(void);
 extern void engine_stop(void);
 
+extern void engine_ask_exit(i8 code, const char *msg);
+
 extern void engine_tick(void);
 extern void engine_render(void);
 

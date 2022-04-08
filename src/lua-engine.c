@@ -21,6 +21,7 @@
 #include "cartridge.h"
 
 #include <stdio.h>
+#include <string.h>
 #include <limits.h>
 
 #include <sys/types.h>
@@ -42,6 +43,10 @@
 
 bool engine_running = false;
 
+static bool should_exit = false;
+static i8 exit_code;
+static char *exit_msg = NULL;
+
 static lua_State *L = NULL;
 
 static void *core_lib_handle = NULL;
@@ -49,15 +54,32 @@ static void *editor_lib_handle = NULL;
 
 // returns nonzero if the engine was stopped
 static int check_error(lua_State *L, int status) {
-    if(status != LUA_OK) {
-        const char *error_msg = lua_tostring(L, -1);
+    if(should_exit) {
+        char msg[32];
+        snprintf(msg, 32, "exit code: %d", exit_code);
+        terminal_write(msg, exit_code != 0);
 
-        fprintf(stderr, "%s\n", error_msg);
+        if(exit_msg) {
+            terminal_write(exit_msg, exit_code != 0);
 
-        lua_pop(L, 1);
+            free(exit_msg);
+            exit_msg = NULL;
+        }
 
+        should_exit = false;
         engine_stop();
         return -1;
+    }
+
+    if(status != LUA_OK) {
+        const char *error_msg = lua_tostring(L, -1);
+        fprintf(stderr, "%s\n", error_msg);
+        lua_pop(L, 1);
+
+        terminal_write("Lua Error: see log file", true);
+
+        engine_stop();
+        return -2;
     }
     return 0;
 }
@@ -275,6 +297,20 @@ void engine_stop(void) {
     }
 
     sound_stop_all();
+}
+
+void engine_ask_exit(i8 code, const char *msg) {
+    should_exit = true;
+    exit_code = code;
+
+    if(msg) {
+        // just in case exit() is called more than once
+        if(exit_msg)
+            free(exit_msg);
+
+        exit_msg = malloc((strlen(msg) + 1) * sizeof(char));
+        strcpy(exit_msg, msg);
+    }
 }
 
 void engine_tick(void) {

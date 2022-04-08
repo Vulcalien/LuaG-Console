@@ -16,6 +16,7 @@
 #include "luag-console.h"
 
 #include "display.h"
+#include "lua-engine.h"
 #include "map.h"
 #include "input.h"
 #include "sound.h"
@@ -117,6 +118,14 @@ F(loadscript) {
         free(file_abs_path);
     if(game_folder_abs_path)
         free(game_folder_abs_path);
+    return 0;
+}
+
+F(luag_exit) {
+    lua_Integer code = luaL_optinteger(L, 1, 0);
+    const char *msg  = luaL_optstring(L, 2, "");
+
+    engine_ask_exit(code, msg);
     return 0;
 }
 
@@ -478,6 +487,7 @@ int luag_lib_load(lua_State *L) {
     // FUNCTIONS
     // generic
     lua_register(L, "loadscript", loadscript);
+    lua_register(L, "exit", luag_exit);
     lua_register(L, "log", luag_log);
 
     // keys

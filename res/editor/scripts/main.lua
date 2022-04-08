@@ -51,7 +51,7 @@ function init()
             1, 1,      -- x, y
             1,         -- icon
             function() -- click_fn
-                -- TODO
+                exit(0, "Editor: exited to terminal")
             end
         ),
         -- map_editor
