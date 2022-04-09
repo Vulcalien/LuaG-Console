@@ -220,8 +220,15 @@ void engine_load(bool is_editor) {
     // os
     // debug
 
-    // TODO luaopen_base loads functions like dofile.
-    // delete them
+    // delete unsafe functions
+    lua_pushnil(L);
+    lua_setglobal(L, "dofile");
+
+    lua_pushnil(L);
+    lua_setglobal(L, "load");
+
+    lua_pushnil(L);
+    lua_setglobal(L, "loadfile");
 
     if(cartridge_load_files()) {
         engine_stop();
