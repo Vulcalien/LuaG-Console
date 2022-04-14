@@ -22,8 +22,9 @@
 #include "sound.h"
 
 #include <stdio.h>
-#include <limits.h>
 #include <string.h>
+#include <ctype.h>
+#include <limits.h>
 #include <errno.h>
 #include <stdarg.h>
 
@@ -135,76 +136,133 @@ F(luag_log) {
 }
 
 // keys
-F(key) {
-    lua_Integer id = luaL_checkinteger(L, 1);
+static struct input_Key *get_key(lua_State *L, bool is_string,
+                                 const char *key_name, lua_Integer id) {
+    if(is_string) {
+        u32 len = strlen(key_name);
+        char *string = malloc((len + 1) * sizeof(char));
 
-    if(id < 0 || id >= KEY_COUNT) {
-        throw_lua_error(L, "bad argument: key '%d' does not exist", id);
-        return 0;
+        // copy while making lowercase
+        for(u32 i = 0; i < len; i++)
+            string[i] = tolower(key_name[i]);
+        string[len] = '\0';
+
+        #define TEST(key_name) !strcmp(string, key_name)
+
+        if(TEST("up"))
+            id = KEY_UP;
+        else if(TEST("left"))
+            id = KEY_LEFT;
+        else if(TEST("down"))
+            id = KEY_DOWN;
+        else if(TEST("right"))
+            id = KEY_RIGHT;
+        else if(TEST("a"))
+            id = KEY_A;
+        else if(TEST("b"))
+            id = KEY_B;
+        else if(TEST("start"))
+            id = KEY_START;
+        else if(TEST("select"))
+            id = KEY_SELECT;
+        else
+            id = -1;
+
+        #undef TEST
+
+        if(id < 0)
+            throw_lua_error(L, "bad argument: key '%s' does not exist", string);
+
+        free(string);
+
+        if(id < 0)
+            return NULL;
+    } else {
+        if(id < 0 || id >= KEY_COUNT) {
+            throw_lua_error(L, "bad argument: key '%d' does not exist", id);
+            return NULL;
+        }
     }
 
-    lua_pushboolean(L, input_keys[id].is_down);
+    return &input_keys[id];
+}
+
+F(key) {
+    struct input_Key *key;
+    if(lua_isinteger(L, 1))
+        key = get_key(L, false, NULL, luaL_checkinteger(L, 1));
+    else
+        key = get_key(L, true, luaL_checkstring(L, 1), 0);
+
+    if(!key)
+        return 0;
+
+    lua_pushboolean(L, key->is_down);
     return 1;
 }
 
 F(key_pressed) {
-    lua_Integer id = luaL_checkinteger(L, 1);
+    struct input_Key *key;
+    if(lua_isinteger(L, 1))
+        key = get_key(L, false, NULL, luaL_checkinteger(L, 1));
+    else
+        key = get_key(L, true, luaL_checkstring(L, 1), 0);
 
-    if(id < 0 || id >= KEY_COUNT) {
-        throw_lua_error(L, "bad argument: key '%d' does not exist", id);
+    if(!key)
         return 0;
-    }
 
-    lua_pushboolean(L, input_keys[id].press_count);
+    lua_pushboolean(L, key->press_count);
     return 1;
 }
 
 F(key_released) {
-    lua_Integer id = luaL_checkinteger(L, 1);
+    struct input_Key *key;
+    if(lua_isinteger(L, 1))
+        key = get_key(L, false, NULL, luaL_checkinteger(L, 1));
+    else
+        key = get_key(L, true, luaL_checkstring(L, 1), 0);
 
-    if(id < 0 || id >= KEY_COUNT) {
-        throw_lua_error(L, "bad argument: key '%d' does not exist", id);
+    if(!key)
         return 0;
-    }
 
-    lua_pushboolean(L, input_keys[id].release_count);
+    lua_pushboolean(L, key->release_count);
     return 1;
 }
 
 // mouse
-F(mouse) {
-    lua_Integer id = luaL_checkinteger(L, 1);
-
+static struct input_Key *get_btn(lua_State *L, lua_Integer id) {
     if(id < 0 || id >= BTN_COUNT) {
         throw_lua_error(L, "bad argument: button '%d' does not exist", id);
-        return 0;
+        return NULL;
     }
 
-    lua_pushboolean(L, input_btns[id].is_down);
+    return &input_btns[id];
+}
+
+F(mouse) {
+    struct input_Key *btn = get_btn(L, luaL_checkinteger(L, 1));
+    if(!btn)
+        return 0;
+
+    lua_pushboolean(L, btn->is_down);
     return 1;
 }
 
 F(mouse_pressed) {
-    lua_Integer id = luaL_checkinteger(L, 1);
-
-    if(id < 0 || id >= BTN_COUNT) {
-        throw_lua_error(L, "bad argument: button '%d' does not exist", id);
+    struct input_Key *btn = get_btn(L, luaL_checkinteger(L, 1));
+    if(!btn)
         return 0;
-    }
 
-    lua_pushboolean(L, input_btns[id].press_count);
+    lua_pushboolean(L, btn->press_count);
     return 1;
 }
 
 F(mouse_released) {
-    lua_Integer id = luaL_checkinteger(L, 1);
-
-    if(id < 0 || id >= BTN_COUNT) {
-        throw_lua_error(L, "bad argument: button '%d' does not exist", id);
+    struct input_Key *btn = get_btn(L, luaL_checkinteger(L, 1));
+    if(!btn)
         return 0;
-    }
 
-    lua_pushboolean(L, input_btns[id].release_count);
+    lua_pushboolean(L, btn->release_count);
     return 1;
 }
 

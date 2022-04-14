@@ -16,7 +16,7 @@ endif
 TARGET_OS := $(CURRENT_OS)
 
 # ========= EDIT HERE =========
-OUT_FILENAME := luag-lib-2.0
+OUT_FILENAME := luag-lib-2.1
 
 SRC_DIR := .
 OBJ_DIR := obj

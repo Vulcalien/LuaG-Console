@@ -19,7 +19,7 @@
 #include "luag-console.h"
 
 #define CARTRIDGE_DEFAULT_MAJOR_V (2)
-#define CARTRIDGE_DEFAULT_MINOR_V (0)
+#define CARTRIDGE_DEFAULT_MINOR_V (1)
 
 struct cartridge_Info {
     // library version
