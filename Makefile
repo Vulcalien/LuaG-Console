@@ -27,8 +27,15 @@ CFLAGS   := -Wall -pedantic -Wno-format-truncation
 
 ifeq ($(TARGET_OS),UNIX)
 	# UNIX
-	LDFLAGS := -Llib -rdynamic
-	LDLIBS  := -lSDL2 -lSDL2_image -lSDL2_mixer -ldl -llua5.4 -larchive
+	ifdef LINK_STATIC
+		LDFLAGS := -Llib -static -rdynamic
+		LDLIBS  := `sdl2-config --static-libs`\
+		           -lSDL2_image -lSDL2_mixer -ldl -llua5.4 -larchive
+	else
+		LDFLAGS := -Llib -rdynamic
+		LDLIBS  := `sdl2-config --libs`\
+		           -lSDL2_image -lSDL2_mixer -ldl -llua5.4 -larchive
+	endif
 else ifeq ($(TARGET_OS),WINDOWS)
 	# WINDOWS
 	LDFLAGS := -Llib

@@ -25,7 +25,7 @@ TARGET_OS := WINDOWS
 CPPFLAGS := -Iinclude -MMD -MP
 CFLAGS   := -Wall -pedantic
 
-LDFLAGS := -L../bin -Wl,--enable-auto-import
+LDFLAGS := -L../bin
 LDLIBS  := -lluag-console
 # =============================
 
