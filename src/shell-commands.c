@@ -327,9 +327,8 @@ void commands_destroy(void) {
 
 bool execute_command(char *cmd, u32 argc, char **argv) {
     // make cmd lowercase
-    for(u32 i = 0; cmd[i] != '\0'; i++) {
+    for(u32 i = 0; cmd[i] != '\0'; i++)
         cmd[i] = tolower(cmd[i]);
-    }
 
     if(TEST("run"))
         CALL(cmd_run);

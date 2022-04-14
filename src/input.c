@@ -102,7 +102,7 @@ void input_tick(void) {
                     case SDLK_n:
                         key = &input_keys[KEY_B];
                         break;
-                    case SDLK_INSERT:
+                    case SDLK_RETURN:
                         key = &input_keys[KEY_START];
                         break;
                     case SDLK_BACKSPACE:
