@@ -30,11 +30,11 @@ ifeq ($(TARGET_OS),UNIX)
 	ifdef LINK_STATIC
 		LDFLAGS := -Llib -static -rdynamic
 		LDLIBS  := `sdl2-config --static-libs`\
-		           -lSDL2_image -lSDL2_mixer -ldl -llua5.4 -larchive
+		           -lSDL2_image -lSDL2_mixer -lpthread -ldl -llua5.4 -larchive
 	else
 		LDFLAGS := -Llib -rdynamic
 		LDLIBS  := `sdl2-config --libs`\
-		           -lSDL2_image -lSDL2_mixer -ldl -llua5.4 -larchive
+		           -lSDL2_image -lSDL2_mixer -lpthread -ldl -llua5.4 -larchive
 	endif
 else ifeq ($(TARGET_OS),WINDOWS)
 	# WINDOWS

@@ -32,8 +32,10 @@
 
     static void *tps_counter(void *arg) {
         while(true) {
-            printf("tps: %d - fps: %d\n", counter_ticks, counter_frames);
-            fflush(stdout);
+            if(gameloop_print_performance) {
+                printf("tps: %d - fps: %d\n", counter_ticks, counter_frames);
+                fflush(stdout);
+            }
 
             counter_ticks = 0;
             counter_frames = 0;
@@ -43,6 +45,8 @@
         return NULL;
     }
 #endif
+
+bool gameloop_print_performance = false;
 
 static bool running = false;
 

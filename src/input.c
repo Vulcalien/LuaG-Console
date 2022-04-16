@@ -17,6 +17,7 @@
 
 #include "lua-engine.h"
 #include "terminal.h"
+#include "gameloop.h"
 
 #include <SDL2/SDL.h>
 
@@ -51,6 +52,13 @@ void input_tick(void) {
         if(e.type == SDL_QUIT) {
             should_quit = true;
             break;
+        }
+
+        if(e.type == SDL_KEYDOWN &&
+           !e.key.repeat &&
+           e.key.keysym.mod & KMOD_CTRL &&
+           e.key.keysym.sym == SDLK_F3) {
+            gameloop_print_performance = !gameloop_print_performance;
         }
 
         if(engine_running) {

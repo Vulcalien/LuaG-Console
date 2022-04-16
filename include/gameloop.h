@@ -18,7 +18,9 @@
 
 #include "luag-console.h"
 
-void gameloop(void);
-void gameloop_stop(void);
+extern bool gameloop_print_performance;
+
+extern void gameloop(void);
+extern void gameloop_stop(void);
 
 #endif // VULC_LUAG_GAMELOOP
