@@ -1,5 +1,5 @@
 editors.map = {
-    title = "Map Editor",
+    title = 'Map Editor',
 
     init = function(self)
         self.map = element(
@@ -75,11 +75,15 @@ editors.map = {
                     if xt >= 0 and xt < map_w and
                        yt >= 0 and yt < map_h then
                         if set_tile(xt, yt, self.atlas.selected) then
-                            is_edited = true
+                            self.is_edited = true
                         end
                     end
                end
             end
         end
+    end,
+
+    save = function(self)
+        editor_save_map()
     end
 }

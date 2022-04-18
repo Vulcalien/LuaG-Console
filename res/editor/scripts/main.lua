@@ -1,6 +1,5 @@
 function init()
     ticks = 0
-    is_edited = false
 
     editor_load_files()
 
@@ -18,10 +17,10 @@ function init()
         }
     }
 
-    loadscript("gui/element.lua")
-    loadscript("gui/box.lua")
-    loadscript("gui/button.lua")
-    loadscript("gui/atlas.lua")
+    loadscript('gui/element.lua')
+    loadscript('gui/box.lua')
+    loadscript('gui/button.lua')
+    loadscript('gui/atlas.lua')
 
     gui = {
         -- top_bar
@@ -51,7 +50,7 @@ function init()
             1, 1,      -- x, y
             1,         -- icon
             function() -- click_fn
-                exit(0, "Editor: exited to terminal")
+                exit(0, 'Editor: exited to terminal')
             end
         ),
         -- map_editor
@@ -76,11 +75,21 @@ function init()
             1,             -- y
             0,             -- icon
             function()     -- click_fn
-                -- TODO save click
-                is_edited = false
+                for key,editor in pairs(editors) do
+                    if editor.is_edited then
+                        print('Saving: ' .. key)
+                        editor:save()
+                        editor.is_edited = false
+                    end
+                end
             end,
             function()     -- highlight_fn
-                return is_edited
+                for _,editor in pairs(editors) do
+                    if editor.is_edited then
+                        return true
+                    end
+                end
+                return false
             end
         )
     }
@@ -88,8 +97,8 @@ function init()
     -- load editors
     editors = {}
 
-    loadscript("editor/map.lua")
-    loadscript("editor/sprite.lua")
+    loadscript('editor/map.lua')
+    loadscript('editor/sprite.lua')
 
     for _,editor in pairs(editors) do
         editor:init()
@@ -106,11 +115,11 @@ function tick()
     local x, y = mouse_pos()
 
     if mouse_pressed(0) then
-        gui_action("click", x, y)
+        gui_action('click', x, y)
     end
 
     if scroll() ~= 0 then
-        gui_action("scroll", x, y, scroll())
+        gui_action('scroll', x, y, scroll())
     end
 
     ticks = ticks + 1

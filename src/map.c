@@ -45,15 +45,15 @@ int map_load(char *filename) {
     FILE *file = fopen(filename, "rb");
 
     if(!file) {
-        fprintf(stderr, "Map: could not load map file %s\n", filename);
+        fprintf(stderr, "Map: could not load map file '%s'\n", filename);
         err = -1;
         goto exit;
     }
 
-    if(fread_u32_big_endian(&map.width, file))
+    if(fread_u32_big_endian(&map.width, file) ||
+       fread_u32_big_endian(&map.height, file)) {
         goto invalid_file;
-    if(fread_u32_big_endian(&map.height, file))
-        goto invalid_file;
+    }
 
     u32 map_size = map.width * map.height;
 

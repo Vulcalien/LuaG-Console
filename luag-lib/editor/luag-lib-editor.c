@@ -15,6 +15,8 @@
  */
 #include "luag-console.h"
 
+#include <limits.h>
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
@@ -73,6 +75,48 @@ F(editor_load_files) {
     load_map(L, USERDATA_FOLDER "/map");
 
     exit:
+    lua_pushinteger(L, err);
+    return 1;
+}
+
+static int fwrite_u32_big_endian(u32 num, FILE *file) {
+    u8 b[4] = { num >> 24, num >> 16, num >> 8, num };
+
+    if(fwrite(b, sizeof(u8), 4, file) < 4)
+        return -1;
+
+    return 0;
+}
+
+F(editor_save_map) {
+    int err = 0;
+
+    #define filename (USERDATA_FOLDER "/map")
+    FILE *file = fopen(filename, "wb");
+
+    if(!file) {
+        fprintf(stderr, "Editor: could not create map file '%s'\n", filename);
+        err = -1;
+        goto exit;
+    }
+    #undef filename
+
+    if(fwrite_u32_big_endian(map.width, file) ||
+       fwrite_u32_big_endian(map.height, file)) {
+        fputs("Editor: could not write map header\n", stderr);
+        goto exit;
+    }
+
+    u32 map_size = map.width * map.height;
+    if(fwrite(map.tiles, sizeof(u8), map_size, file) < map_size) {
+        fputs("Editor: could not write map content\n", stderr);
+        goto exit;
+    }
+
+    exit:
+    if(file)
+        fclose(file);
+
     lua_pushinteger(L, err);
     return 1;
 }
@@ -197,6 +241,9 @@ F(editor_draw_atlas) {
 
 int luag_lib_load(lua_State *L) {
     lua_register(L, "editor_load_files", editor_load_files);
+
+    /*lua_register(L, "editor_save_atlas", editor_save_atlas);*/
+    lua_register(L, "editor_save_map", editor_save_map);
 
     lua_register(L, "editor_spr", editor_spr);
     lua_register(L, "editor_maprender", editor_maprender);

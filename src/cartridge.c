@@ -118,10 +118,8 @@ int cartridge_load_files(void) {
 
 static int load_cartridge_info(void) {
     char filename[PATH_MAX];
-    snprintf(
-        filename, PATH_MAX,
-        "%s/cartridge-info", game_folder
-    );
+    snprintf(filename, PATH_MAX, "%s/cartridge-info", game_folder);
+
     FILE *file = fopen(filename, "r");
 
     if(!file) {
@@ -155,33 +153,21 @@ static int load_cartridge_info(void) {
 
 static int load_atlas(void) {
     char filename[PATH_MAX];
-    snprintf(
-        filename, PATH_MAX,
-        "%s/atlas.png", game_folder
-    );
-    int err = display_load_atlas(filename, NULL, NULL);
+    snprintf(filename, PATH_MAX, "%s/atlas.png", game_folder);
 
-    return err;
+    return display_load_atlas(filename, NULL, NULL);
 }
 
 static int load_map(void) {
     char filename[PATH_MAX];
-    snprintf(
-        filename, PATH_MAX,
-        "%s/map", game_folder
-    );
-    int err = map_load(filename);
+    snprintf(filename, PATH_MAX, "%s/map", game_folder);
 
-    return err;
+    return map_load(filename);
 }
 
 static int load_sounds(void) {
     char folder[PATH_MAX];
-    snprintf(
-        folder, PATH_MAX,
-        "%s/sfx", game_folder
-    );
-    int err = sound_load(folder);
+    snprintf(folder, PATH_MAX, "%s/sfx", game_folder);
 
-    return err;
+    return sound_load(folder);
 }

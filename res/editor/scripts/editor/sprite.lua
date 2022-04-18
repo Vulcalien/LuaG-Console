@@ -1,7 +1,7 @@
 local xc = scr_w / 2
 
 editors.sprite = {
-    title = "Sprite Editor",
+    title = 'Sprite Editor',
 
     init = function(self)
         self.gui = {
@@ -82,6 +82,10 @@ editors.sprite = {
     end,
 
     tick = function(self)
+
+    end,
+
+    save = function(self)
 
     end
 }
