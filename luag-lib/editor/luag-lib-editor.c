@@ -24,6 +24,7 @@
 #include <lua5.4/lauxlib.h>
 
 #include "display.h"
+#include "input.h"
 #include "map.h"
 
 #define F(name) static int name(lua_State *L)
@@ -206,6 +207,18 @@ F(editor_maprender) {
     return 0;
 }
 
+F(editor_set_text_mode) {
+    bool flag = lua_toboolean(L, -1);
+
+    input_set_text_mode(flag);
+    return 0;
+}
+
+F(editor_get_text) {
+    lua_pushstring(L, input_get_text());
+    return 1;
+}
+
 F(editor_draw_atlas) {
     // draw coordinates
     lua_Integer x0 = luaL_checkinteger(L, 1);
@@ -247,6 +260,9 @@ int luag_lib_load(lua_State *L) {
 
     lua_register(L, "editor_spr", editor_spr);
     lua_register(L, "editor_maprender", editor_maprender);
+
+    lua_register(L, "editor_set_text_mode", editor_set_text_mode);
+    lua_register(L, "editor_get_text", editor_get_text);
 
     lua_register(L, "editor_draw_atlas", editor_draw_atlas);
 

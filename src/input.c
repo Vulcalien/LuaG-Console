@@ -22,6 +22,8 @@
 #include <SDL2/SDL.h>
 
 static bool text_mode;
+#define TEXT_MODE_BUFFER (128)
+static char text_mode_text[TEXT_MODE_BUFFER];
 
 struct input_Key input_keys[KEY_COUNT + BTN_COUNT];
 struct input_Mouse input_mouse;
@@ -40,6 +42,9 @@ void input_tick(void) {
             key->release_count = 0;
         }
         input_mouse.scroll = 0;
+
+        if(text_mode)
+            text_mode_text[0] = '\0';
     }
 
     SDL_Event e;
@@ -112,7 +117,7 @@ void input_tick(void) {
                         key = &input_keys[KEY_SELECT];
                         break;
                 }
-                if(key) {
+                if(key) { // TODO && !text_mode ???
                     switch(e.type) {
                         case SDL_KEYDOWN:
                             if(!e.key.repeat)
@@ -148,27 +153,43 @@ void input_tick(void) {
             } else if(e.type == SDL_MOUSEMOTION) {
                 input_mouse.x = e.motion.x;
                 input_mouse.y = e.motion.y;
+            } else if(e.type == SDL_TEXTINPUT) {
+                if(text_mode) {
+                    strncpy(text_mode_text, e.text.text, TEXT_MODE_BUFFER);
+                    text_mode_text[TEXT_MODE_BUFFER - 1] = '\0';
+                }
             }
         } else {
             // engine is not running: send input to terminal
             if(e.type == SDL_TEXTINPUT && !(SDL_GetModState() & KMOD_CTRL)) {
                 terminal_receive_input(e.text.text);
             } else if(e.type == SDL_KEYDOWN) {
-                if(e.key.keysym.sym == SDLK_RETURN) {
-                    terminal_receive_input("\n");
-                } else if(e.key.keysym.sym == SDLK_BACKSPACE) {
-                    terminal_receive_input("\b");
-                } else if(e.key.keysym.sym == SDLK_DELETE) {
-                    terminal_receive_input("\x7f");
-                } else if(e.key.keysym.sym == SDLK_UP) {
-                    terminal_receive_input("\x11");
-                } else if(e.key.keysym.sym == SDLK_LEFT) {
-                    terminal_receive_input("\x12");
-                } else if(e.key.keysym.sym == SDLK_DOWN) {
-                    terminal_receive_input("\x13");
-                } else if(e.key.keysym.sym == SDLK_RIGHT) {
-                    terminal_receive_input("\x14");
+                char *str = NULL;
+                switch (e.key.keysym.sym) {
+                    case SDLK_RETURN:
+                        str = "\n";
+                        break;
+                    case SDLK_BACKSPACE:
+                        str = "\b";
+                        break;
+                    case SDLK_DELETE:
+                        str = "\x7f";
+                        break;
+                    case SDLK_UP:
+                        str = "\x11";
+                        break;
+                    case SDLK_LEFT:
+                        str = "\x12";
+                        break;
+                    case SDLK_DOWN:
+                        str = "\x13";
+                        break;
+                    case SDLK_RIGHT:
+                        str = "\x14";
+                        break;
                 }
+                if(str)
+                    terminal_receive_input(str);
             } else if(e.type == SDL_MOUSEWHEEL) {
                 terminal_scroll(-e.wheel.y);
             }
@@ -209,4 +230,8 @@ void input_set_text_mode(bool flag) {
     } else {
         SDL_StopTextInput();
     }
+}
+
+char *input_get_text(void) {
+    return text_mode_text;
 }

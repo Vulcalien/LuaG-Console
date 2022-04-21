@@ -57,5 +57,6 @@ extern void input_tick(void);
 extern void input_reset(void);
 
 extern void input_set_text_mode(bool flag);
+extern char *input_get_text(void);
 
 #endif // VULC_LUAG_INPUT

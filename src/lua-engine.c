@@ -302,6 +302,7 @@ void engine_stop(void) {
     }
 
     sound_stop_all();
+    input_set_text_mode(true);
 }
 
 void engine_ask_exit(i8 code, const char *msg) {
