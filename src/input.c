@@ -26,12 +26,6 @@ static bool text_mode;
 struct input_Key input_keys[KEY_COUNT + BTN_COUNT];
 struct input_Mouse input_mouse;
 
-void input_init(void) {
-    input_reset_keys();
-
-    input_set_text_mode(false);
-}
-
 void input_tick(void) {
     // update is_down based on release_count
     // (release_count only affects is_down one tick *after* the event occurred)
@@ -189,7 +183,8 @@ void input_tick(void) {
     }
 }
 
-void input_reset_keys(void) {
+void input_reset(void) {
+    // reset all keys
     for(u32 i = 0; i < KEY_COUNT + BTN_COUNT; i++) {
         input_keys[i] = (struct input_Key) {
             .is_down       = false,
@@ -197,6 +192,8 @@ void input_reset_keys(void) {
             .release_count = 0
         };
     }
+
+    input_set_text_mode(false);
 }
 
 void input_set_text_mode(bool flag) {

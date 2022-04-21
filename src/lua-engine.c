@@ -234,7 +234,8 @@ void engine_load(bool is_editor) {
         engine_stop();
         return;
     }
-    input_reset_keys();
+
+    input_reset();
 
     core_lib_handle = load_luag_library(L, false);
     if(!core_lib_handle) {
@@ -266,8 +267,6 @@ void engine_load(bool is_editor) {
     int status = lua_pcall(L, 0, 0, 0);
     if(check_error(L, status))
         return;
-
-    input_set_text_mode(false);
 }
 
 void engine_reload(void) {

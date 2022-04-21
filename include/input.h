@@ -53,10 +53,9 @@ extern struct input_Key input_keys[KEY_COUNT + BTN_COUNT];
 
 extern struct input_Mouse input_mouse;
 
-extern void input_init(void);
 extern void input_tick(void);
+extern void input_reset(void);
 
-extern void input_reset_keys(void);
 extern void input_set_text_mode(bool flag);
 
 #endif // VULC_LUAG_INPUT
