@@ -27,19 +27,20 @@ struct input_Key input_keys[KEY_COUNT + BTN_COUNT];
 struct input_Mouse input_mouse;
 
 void input_tick(void) {
-    // update is_down based on release_count
-    // (release_count only affects is_down one tick *after* the event occurred)
-    for(u32 i = 0; i < KEY_COUNT + BTN_COUNT; i++) {
-        struct input_Key *key = &input_keys[i];
+    if(engine_running) {
+        // update is_down based on release_count
+        // (release_count only affects is_down one tick *after* the event occurred)
+        for(u32 i = 0; i < KEY_COUNT + BTN_COUNT; i++) {
+            struct input_Key *key = &input_keys[i];
 
-        if(key->release_count)
-            key->is_down = false;
+            if(key->release_count)
+                key->is_down = false;
 
-        key->press_count   = 0;
-        key->release_count = 0;
+            key->press_count   = 0;
+            key->release_count = 0;
+        }
+        input_mouse.scroll = 0;
     }
-
-    input_mouse.scroll = 0;
 
     SDL_Event e;
     while(SDL_PollEvent(&e)) {
@@ -174,12 +175,14 @@ void input_tick(void) {
         }
     }
 
-    // update is_down based on press_count
-    for(u32 i = 0; i < KEY_COUNT + BTN_COUNT; i++) {
-        struct input_Key *key = &input_keys[i];
+    if(engine_running) {
+        // update is_down based on press_count
+        for(u32 i = 0; i < KEY_COUNT + BTN_COUNT; i++) {
+            struct input_Key *key = &input_keys[i];
 
-        if(key->press_count)
-            key->is_down = true;
+            if(key->press_count)
+                key->is_down = true;
+        }
     }
 }
 
