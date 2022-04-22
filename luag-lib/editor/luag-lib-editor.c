@@ -144,19 +144,16 @@ F(editor_update_map_size) {
 
     u8 *new_tiles = malloc((w * h) * sizeof(u8));
 
+    memset(new_tiles, selected, (w * h) * sizeof(u8));
+
     u32 row_len = map.width < w ? map.width : w;
-    for(u32 i = 0; i < h; i++) {
+    u32 col_len = map.height < h ? map.height : h;
+    for(u32 i = 0; i < col_len; i++) {
         memcpy(
             new_tiles + w * i,
             map.tiles + map.width * i,
             row_len * sizeof(u8)
         );
-
-        if(row_len < w)
-            memset(
-                new_tiles + w * i + row_len, selected,
-                (w - row_len) * sizeof(u8)
-            );
     }
 
     free(map.tiles);

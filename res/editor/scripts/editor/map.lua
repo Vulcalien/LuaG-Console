@@ -116,7 +116,7 @@ editors.map = {
                         return
                     end
 
-                    if new_height == map_h then
+                    if new_height == '' then
                         new_height = 0
                     end
 
