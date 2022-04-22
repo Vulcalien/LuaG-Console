@@ -47,8 +47,7 @@ void input_tick(void) {
         }
         input_mouse.scroll = 0;
 
-        if(text_mode)
-            text_mode_text[0] = '\0';
+        text_mode_text[0] = '\0';
     }
 
     SDL_Event e;
@@ -132,6 +131,27 @@ void input_tick(void) {
                             break;
                     }
                 }
+
+                if(text_mode && e.type == SDL_KEYDOWN) {
+                    // add '\n' and '\b' to the input string
+                    char *str = NULL;
+                    switch(e.key.keysym.sym) {
+                        case SDLK_RETURN:
+                            str = "\n";
+                            break;
+                        case SDLK_BACKSPACE:
+                            str = "\b";
+                            break;
+                    }
+
+                    if(str) {
+                        u32 len = strlen(text_mode_text);
+                        strncpy(
+                            text_mode_text + len, str,
+                            TEXT_MODE_BUFFER - len
+                        );
+                    }
+                }
             } else if(e.type == SDL_MOUSEBUTTONDOWN ||
                       e.type == SDL_MOUSEBUTTONUP) {
                 struct input_Key *btn = NULL;
@@ -159,8 +179,11 @@ void input_tick(void) {
                 input_mouse.y = e.motion.y;
             } else if(e.type == SDL_TEXTINPUT) {
                 if(text_mode) {
-                    strncpy(text_mode_text, e.text.text, TEXT_MODE_BUFFER);
-                    text_mode_text[TEXT_MODE_BUFFER - 1] = '\0';
+                    u32 len = strlen(text_mode_text);
+                    strncpy(
+                        text_mode_text + len, e.text.text,
+                        TEXT_MODE_BUFFER - len
+                    );
                 }
             }
         } else {

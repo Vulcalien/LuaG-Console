@@ -19,7 +19,7 @@ function textbox(x, y, size_limit, input_type, on_enter)
                 self.lose_focus()
                 focused_element = nil
             elseif char == '\b' then
-                self.text = string.sub(str, 1, -2) -- TODO probably wrong + check bounds
+                self.text = string.sub(self.text, 1, -2)
             else
                 if string.len(self.text) < size_limit then
                     if (input_type == 'dec' and tonumber(char, 10)) or

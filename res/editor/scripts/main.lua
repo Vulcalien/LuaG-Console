@@ -126,7 +126,7 @@ function tick()
         local x, y = mouse_pos()
 
         if mouse(0) then
-            gui_action('mouse_down', true, x, y)
+            gui_action('mouse_down', false, x, y)
         end
 
         if mouse_pressed(0) then
