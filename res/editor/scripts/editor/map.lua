@@ -77,7 +77,24 @@ editors.map = {
             textbox(
                 47, 100,
                 4, 'dec',
-                function(text) -- on_enter
+                map_w,
+                function(self, new_width) -- on_enter
+                    if new_width == map_w then
+                        return
+                    end
+
+                    if new_width == '' then
+                        new_width = 0
+                    end
+
+                    local editor = editors.map
+                    editor_update_map_size(
+                        new_width, -1,
+                        editor.atlas.selected
+                    )
+
+                    self.text = map_w
+                    editor.is_edited = true
                 end
             ),
 
@@ -93,7 +110,24 @@ editors.map = {
             textbox(
                 118, 100,
                 4, 'dec',
-                function(text) -- on_enter
+                map_h,
+                function(self, new_height) -- on_enter
+                    if new_height == map_h then
+                        return
+                    end
+
+                    if new_height == map_h then
+                        new_height = 0
+                    end
+
+                    local editor = editors.map
+                    editor_update_map_size(
+                        -1, new_height,
+                        editor.atlas.selected
+                    )
+
+                    self.text = map_h
+                    editor.is_edited = true
                 end
             ),
         }

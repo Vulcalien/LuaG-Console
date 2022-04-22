@@ -1,4 +1,4 @@
-function textbox(x, y, size_limit, input_type, on_enter)
+function textbox(x, y, size_limit, input_type, text, on_enter)
     local result = element(
         x, y, size_limit * (font_w + 1) + 1, font_h + 1,
         function(self) -- render
@@ -14,7 +14,7 @@ function textbox(x, y, size_limit, input_type, on_enter)
             local char = string.sub(input, i, i)
 
             if char == '\n' then
-                on_enter(self.text)
+                on_enter(self, self.text)
 
                 self.lose_focus()
                 focused_element = nil
@@ -39,7 +39,7 @@ function textbox(x, y, size_limit, input_type, on_enter)
         editor_set_text_mode(false)
     end
 
-    result.text = ''
+    result.text = text
 
     return result
 end

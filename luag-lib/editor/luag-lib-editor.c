@@ -15,6 +15,7 @@
  */
 #include "luag-console.h"
 
+#include <string.h>
 #include <limits.h>
 
 #include <SDL2/SDL.h>
@@ -120,6 +121,59 @@ F(editor_save_map) {
 
     lua_pushinteger(L, err);
     return 1;
+}
+
+F(editor_update_map_size) {
+    lua_Integer w        = luaL_checkinteger(L, 1);
+    lua_Integer h        = luaL_checkinteger(L, 2);
+    lua_Integer selected = luaL_checkinteger(L, 3);
+
+    if(w >= 0) {
+        if(w > 8192)
+            w = 8192;
+    } else {
+        w = map.width;
+    }
+
+    if(h >= 0) {
+        if(h > 8192)
+            h = 8192;
+    } else {
+        h = map.height;
+    }
+
+    u8 *new_tiles = malloc((w * h) * sizeof(u8));
+
+    u32 row_len = map.width < w ? map.width : w;
+    for(u32 i = 0; i < h; i++) {
+        memcpy(
+            new_tiles + w * i,
+            map.tiles + map.width * i,
+            row_len * sizeof(u8)
+        );
+
+        if(row_len < w)
+            memset(
+                new_tiles + w * i + row_len, selected,
+                (w - row_len) * sizeof(u8)
+            );
+    }
+
+    free(map.tiles);
+    map = (struct Map) {
+        .width = w,
+        .height = h,
+        .tiles = new_tiles
+    };
+
+    // update map_w and map_h
+    lua_pushinteger(L, map.width);
+    lua_setglobal(L, "map_w");
+
+    lua_pushinteger(L, map.height);
+    lua_setglobal(L, "map_h");
+
+    return 0;
 }
 
 F(editor_spr) {
@@ -257,6 +311,8 @@ int luag_lib_load(lua_State *L) {
 
     /*lua_register(L, "editor_save_atlas", editor_save_atlas);*/
     lua_register(L, "editor_save_map", editor_save_map);
+
+    lua_register(L, "editor_update_map_size", editor_update_map_size);
 
     lua_register(L, "editor_spr", editor_spr);
     lua_register(L, "editor_maprender", editor_maprender);
