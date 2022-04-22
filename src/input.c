@@ -19,6 +19,8 @@
 #include "terminal.h"
 #include "gameloop.h"
 
+#include <string.h>
+
 #include <SDL2/SDL.h>
 
 static bool text_mode;
