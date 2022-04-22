@@ -30,6 +30,21 @@ editors.map = {
             end
         )
 
+        self.map.mouse_down = function(self, x, y)
+            local editor = editors.map
+            local map = editor.map
+
+            local xt = (x + map.offset.x) // 8
+            local yt = (y + map.offset.y) // 8
+
+            if xt >= 0 and xt < map_w and
+               yt >= 0 and yt < map_h then
+                if set_tile(xt, yt, editor.atlas.selected) then
+                    editor.is_edited = true
+                end
+            end
+        end
+
         self.map.offset = { x = 0, y = 0 }
 
         self.atlas = atlas(
@@ -41,7 +56,46 @@ editors.map = {
 
         self.gui = {
             self.map,
-            self.atlas
+            self.atlas,
+
+            -- size selector background
+            box(
+                16, 99,
+                self.atlas.w, font_h + 3,
+                colors.primary.bg
+            ),
+
+            -- width label
+            element(
+                17, 101,
+                29, font_h,
+                function(self) --render
+                    write('width', colors.primary.fg, self.x, self.y)
+                end
+            ),
+            -- width textbox
+            textbox(
+                47, 100,
+                4, 'dec',
+                function(text) -- on_enter
+                end
+            ),
+
+            -- height label
+            element(
+                82, 101,
+                35, font_h,
+                function(self) --render
+                    write('height', colors.primary.fg, self.x, self.y)
+                end
+            ),
+            -- height textbox
+            textbox(
+                118, 100,
+                4, 'dec',
+                function(text) -- on_enter
+                end
+            ),
         }
     end,
 
@@ -60,26 +114,6 @@ editors.map = {
 
             map.offset.x = map.offset.x + xm * 2
             map.offset.y = map.offset.y + ym * 2
-
-            if mouse(0) then
-                local x, y = mouse_pos()
-
-                if x >= map.x and x < map.x + map.w and
-                   y >= map.y and y < map.y + map.h then
-                    x = x - map.x
-                    y = y - map.y
-
-                    local xt = math.floor((x + map.offset.x) / 8)
-                    local yt = math.floor((y + map.offset.y) / 8)
-
-                    if xt >= 0 and xt < map_w and
-                       yt >= 0 and yt < map_h then
-                        if set_tile(xt, yt, self.atlas.selected) then
-                            self.is_edited = true
-                        end
-                    end
-               end
-            end
         end
     end,
 

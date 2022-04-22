@@ -6,7 +6,7 @@ editors.sprite = {
     init = function(self)
         self.gui = {
             -- TOOLBOX
-            -- toolbox_background
+            -- toolbox background
             box(xc - 64, 17, 19, 46, colors.primary.bg),
             -- pencil
             button(
@@ -79,10 +79,6 @@ editors.sprite = {
                 end
             )
         }
-    end,
-
-    tick = function(self)
-
     end,
 
     save = function(self)

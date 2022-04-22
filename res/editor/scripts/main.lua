@@ -14,12 +14,17 @@ function init()
         },
         highlight = {
             fg = 0xffff55
+        },
+        textbox = {
+            bg = 0xffffff,
+            fg = 0x000000
         }
     }
 
     loadscript('gui/element.lua')
     loadscript('gui/box.lua')
     loadscript('gui/button.lua')
+    loadscript('gui/textbox.lua')
     loadscript('gui/atlas.lua')
 
     gui = {
@@ -38,7 +43,7 @@ function init()
 
                 write(
                     current_editor.title,        -- text
-                    colors.secondary.fg,         -- color
+                    colors.secondary.fg,           -- color
                     self.x + 2,                  -- x
                     self.y + self.h - font_h - 1 -- y
                 )
@@ -94,14 +99,17 @@ function init()
         )
     }
 
-    -- load editors
-    editors = {}
+    focused_element = nil
 
-    loadscript('editor/map.lua')
-    loadscript('editor/sprite.lua')
+    do -- load editors
+        editors = {}
 
-    for _,editor in pairs(editors) do
-        editor:init()
+        loadscript('editor/map.lua')
+        loadscript('editor/sprite.lua')
+
+        for _,editor in pairs(editors) do
+            editor:init()
+        end
     end
 
     current_editor = editors.map
@@ -110,26 +118,49 @@ function init()
 end
 
 function tick()
-    current_editor:tick()
-
-    local x, y = mouse_pos()
-
-    if mouse_pressed(0) then
-        gui_action('click', x, y)
+    if current_editor.tick then
+        current_editor:tick()
     end
 
-    if scroll() ~= 0 then
-        gui_action('scroll', x, y, scroll())
+    do -- mouse actions
+        local x, y = mouse_pos()
+
+        if mouse(0) then
+            gui_action('mouse_down', true, x, y)
+        end
+
+        if mouse_pressed(0) then
+            gui_action('click', true, x, y)
+        end
+
+        if scroll() ~= 0 then
+            gui_action('scroll', false, x, y, scroll())
+        end
+    end
+
+    if focused_element and focused_element.tick_focus then
+        focused_element:tick_focus()
     end
 
     ticks = ticks + 1
 end
 
-function gui_action(func_name, x, y, ...)
+function gui_action(func_name, do_focus, x, y, ...)
     for _,element_list in pairs({ gui, current_editor.gui }) do
         for _,e in ipairs(element_list) do
             if x >= e.x and x < e.x + e.w and
                y >= e.y and y < e.y + e.h then
+                if do_focus and e ~= focused_element then
+                    if focused_element and focused_element.lose_focus then
+                        focused_element:lose_focus()
+                    end
+
+                    if e.focus then
+                        e:focus()
+                    end
+                    focused_element = e
+                end
+
                 if e[func_name] then
                     e[func_name](e, x - e.x, y - e.y, ...)
                     return
