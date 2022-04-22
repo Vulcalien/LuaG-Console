@@ -84,6 +84,8 @@ static int init(void) {
     if(find_res_folder(&res_folder))
         return -1;
 
+    input_init();
+
     if(display_init())
         return -2;
     if(sound_init())

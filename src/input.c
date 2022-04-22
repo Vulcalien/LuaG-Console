@@ -28,6 +28,10 @@ static char text_mode_text[TEXT_MODE_BUFFER];
 struct input_Key input_keys[KEY_COUNT + BTN_COUNT];
 struct input_Mouse input_mouse;
 
+void input_init(void) {
+    input_set_text_mode(true);
+}
+
 void input_tick(void) {
     if(engine_running) {
         // update is_down based on release_count
@@ -221,15 +225,12 @@ void input_reset(void) {
 }
 
 void input_set_text_mode(bool flag) {
-    if(flag == text_mode)
-        return;
-    text_mode = flag;
-
-    if(flag) {
+    if(flag)
         SDL_StartTextInput();
-    } else {
+    else
         SDL_StopTextInput();
-    }
+
+    text_mode = flag;
 }
 
 char *input_get_text(void) {
