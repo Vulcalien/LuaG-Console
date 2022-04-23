@@ -1,0 +1,10 @@
+up    = up,    w
+left  = left,  a
+down  = down,  s
+right = right, d
+
+a = p, l, m
+b = o, k, n
+
+start  = return
+select = backspace

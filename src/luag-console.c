@@ -20,6 +20,7 @@
 #include "terminal.h"
 #include "shell-commands.h"
 #include "input.h"
+#include "input-keys.h"
 #include "display.h"
 #include "sound.h"
 #include "cartridge.h"
@@ -101,6 +102,8 @@ static int init(void) {
         return -6;
     if(map_init())
         return -7;
+    if(inputkeys_init())
+        return -8;
 
     srand(time(NULL));
 

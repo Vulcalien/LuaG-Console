@@ -18,6 +18,7 @@
 #include "lua-engine.h"
 #include "terminal.h"
 #include "gameloop.h"
+#include "input-keys.h"
 
 #include <string.h>
 
@@ -86,42 +87,7 @@ void input_tick(void) {
             }
 
             if(e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {
-                struct input_Key *key = NULL;
-                // TODO find a way to let the end user choose these
-                switch(e.key.keysym.sym) {
-                    case SDLK_UP:
-                    case SDLK_w:
-                        key = &input_keys[KEY_UP];
-                        break;
-                    case SDLK_LEFT:
-                    case SDLK_a:
-                        key = &input_keys[KEY_LEFT];
-                        break;
-                    case SDLK_DOWN:
-                    case SDLK_s:
-                        key = &input_keys[KEY_DOWN];
-                        break;
-                    case SDLK_RIGHT:
-                    case SDLK_d:
-                        key = &input_keys[KEY_RIGHT];
-                        break;
-                    case SDLK_p:
-                    case SDLK_l:
-                    case SDLK_m:
-                        key = &input_keys[KEY_A];
-                        break;
-                    case SDLK_o:
-                    case SDLK_k:
-                    case SDLK_n:
-                        key = &input_keys[KEY_B];
-                        break;
-                    case SDLK_RETURN:
-                        key = &input_keys[KEY_START];
-                        break;
-                    case SDLK_BACKSPACE:
-                        key = &input_keys[KEY_SELECT];
-                        break;
-                }
+                struct input_Key *key = inputkeys_get(e.key.keysym.sym);
                 if(key) { // TODO && !text_mode ???
                     switch(e.type) {
                         case SDL_KEYDOWN:
