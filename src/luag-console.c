@@ -36,14 +36,17 @@
 
 static int init(void);
 static void destroy(void);
-static int find_res_folder(char **result);
+
+static int find_res_folder(void);
+static int find_config_folder(void);
 
 bool should_quit = false;
 
 bool dev_mode = false;
 
-char *res_folder = NULL;
-char *game_folder = NULL;
+char *res_folder    = NULL;
+char *config_folder = NULL;
+char *game_folder   = NULL;
 
 int main(int argc, const char *argv[]) {
     int err = 0;
@@ -81,7 +84,7 @@ void render(void) {
 }
 
 static int init(void) {
-    if(find_res_folder(&res_folder))
+    if(find_res_folder() || find_config_folder())
         return -1;
 
     input_init();
@@ -117,6 +120,8 @@ static void destroy(void) {
 
     if(res_folder)
         free(res_folder);
+    if(config_folder)
+        free(config_folder);
 }
 
 static char *clone_str(char *src) {
@@ -125,10 +130,7 @@ static char *clone_str(char *src) {
     return result;
 }
 
-// the pointer has to be freed
-static int find_res_folder(char **result) {
-    *result = NULL;
-
+static int find_res_folder(void) {
     #ifdef __unix__
         char *list[][2] = {
             { "/usr/share/luag-console" },
@@ -161,7 +163,7 @@ static int find_res_folder(char **result) {
         struct stat st;
         if(!stat(path, &st) && S_ISDIR(st.st_mode)) {
             printf("Found resource folder: '%s'\n", path);
-            *result = path;
+            res_folder = path;
             break;
         }
     }
@@ -171,11 +173,17 @@ static int find_res_folder(char **result) {
             free(list[i][1]);
     }
 
-    if(!*result) {
+    if(!res_folder) {
         free(path);
 
         fputs("LuaG: resource folder not found\n", stderr);
         return -1;
     }
+    return 0;
+}
+
+static int find_config_folder(void) {
+    // TODO find the real config folder
+    config_folder = clone_str(res_folder);
     return 0;
 }

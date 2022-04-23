@@ -32,6 +32,7 @@ extern bool should_quit;
 extern bool dev_mode;
 
 extern char *res_folder;
+extern char *config_folder;
 extern char *game_folder;
 
 extern void tick(void);
