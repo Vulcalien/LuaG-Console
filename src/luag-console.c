@@ -136,13 +136,13 @@ static char *clone_str(char *src) {
 static int find_res_folder(void) {
     #ifdef __unix__
         char *list[][2] = {
+            { "%s/.local/share/luag-console" },
             { "/usr/share/luag-console" },
             { "/usr/local/share/luag-console" },
-            { "%s/.local/share/luag-console" },
             { NULL }
         };
 
-        list[2][1] = clone_str(getenv("HOME"));
+        list[0][1] = clone_str(getenv("HOME"));
     #elif _WIN32
         char *list[][2] = {
             { "%s/LuaG Console/res" },
@@ -151,9 +151,9 @@ static int find_res_folder(void) {
             { NULL }
         };
 
-        list[0][1] = clone_str(getenv("PROGRAMFILES"));
-        list[1][1] = clone_str(getenv("PROGRAMFILES(x86)"));
-        list[2][1] = clone_str(getenv("LOCALAPPDATA"));
+        list[0][1] = clone_str(getenv("LOCALAPPDATA"));
+        list[1][1] = clone_str(getenv("PROGRAMFILES"));
+        list[2][1] = clone_str(getenv("PROGRAMFILES(x86)"));
     #endif
 
     char *path = malloc(PATH_MAX * sizeof(char));
