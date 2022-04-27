@@ -133,6 +133,26 @@ static char *clone_str(char *src) {
     return result;
 }
 
+static char *find_folder(const char *description, char *list[][2]) {
+    char *path = malloc(PATH_MAX * sizeof(char));
+    for(u32 i = 0; list[i][0] != NULL; i++) {
+        snprintf(
+            path, PATH_MAX,
+            list[i][0], list[i][1]
+        );
+
+        struct stat st;
+        if(!stat(path, &st) && S_ISDIR(st.st_mode)) {
+            printf("Found %s folder: '%s'\n", description, path);
+            return path;
+        }
+    }
+    free(path);
+
+    fprintf(stderr, "LuaG: %s folder not found\n", description);
+    return NULL;
+}
+
 static int find_res_folder(void) {
     #ifdef __unix__
         char *list[][2] = {
@@ -156,37 +176,44 @@ static int find_res_folder(void) {
         list[2][1] = clone_str(getenv("PROGRAMFILES(x86)"));
     #endif
 
-    char *path = malloc(PATH_MAX * sizeof(char));
-    for(u32 i = 0; list[i][0] != NULL; i++) {
-        snprintf(
-            path, PATH_MAX,
-            list[i][0], list[i][1]
-        );
-
-        struct stat st;
-        if(!stat(path, &st) && S_ISDIR(st.st_mode)) {
-            printf("Found resource folder: '%s'\n", path);
-            res_folder = path;
-            break;
-        }
-    }
+    res_folder = find_folder("resource", list);
 
     for(u32 i = 0; list[i][0] != NULL; i++) {
         if(list[i][1])
             free(list[i][1]);
     }
 
-    if(!res_folder) {
-        free(path);
-
-        fputs("LuaG: resource folder not found\n", stderr);
-        return -1;
-    }
-    return 0;
+    return res_folder == NULL;
 }
 
 static int find_config_folder(void) {
-    // TODO find the real config folder
-    config_folder = clone_str(res_folder);
-    return 0;
+    #ifdef __unix__
+        char *list[][2] = {
+            { "%s/.config/luag-console" },
+            { "/etc/luag-console" },
+            { NULL }
+        };
+
+        list[0][1] = clone_str(getenv("HOME"));
+    #elif _WIN32
+        char *list[][2] = {
+            { "%s/LuaG Console/config" },
+            { "%s/LuaG Console/config" },
+            { "%s/LuaG Console/config" },
+            { NULL }
+        };
+
+        list[0][1] = clone_str(getenv("LOCALAPPDATA"));
+        list[1][1] = clone_str(getenv("PROGRAMFILES"));
+        list[2][1] = clone_str(getenv("PROGRAMFILES(x86)"));
+    #endif
+
+    config_folder = find_folder("config", list);
+
+    for(u32 i = 0; list[i][0] != NULL; i++) {
+        if(list[i][1])
+            free(list[i][1]);
+    }
+
+    return config_folder == NULL;
 }
