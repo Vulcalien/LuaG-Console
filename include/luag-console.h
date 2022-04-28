@@ -20,7 +20,7 @@
 
 #include <vulcalien/vulcalien.h>
 
-#define LUAG_VERSION "C Port - 0.0.1"
+#define LUAG_VERSION "C Port - 0.0.2"
 #define COPYRIGHT_NOTICE "Copyright 2022 Vulcalien"
 
 #define USERDATA_FOLDER "console-userdata"
