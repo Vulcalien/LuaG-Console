@@ -45,7 +45,8 @@ else ifeq ($(TARGET_OS),WINDOWS)
 		CPPFLAGS := -I../../include -I../../win-cc/include -MMD -MP
 
 		LDFLAGS := -shared -L../../win-cc/lib -L../../win-cc/bin
-		LDLIBS  := -llua54 -lluag-console
+		LDLIBS  := `../../win-cc/SDL2-2.0.20/x86_64-w64-mingw32/bin/sdl2-config --libs`\
+				   -llua54 -lluag-console
 	endif
 endif
 # =============================
