@@ -118,6 +118,19 @@ CMD(cmd_edit) {
         snprintf(editor_folder, PATH_MAX, "%s/editor", res_folder);
     }
 
+    // check if USERDATA_FOLDER exists before running
+    if(!exists(USERDATA_FOLDER)) {
+        terminal_write(
+            "Error:\n"
+            "'" USERDATA_FOLDER "'\n"
+            "does not exist;\n"
+            "run 'setup' to generate\n"
+            "an empty project",
+            true
+        );
+        return;
+    }
+
     game_folder = editor_folder;
     engine_load(true);
 }
