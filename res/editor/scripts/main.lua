@@ -1,7 +1,9 @@
 function init()
     ticks = 0
 
-    editor_load_files()
+    if editor_load_files() ~= 0 then
+        exit(-1, "Editor: error loading game\nfiles")
+    end
 
     colors = {
         primary = {
