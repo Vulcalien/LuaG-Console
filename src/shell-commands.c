@@ -285,7 +285,12 @@ CMD(cmd_mode) {
         else
             terminal_write("user", false);
     } else {
-        const char *mode = argv[0];
+        char *mode = argv[0];
+
+        // make mode lowercase
+        for(u32 i = 0; mode[i] != 0; i++)
+            mode[i] = tolower(mode[i]);
+
         if(!strcmp(mode, "d") || !strcmp(mode, "developer")) {
             dev_mode = true;
             terminal_write(
