@@ -85,7 +85,7 @@ static int assign_key(char *luag_name, char *key_name) {
 
 static int parse_file(FILE *file) {
     char line[256];
-    while(fgets(line, sizeof(line), file)) {
+    while(fgets(line, sizeof(line) / sizeof(char), file)) {
         // luag names are the names given to the keys by luag
         // for example: 'up', 'a', 'select'...
         u32 luag_len = 0;
