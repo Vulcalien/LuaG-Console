@@ -230,6 +230,12 @@ int archiveutil_pack(const char *archive_filename,
             entry, archive_entry_sourcepath(entry) + folder_name_len
         );
 
+        // delete user and group
+        archive_entry_set_uid(entry, 0);
+        archive_entry_set_uname(entry, "");
+        archive_entry_set_gid(entry, 0);
+        archive_entry_set_gname(entry, "");
+
         // write header
         r = archive_write_header(out, entry);
 
