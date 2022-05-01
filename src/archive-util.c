@@ -50,8 +50,8 @@ int archiveutil_extract(const char *archive_filename,
     }
 
     // copy entries
-    char entry_path[PATH_MAX];
     while(true) {
+        char entry_path[PATH_MAX];
         struct archive_entry *entry;
 
         // read header
@@ -92,11 +92,11 @@ int archiveutil_extract(const char *archive_filename,
         }
 
         // copy data
-        const void *buffer;
-        size_t size;
-        la_int64_t offset;
-
         while(true) {
+            const void *buffer;
+            size_t size;
+            la_int64_t offset;
+
             // read data
             r = archive_read_data_block(in, &buffer, &size, &offset);
 
@@ -235,10 +235,9 @@ int archiveutil_pack(const char *archive_filename,
         // copy data
         FILE *file = fopen(archive_entry_sourcepath(entry), "r");
 
-        char buffer[4096];
-        u32 len;
         while(true) {
-            len = fread(
+            char buffer[4096];
+            u32 len = fread(
                 buffer,
                 sizeof(char), sizeof(buffer) / sizeof(char),
                 file
