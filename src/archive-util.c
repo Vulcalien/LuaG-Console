@@ -154,7 +154,6 @@ int archiveutil_extract(const char *archive_filename,
 int archiveutil_pack(const char *archive_filename,
                      const char *src_folder) {
     int err = -1;
-    u32 folder_name_len = strlen(src_folder);
 
     // in
     struct archive *in = archive_read_disk_new();
@@ -187,6 +186,7 @@ int archiveutil_pack(const char *archive_filename,
     }
 
     // copy entries
+    u32 root_name_len = -1;
     while(true) {
         struct archive_entry *entry = archive_entry_new();
 
@@ -207,11 +207,16 @@ int archiveutil_pack(const char *archive_filename,
 
         archive_read_disk_descend(in);
 
-        // TODO this code is faulty and doesn't work at all on Windows
-        // change output path
-        archive_entry_set_pathname(
-            entry, archive_entry_sourcepath(entry) + folder_name_len
-        );
+        // remove root directory from output path
+        if(root_name_len == -1) {
+            root_name_len = strlen(archive_entry_sourcepath(entry));
+
+            archive_entry_set_pathname(entry, "");
+        } else {
+            archive_entry_set_pathname(
+                entry, archive_entry_sourcepath(entry) + root_name_len + 1
+            );
+        }
 
         // delete user and group
         archive_entry_set_uid(entry, 0);
@@ -233,7 +238,7 @@ int archiveutil_pack(const char *archive_filename,
         }
 
         // copy data
-        FILE *file = fopen(archive_entry_sourcepath(entry), "r");
+        FILE *file = fopen(archive_entry_sourcepath(entry), "rb");
 
         while(true) {
             char buffer[4096];
