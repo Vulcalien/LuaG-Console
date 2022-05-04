@@ -121,7 +121,9 @@ static void load_sounds(DIR *dir, char *folder_path, u32 root_index) {
                 .chunk = chunk,
                 .channel = -1
             };
+
             hashtable_set(sounds_table, sound_name, sound);
+            free(sound_name);
         }
     }
 }
