@@ -148,6 +148,15 @@ int sound_play(const char *name, i32 loops) {
     if(hashtable_get(sounds_table, name, (void **) &sound))
         return -1;
 
+    // FIXME this will overwrite the old sound->channel so
+    // that sound_stop will not work on the old channel
+    //
+    // example:
+    //   sound_play("sfx", 0); <-- A
+    //   sound_play("sfx", 0); <-- B
+    //   sound_stop("sfx");
+    //
+    // 'B' will be stopped, but 'A' will not
     sound->channel = Mix_PlayChannel(-1, sound->chunk, loops);
     if(sound->channel == -1) {
         fprintf(
