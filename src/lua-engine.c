@@ -70,7 +70,8 @@ static int check_error(lua_State *L, int status) {
     }
 
     if(status != LUA_OK) {
-        // TODO sometimes the "where" is not printed
+        // FIXME sometimes the "where" is not printed
+        // for k,v in ipairs(non_existent) do end
         const char *error_msg = lua_tostring(L, -1);
         fprintf(stderr, "%s\n", error_msg);
         lua_pop(L, 1);
