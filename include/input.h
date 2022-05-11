@@ -55,6 +55,7 @@ extern struct input_Mouse input_mouse;
 
 extern void input_init(void);
 extern void input_tick(void);
+extern void input_destroy(void);
 
 extern void input_reset(void);
 

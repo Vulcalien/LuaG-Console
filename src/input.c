@@ -31,11 +31,19 @@ static char text_mode_text[TEXT_MODE_BUFFER];
 struct input_Key input_keys[KEY_COUNT + BTN_COUNT];
 struct input_Mouse input_mouse;
 
+static SDL_Joystick *joystick;
+
 void input_init(void) {
     input_set_text_mode(true);
+
+    if(SDL_NumJoysticks() > 0)
+        joystick = SDL_JoystickOpen(0);
 }
 
 void input_tick(void) {
+    // TODO every second or so, check if joysticks
+    // have been disconnected/connected
+
     if(engine_running) {
         // update is_down based on release_count
         // (release_count only affects is_down one tick *after* the event occurred)
@@ -120,8 +128,11 @@ void input_tick(void) {
                         );
                     }
                 }
-            } else if(e.type == SDL_MOUSEBUTTONDOWN ||
-                      e.type == SDL_MOUSEBUTTONUP) {
+            }
+
+            // mouse
+            else if(e.type == SDL_MOUSEBUTTONDOWN ||
+                    e.type == SDL_MOUSEBUTTONUP) {
                 struct input_Key *btn = NULL;
                 switch(e.button.button) {
                     case SDL_BUTTON_LEFT:
@@ -145,7 +156,18 @@ void input_tick(void) {
             } else if(e.type == SDL_MOUSEMOTION) {
                 input_mouse.x = e.motion.x;
                 input_mouse.y = e.motion.y;
-            } else if(e.type == SDL_TEXTINPUT) {
+            }
+
+            // joystick
+            else if(e.type == SDL_JOYBUTTONDOWN ||
+                    e.type == SDL_JOYBUTTONUP) {
+                // TODO joystick buttons
+            } else if(e.type == SDL_JOYAXISMOTION) {
+                // TODO joystick axis
+            }
+
+            // text input
+            else if(e.type == SDL_TEXTINPUT) {
                 if(text_mode) {
                     u32 len = strlen(text_mode_text);
                     strncpy(
@@ -200,6 +222,12 @@ void input_tick(void) {
                 key->is_down = true;
         }
     }
+}
+
+void input_destroy(void) {
+    // TODO is it really necessary to call 'SDL_JoystickGetAttached'?
+    if(SDL_JoystickGetAttached(joystick))
+        SDL_JoystickClose(joystick);
 }
 
 void input_reset(void) {

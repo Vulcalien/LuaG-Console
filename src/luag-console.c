@@ -88,10 +88,11 @@ static int init(void) {
     if(find_res_folder() || find_config_folder())
         return -1;
 
-    input_init();
-
     if(display_init())
         return -2;
+
+    input_init();
+
     if(sound_init())
         return -3;
     if(terminal_init())
@@ -115,7 +116,9 @@ static void destroy(void) {
         engine_stop();
 
     sound_destroy();
+    input_destroy();
     display_destroy();
+
     terminal_destroy();
     commands_destroy();
     cartridge_destroy();

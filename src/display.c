@@ -90,7 +90,7 @@ static int load_font(void) {
 }
 
 int display_init(void) {
-    if(SDL_Init(SDL_INIT_VIDEO)) {
+    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK)) {
         fprintf(
             stderr,
             "SDL: could not initialize\n"
