@@ -3,8 +3,8 @@ left  = left,  a
 down  = down,  s
 right = right, d
 
-a = p, l, m
-b = o, k, n
+a = p, l, m, x
+b = o, k, n, z
 
 start  = return
 select = backspace
