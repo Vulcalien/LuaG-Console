@@ -79,33 +79,50 @@ CMD(cmd_run) {
             );
         }
     } else {
-        char filename[PATH_MAX];
-        snprintf(filename, PATH_MAX, "%s.luag", argv[0]);
+        bool cartridge_found = false;
 
-        if(!exists(filename)) {
-            char error_msg[128];
-            snprintf(
-                error_msg, 128,
-                "Error:\n"
-                "cartridge not found\n"
-                "'%s'",
-                filename
-            );
-            terminal_write(error_msg, true);
-            return;
+        for(u32 i = 0; i < 2; i++) {
+            char *filename;
+
+            if(i == 0) {
+                filename = argv[0];
+            } else {
+                filename = malloc(PATH_MAX * sizeof(char));
+                snprintf(filename, PATH_MAX, "%s.luag", argv[0]);
+            }
+
+            if(exists(filename)) {
+                cartridge_found = true;
+
+                game_folder = cartridge_extract(filename);
+                if(game_folder) {
+                    engine_load(false);
+                } else {
+                    terminal_write(
+                        "Error:\n"
+                        "could not extract\n"
+                        "cartridge",
+                        true
+                    );
+                }
+            }
+
+            if(i != 0)
+                free(filename);
+
+            if(cartridge_found)
+                return;
         }
 
-        game_folder = cartridge_extract(filename);
-        if(game_folder) {
-            engine_load(false);
-        } else {
-            terminal_write(
-                "Error:\n"
-                "could not extract\n"
-                "cartridge",
-                true
-            );
-        }
+        char error_msg[4096];
+        snprintf(
+            error_msg, sizeof(error_msg) / sizeof(char),
+            "Error:\n"
+            "cartridge not found\n"
+            "'%s'",
+            argv[0]
+        );
+        terminal_write(error_msg, true);
     }
 }
 

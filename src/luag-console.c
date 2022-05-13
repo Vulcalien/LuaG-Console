@@ -35,7 +35,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-static int init(void);
+static int init(int argc, const char *argv[]);
 static void destroy(void);
 
 static int find_res_folder(void);
@@ -52,7 +52,7 @@ char *game_folder   = NULL;
 int main(int argc, const char *argv[]) {
     int err = 0;
 
-    err = init();
+    err = init(argc, argv);
     if(err)
         goto exit;
 
@@ -84,7 +84,7 @@ void render(void) {
     display_refresh();
 }
 
-static int init(void) {
+static int init(int argc, const char *argv[]) {
     if(find_res_folder() || find_config_folder())
         return -1;
 
@@ -107,6 +107,28 @@ static int init(void) {
         return -8;
 
     srand(time(NULL));
+
+    // parse arguments
+    for(u32 i = 1; i < argc; i++) {
+        const char *arg = argv[i];
+
+        u32 len = strlen(arg);
+        if(len == 0)
+            continue;
+
+        if(arg[0] == '-') {
+            // if the argument starts with a '-' then it's an option
+
+            // TODO add options...
+        } else {
+            // the argument should be a cartridge path
+            terminal_receive_input("run ");
+            terminal_receive_input(arg);
+            terminal_receive_input("\n");
+
+            terminal_receive_input("exit\n");
+        }
+    }
 
     return 0;
 }

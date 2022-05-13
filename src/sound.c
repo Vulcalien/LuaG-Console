@@ -96,6 +96,7 @@ static void load_sounds(DIR *dir, char *folder_path, u32 root_index) {
 
             // check if the filename ends with '.wav'
             u32 str_len = strlen(short_name);
+            // FIXME who checks that short_name is long enough???
             if(strcmp(short_name + str_len - 4, ".wav"))
                 return;
 
