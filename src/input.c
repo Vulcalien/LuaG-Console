@@ -31,17 +31,34 @@ static char text_mode_text[TEXT_MODE_BUFFER];
 struct input_Key input_keys[KEY_COUNT + BTN_COUNT];
 struct input_Mouse input_mouse;
 
-static SDL_Joystick *joystick;
+static SDL_GameController *controller = NULL;
 
 void input_init(void) {
     input_set_text_mode(true);
 
-    if(SDL_NumJoysticks() > 0)
-        joystick = SDL_JoystickOpen(0);
+    // TODO SDL_GameControllerAddMappingsFromFile
+
+    for(u32 i = 0; i < SDL_NumJoysticks(); i++) {
+        if(SDL_IsGameController(i)) {
+            controller = SDL_GameControllerOpen(i);
+
+            if(controller) {
+                puts("Game Controller found");
+            } else {
+                fprintf(
+                    stderr,
+                    "Input: couldn't open controller %d\n"
+                    " - SDL_GameControllerOpen: %s\n",
+                    i, SDL_GetError()
+                );
+            }
+            break;
+        }
+    }
 }
 
 void input_tick(void) {
-    // TODO every second or so, check if joysticks
+    // TODO every second or so, check if controllers
     // have been disconnected/connected
 
     if(engine_running) {
@@ -97,14 +114,11 @@ void input_tick(void) {
             if(e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {
                 struct input_Key *key = inputkeys_get(e.key.keysym.sym);
                 if(key) { // TODO && !text_mode ???
-                    switch(e.type) {
-                        case SDL_KEYDOWN:
-                            if(!e.key.repeat)
-                                key->press_count++;
-                            break;
-                        case SDL_KEYUP:
-                            key->release_count++;
-                            break;
+                    if(e.type == SDL_KEYDOWN) {
+                        if(!e.key.repeat)
+                            key->press_count++;
+                    } else {
+                        key->release_count++;
                     }
                 }
 
@@ -158,12 +172,45 @@ void input_tick(void) {
                 input_mouse.y = e.motion.y;
             }
 
-            // joystick
-            else if(e.type == SDL_JOYBUTTONDOWN ||
-                    e.type == SDL_JOYBUTTONUP) {
-                // TODO joystick buttons
-            } else if(e.type == SDL_JOYAXISMOTION) {
-                // TODO joystick axis
+            // game controller
+            else if(e.type == SDL_CONTROLLERBUTTONDOWN ||
+                    e.type == SDL_CONTROLLERBUTTONUP) {
+                struct input_Key *key = NULL;
+                switch(e.cbutton.button) {
+                    case SDL_CONTROLLER_BUTTON_DPAD_UP:
+                        key = &input_keys[KEY_UP];
+                        break;
+                    case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
+                        key = &input_keys[KEY_LEFT];
+                        break;
+                    case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
+                        key = &input_keys[KEY_DOWN];
+                        break;
+                    case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
+                        key = &input_keys[KEY_RIGHT];
+                        break;
+
+                    case SDL_CONTROLLER_BUTTON_A:
+                        key = &input_keys[KEY_B]; // A -> B
+                        break;
+                    case SDL_CONTROLLER_BUTTON_B:
+                        key = &input_keys[KEY_A]; // B -> A
+                        break;
+                    case SDL_CONTROLLER_BUTTON_START:
+                        key = &input_keys[KEY_START];
+                        break;
+                    case SDL_CONTROLLER_BUTTON_BACK:
+                        key = &input_keys[KEY_SELECT];
+                        break;
+                }
+                if(key) {
+                    if(e.type == SDL_CONTROLLERBUTTONDOWN)
+                        key->press_count++;
+                    else
+                        key->release_count++;
+                }
+            } else if(e.type == SDL_CONTROLLERAXISMOTION) {
+                // TODO analog input for UP, LEFT, DOWN and RIGHT
             }
 
             // text input
@@ -225,9 +272,8 @@ void input_tick(void) {
 }
 
 void input_destroy(void) {
-    // TODO is it really necessary to call 'SDL_JoystickGetAttached'?
-    if(SDL_JoystickGetAttached(joystick))
-        SDL_JoystickClose(joystick);
+    if(controller)
+        SDL_GameControllerClose(controller);
 }
 
 void input_reset(void) {
