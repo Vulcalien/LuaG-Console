@@ -20,7 +20,9 @@
 #include "gameloop.h"
 #include "input-keys.h"
 
+#include <stdio.h>
 #include <string.h>
+#include <limits.h>
 
 #include <SDL2/SDL.h>
 
@@ -36,7 +38,12 @@ static SDL_GameController *controller = NULL;
 void input_init(void) {
     input_set_text_mode(true);
 
-    // TODO SDL_GameControllerAddMappingsFromFile
+    // load Game Controller mapping file
+    {
+        char filename[PATH_MAX];
+        snprintf(filename, PATH_MAX, "%s/gamecontrollerdb.txt", res_folder);
+        SDL_GameControllerAddMappingsFromFile(filename);
+    }
 
     for(u32 i = 0; i < SDL_NumJoysticks(); i++) {
         if(SDL_IsGameController(i)) {

@@ -7,3 +7,9 @@
 
 # console-userdata
 /console-userdata
+
+# LuaG cartridges
+*.luag
+
+# gamecontrollerdb.txt
+/res/gamecontrollerdb.txt
