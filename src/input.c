@@ -33,6 +33,7 @@ static char text_mode_text[TEXT_MODE_BUFFER];
 struct input_Key input_keys[KEY_COUNT + BTN_COUNT];
 struct input_Mouse input_mouse;
 
+#define CONTROLLER_DEAD_ZONE (8000)
 static SDL_GameController *controller = NULL;
 
 void input_init(void) {
@@ -217,7 +218,44 @@ void input_tick(void) {
                         key->release_count++;
                 }
             } else if(e.type == SDL_CONTROLLERAXISMOTION) {
-                // TODO analog input for UP, LEFT, DOWN and RIGHT
+                static i32 old_vals[2] = { 0 };
+
+                // if value is in the dead zone this will be 0
+                i32 val = e.caxis.value / CONTROLLER_DEAD_ZONE;
+                if(val < 0)
+                    val = -1;
+                else if(val > 0)
+                    val = 1;
+
+                u32 axis;
+                if(e.caxis.axis == SDL_CONTROLLER_AXIS_LEFTX)
+                    axis = 0;
+                else if(e.caxis.axis == SDL_CONTROLLER_AXIS_LEFTY)
+                    axis = 1;
+
+                if(val != old_vals[axis]) {
+                    if(axis == 0) {
+                        if(val < 0)
+                            input_keys[KEY_LEFT].press_count++;
+                        else if(val > 0)
+                            input_keys[KEY_RIGHT].press_count++;
+                        else if(old_vals[axis] < 0)
+                            input_keys[KEY_LEFT].release_count++;
+                        else if(old_vals[axis] > 0)
+                            input_keys[KEY_RIGHT].release_count++;
+                    } else if(axis == 1) {
+                        if(val < 0)
+                            input_keys[KEY_UP].press_count++;
+                        else if(val > 0)
+                            input_keys[KEY_DOWN].press_count++;
+                        else if(old_vals[axis] < 0)
+                            input_keys[KEY_UP].release_count++;
+                        else if(old_vals[axis] > 0)
+                            input_keys[KEY_DOWN].release_count++;
+                    }
+
+                    old_vals[axis] = val;
+                }
             }
 
             // text input
