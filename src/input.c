@@ -66,9 +66,6 @@ void input_init(void) {
 }
 
 void input_tick(void) {
-    // TODO every second or so, check if controllers
-    // have been disconnected/connected
-
     if(engine_running) {
         // update is_down based on release_count
         // (release_count only affects is_down one tick *after* the event occurred)
@@ -91,6 +88,29 @@ void input_tick(void) {
         if(e.type == SDL_QUIT) {
             should_quit = true;
             break;
+        }
+
+        // controller connect/disconnect
+        if(e.type == SDL_CONTROLLERDEVICEADDED) {
+            if(!controller) {
+                controller = SDL_GameControllerOpen(e.cdevice.which);
+
+                if(controller)
+                    puts("Game Controller connected");
+            }
+
+        } else if(e.type == SDL_CONTROLLERDEVICEREMOVED) {
+            if(controller) {
+                i32 controller_id = SDL_JoystickInstanceID(
+                    SDL_GameControllerGetJoystick(controller)
+                );
+
+                if(e.cdevice.which == controller_id) {
+                    SDL_GameControllerClose(controller);
+                    controller = NULL;
+                    puts("Game Controller disconnected");
+                }
+            }
         }
 
         if(e.type == SDL_KEYDOWN &&
