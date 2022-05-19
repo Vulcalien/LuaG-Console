@@ -202,8 +202,8 @@ void terminal_tick(void) {
                     active_line.len - active_line.cursor_pos
                 );
             }
-            active_line.len--;
             active_line.cursor_pos--;
+            active_line.len--;
             active_line.text[active_line.len] = '\0';
         }
     } else if(c == '\x7f') {
@@ -260,9 +260,10 @@ void terminal_tick(void) {
                 );
             }
             active_line.text[active_line.cursor_pos] = c;
-            active_line.text[active_line.cursor_pos + 1] = '\0';
-            active_line.len++;
             active_line.cursor_pos++;
+
+            active_line.len++;
+            active_line.text[active_line.len] = '\0';
         }
     }
 
