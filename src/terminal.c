@@ -250,6 +250,12 @@ void terminal_tick(void) {
         // right key
         if(active_line.cursor_pos != active_line.len)
             active_line.cursor_pos++;
+    } else if(c == '\x15') {
+        // ctrl+c
+        for(u32 i = 0; i < 2; i++) {
+            close_active_line();
+            allocate_active_line();
+        }
     } else if(c >= ' ' && c <= '~') {
         if(active_line.len != MAX_LINE_LEN) {
             if(active_line.cursor_pos != active_line.len) {

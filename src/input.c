@@ -304,6 +304,7 @@ void input_tick(void) {
                     case SDLK_DELETE:
                         str = "\x7f";
                         break;
+
                     case SDLK_UP:
                         str = "\x11";
                         break;
@@ -315,6 +316,11 @@ void input_tick(void) {
                         break;
                     case SDLK_RIGHT:
                         str = "\x14";
+                        break;
+
+                    case SDLK_c:
+                        if(SDL_GetModState() & KMOD_CTRL)
+                            str = "\x15";
                         break;
                 }
                 if(str)
