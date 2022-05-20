@@ -23,6 +23,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include <ctype.h>
 #include <limits.h>
 #include <errno.h>
@@ -522,6 +523,47 @@ F(maprender) {
     return 0;
 }
 
+// time
+F(luag_time) {
+    lua_pushinteger(L, time(NULL));
+    return 1;
+}
+
+F(luag_date) {
+    // not equivalent to luaL_optinteger: here, time(NULL)
+    // is not called if the argument is set
+    time_t time_to_use = luaL_opt(L, luaL_checkinteger, 1, time(NULL));
+    struct tm *t = localtime(&time_to_use);
+
+    lua_createtable(L, 0, 7);
+
+    lua_pushinteger(L, t->tm_sec);
+    lua_setfield(L, -2, "sec");
+
+    lua_pushinteger(L, t->tm_min);
+    lua_setfield(L, -2, "min");
+
+    lua_pushinteger(L, t->tm_hour);
+    lua_setfield(L, -2, "hour");
+
+    lua_pushinteger(L, t->tm_mday);
+    lua_setfield(L, -2, "day");
+
+    lua_pushinteger(L, t->tm_mon + 1);
+    lua_setfield(L, -2, "month");
+
+    lua_pushinteger(L, t->tm_year + 1900);
+    lua_setfield(L, -2, "year");
+
+    lua_pushinteger(L, t->tm_wday + 1);
+    lua_setfield(L, -2, "wday");
+
+    lua_pushinteger(L, t->tm_yday + 1);
+    lua_setfield(L, -2, "yday");
+
+    return 1;
+}
+
 int luag_lib_load(lua_State *L) {
     // VARIABLES
     lua_pushinteger(L, DISPLAY_WIDTH);
@@ -579,6 +621,10 @@ int luag_lib_load(lua_State *L) {
     lua_register(L, "get_tile", get_tile);
     lua_register(L, "set_tile", set_tile);
     lua_register(L, "maprender", maprender);
+
+    // time
+    lua_register(L, "time", luag_time);
+    lua_register(L, "date", luag_date);
 
     return 0;
 }
