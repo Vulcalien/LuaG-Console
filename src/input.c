@@ -319,8 +319,16 @@ void input_tick(void) {
                         break;
 
                     case SDLK_c:
-                        if(SDL_GetModState() & KMOD_CTRL)
-                            str = "\x15";
+                        if(e.key.keysym.mod & KMOD_CTRL) {
+                            if(e.key.keysym.mod & KMOD_SHIFT)
+                                str = "\x16"; // ctrl+shift+c
+                            else
+                                str = "\x15"; // ctrl+c
+                        }
+                        break;
+                    case SDLK_v:
+                        if(e.key.keysym.mod & (KMOD_CTRL | KMOD_SHIFT))
+                            str = "\x17";
                         break;
                 }
                 if(str)

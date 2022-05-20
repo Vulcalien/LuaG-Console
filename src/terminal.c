@@ -20,6 +20,8 @@
 
 #include <string.h>
 
+#include <SDL2/SDL.h>
+
 // colors
 #define TERM_COLOR_NORMAL (0xffffff)
 #define TERM_COLOR_ERROR  (0xff0000)
@@ -256,6 +258,14 @@ void terminal_tick(void) {
             close_active_line();
             allocate_active_line();
         }
+    } else if(c == '\x16') {
+        // ctrl+shift+c
+        SDL_SetClipboardText(active_line.text);
+    } else if(c == '\x17') {
+        // ctrl+shift+v
+        char *text = SDL_GetClipboardText();
+        terminal_receive_input(text);
+        SDL_free(text);
     } else if(c >= ' ' && c <= '~') {
         if(active_line.len != MAX_LINE_LEN) {
             if(active_line.cursor_pos != active_line.len) {
