@@ -158,8 +158,6 @@ static void close_active_line(void) {
 }
 
 void terminal_tick(void) {
-    // TODO implement ctrl+backspace (= ctrl+w), ctrl+del, ctrl+u
-
     char c;
 
     if(output_buffer_read_index != output_buffer_write_index) {
@@ -266,6 +264,15 @@ void terminal_tick(void) {
         char *text = SDL_GetClipboardText();
         terminal_receive_input(text);
         SDL_free(text);
+    } else if(c == '\x18') {
+        // ctrl+u
+        // TODO ctrl+u
+    } else if(c == '\x19') {
+        // ctrl+w or ctrl+backspace
+        // TODO ctrl+w or ctrl+backspace
+    } else if(c == '\x1a') {
+        // ctrl+del
+        // TODO ctrl+del
     } else if(c >= ' ' && c <= '~') {
         if(active_line.len != MAX_LINE_LEN) {
             if(active_line.cursor_pos != active_line.len) {

@@ -299,10 +299,16 @@ void input_tick(void) {
                         str = "\n";
                         break;
                     case SDLK_BACKSPACE:
-                        str = "\b";
+                        if(e.key.keysym.mod & KMOD_CTRL)
+                            str = "\x19";
+                        else
+                            str = "\b";
                         break;
                     case SDLK_DELETE:
-                        str = "\x7f";
+                        if(e.key.keysym.mod & KMOD_CTRL)
+                            str = "\x1a";
+                        else
+                            str = "\x7f";
                         break;
 
                     case SDLK_UP:
@@ -329,6 +335,15 @@ void input_tick(void) {
                     case SDLK_v:
                         if(e.key.keysym.mod & (KMOD_CTRL | KMOD_SHIFT))
                             str = "\x17";
+                        break;
+
+                    case SDLK_u:
+                        if(e.key.keysym.mod & KMOD_CTRL)
+                            str = "\x18";
+                        break;
+                    case SDLK_w:
+                        if(e.key.keysym.mod & KMOD_CTRL)
+                            str = "\x19";
                         break;
                 }
                 if(str)
