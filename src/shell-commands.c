@@ -360,7 +360,11 @@ void commands_destroy(void) {
         free(editor_folder);
 }
 
-bool execute_command(char *cmd, u32 argc, char **argv) {
+void commands_execute(char *cmd, u32 argc, char **argv) {
+    // ignore empty lines
+    if(cmd[0] == '\0')
+        return;
+
     // make cmd lowercase
     for(u32 i = 0; cmd[i] != '\0'; i++)
         cmd[i] = tolower(cmd[i]);
@@ -393,6 +397,4 @@ bool execute_command(char *cmd, u32 argc, char **argv) {
         terminal_write("unknown command", false);
 
     terminal_write("", false);
-
-    return false;
 }

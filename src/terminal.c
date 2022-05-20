@@ -456,9 +456,9 @@ static void terminal_execute(void) {
     }
 
     if(splits_count == 0)
-        execute_command("", 0, NULL);
+        commands_execute("", 0, NULL);
     else
-        execute_command(splits[0], splits_count - 1, splits + 1);
+        commands_execute(splits[0], splits_count - 1, splits + 1);
 
     // free memory
     for(u32 i = 0; i < splits_count; i++)
