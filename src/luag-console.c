@@ -181,6 +181,7 @@ static char *find_folder(const char *description, char *list[][2]) {
 static int find_res_folder(void) {
     #ifdef __unix__
         char *list[][2] = {
+            // TODO XDG_DATA_HOME
             { "%s/.local/share/luag-console" },
             { "/usr/share/luag-console" },
             { "/usr/local/share/luag-console" },
@@ -214,6 +215,7 @@ static int find_res_folder(void) {
 static int find_config_folder(void) {
     #ifdef __unix__
         char *list[][2] = {
+            // TODO XDG_CONFIG_HOME
             { "%s/.config/luag-console" },
             { "/etc/luag-console" },
             { NULL }
