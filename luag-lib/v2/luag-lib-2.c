@@ -348,16 +348,20 @@ F(write) {
     lua_Integer x     = luaL_checkinteger(L, 3);
     lua_Integer y     = luaL_checkinteger(L, 4);
 
+    lua_Integer scale = 1;
     lua_Integer alpha = 0xff;
 
     if(!lua_isnoneornil(L, 5)) {
         luaL_checktype(L, 5, LUA_TTABLE);
 
+        lua_getfield(L, 5, "scale");
+        scale = luaL_optinteger(L, -1, scale);
+
         lua_getfield(L, 5, "alpha");
         alpha = luaL_optinteger(L, -1, alpha);
     }
 
-    display_write(text, color, x, y, 1, alpha);
+    display_write(text, color, x, y, scale, alpha);
     return 0;
 }
 
