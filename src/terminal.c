@@ -299,8 +299,9 @@ void terminal_render(void) {
     u32 rendered_lines = 0;
     for(u32 i = scroll_position; i < closed_rows_count; i++) {
         display_write(
-            closed_rows[i].text, closed_rows[i].color, 0xff,
-            1, 1 + (CHAR_HEIGHT + LINE_SPACING) * rendered_lines
+            closed_rows[i].text, closed_rows[i].color,
+            1, 1 + (CHAR_HEIGHT + LINE_SPACING) * rendered_lines,
+            1, 0xff
         );
 
         rendered_lines++;
@@ -322,17 +323,19 @@ void terminal_render(void) {
                 break;
         }
         display_write(
-            active_line.text, color, 0xff,
-            1, 1 + (CHAR_HEIGHT + LINE_SPACING) * rendered_lines
+            active_line.text, color,
+            1, 1 + (CHAR_HEIGHT + LINE_SPACING) * rendered_lines,
+            1, 0xff
         );
 
         if((active_line.type == LINE_TYPE_INPUT ||
             cursor_animation_ticks != 0) &&
            cursor_animation_ticks / ANIMATION_DELAY % 2 == 0) {
             display_write(
-                "_", CURSOR_COLOR, 0xff,
+                "_", CURSOR_COLOR,
                 1 + (CHAR_WIDTH + LETTER_SPACING) * active_line.cursor_pos,
-                1 + (CHAR_HEIGHT + LINE_SPACING) * rendered_lines
+                1 + (CHAR_HEIGHT + LINE_SPACING) * rendered_lines,
+                1, 0xff
             );
         }
     }

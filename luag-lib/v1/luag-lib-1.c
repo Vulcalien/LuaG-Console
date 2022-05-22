@@ -266,7 +266,7 @@ F(write) {
     lua_Integer x     = luaL_checkinteger(L, 3);
     lua_Integer y     = luaL_checkinteger(L, 4);
 
-    display_write(text, color, 0xff, x, y);
+    display_write(text, color, x, y, 1, 0xff);
     return 0;
 }
 

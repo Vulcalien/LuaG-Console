@@ -250,7 +250,7 @@ void display_fill(u32 x, u32 y, u32 w, u32 h, u32 color, u8 alpha) {
     SDL_RenderFillRect(renderer, &rect);
 }
 
-static void display_draw_char(char c, u32 color, i32 x, i32 y) {
+static void display_draw_char(char c, u32 color, i32 x, i32 y, u32 scale) {
     if(c < ' ' || c > '~')
         return;
 
@@ -260,15 +260,16 @@ static void display_draw_char(char c, u32 color, i32 x, i32 y) {
     };
 
     SDL_Rect dst = {
-        .x = x,          .y = y,
-        .w = CHAR_WIDTH, .h = CHAR_HEIGHT
+        .x = x,                  .y = y,
+        .w = CHAR_WIDTH * scale, .h = CHAR_HEIGHT * scale
     };
 
     SDL_RenderCopy(renderer, font_texture, &src, &dst);
 }
 
-void display_write(const char *text, u32 color, u8 alpha,
-                   i32 x, i32 y) {
+void display_write(const char *text, u32 color,
+                   i32 x, i32 y,
+                   u32 scale, u8 alpha) {
     u32 len = strlen(text);
 
     i32 xdraw = x;
@@ -282,11 +283,11 @@ void display_write(const char *text, u32 color, u8 alpha,
 
         if(c == '\n') {
             xdraw = x;
-            ydraw += CHAR_HEIGHT + LINE_SPACING;
+            ydraw += (CHAR_HEIGHT + LINE_SPACING) * scale;
         } else {
-            display_draw_char(c, color, xdraw, ydraw);
+            display_draw_char(c, color, xdraw, ydraw, scale);
 
-            xdraw += CHAR_WIDTH + LETTER_SPACING;
+            xdraw += (CHAR_WIDTH + LETTER_SPACING) * scale;
         }
     }
 }

@@ -357,7 +357,7 @@ F(write) {
         alpha = luaL_optinteger(L, -1, alpha);
     }
 
-    display_write(text, color, alpha, x, y);
+    display_write(text, color, x, y, 1, alpha);
     return 0;
 }
 
