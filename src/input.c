@@ -259,7 +259,8 @@ void input_tick(void) {
                             input_keys[KEY_LEFT].press_count++;
                         else if(val > 0)
                             input_keys[KEY_RIGHT].press_count++;
-                        else if(old_vals[axis] < 0)
+
+                        if(old_vals[axis] < 0)
                             input_keys[KEY_LEFT].release_count++;
                         else if(old_vals[axis] > 0)
                             input_keys[KEY_RIGHT].release_count++;
@@ -268,7 +269,8 @@ void input_tick(void) {
                             input_keys[KEY_UP].press_count++;
                         else if(val > 0)
                             input_keys[KEY_DOWN].press_count++;
-                        else if(old_vals[axis] < 0)
+
+                        if(old_vals[axis] < 0)
                             input_keys[KEY_UP].release_count++;
                         else if(old_vals[axis] > 0)
                             input_keys[KEY_DOWN].release_count++;
