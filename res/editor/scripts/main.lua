@@ -66,6 +66,9 @@ function init()
             16,        -- icon
             function() -- click_fn
                 current_editor = editors.map
+            end,
+            function() -- highlight_fn
+                return current_editor == editors.map
             end
         ),
         -- sprite_editor
@@ -74,6 +77,9 @@ function init()
             17,        -- icon
             function() -- click_fn
                 current_editor = editors.sprite
+            end,
+            function() -- highlight_fn
+                return current_editor == editors.sprite
             end
         ),
         -- save
