@@ -56,28 +56,28 @@ struct row {
     u32 color;
 };
 
-static u32 scroll_position = 0;
-static u32 cursor_animation_ticks = 0;
+static i32 scroll_position = 0;
+static i32 cursor_animation_ticks = 0;
 
 // closed rows
 static struct row *closed_rows;
-static u32 closed_rows_count = 0;
+static i32 closed_rows_count = 0;
 
 // command history
 static char **command_history;
-static u32 used_command_history = 0;
-static u32 history_index = 0;
+static i32 used_command_history = 0;
+static i32 history_index = 0;
 
 // BUFFERS
 // user buffer
 static char *user_buffer;
-static u32 user_buffer_read_index = 0;
-static u32 user_buffer_write_index = 0;
+static i32 user_buffer_read_index = 0;
+static i32 user_buffer_write_index = 0;
 
 // output buffer
 static char *output_buffer;
-static u32 output_buffer_read_index = 0;
-static u32 output_buffer_write_index = 0;
+static i32 output_buffer_read_index = 0;
+static i32 output_buffer_write_index = 0;
 
 static void terminal_set_scroll(i32 scroll);
 
