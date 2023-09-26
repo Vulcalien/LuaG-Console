@@ -1,4 +1,4 @@
-/* Copyright 2022 Vulcalien
+/* Copyright 2022-2023 Vulcalien
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -247,13 +247,13 @@ void input_tick(void) {
                 else if(val > 0)
                     val = 1;
 
-                u32 axis;
+                i32 axis = -1;
                 if(e.caxis.axis == SDL_CONTROLLER_AXIS_LEFTX)
                     axis = 0;
                 else if(e.caxis.axis == SDL_CONTROLLER_AXIS_LEFTY)
                     axis = 1;
 
-                if(val != old_vals[axis]) {
+                if(axis != -1 && val != old_vals[axis]) {
                     if(axis == 0) {
                         if(val < 0)
                             input_keys[KEY_LEFT].press_count++;

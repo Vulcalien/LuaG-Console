@@ -1,4 +1,4 @@
-/* Copyright 2022 Vulcalien
+/* Copyright 2022-2023 Vulcalien
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 #include <vulcalien/vulcalien.h>
 
 #define LUAG_VERSION "C Port - 0.0.2"
-#define COPYRIGHT_NOTICE "Copyright 2022 Vulcalien"
+#define COPYRIGHT_NOTICE "Copyright 2023 Vulcalien"
 
 #define USERDATA_FOLDER "console-userdata"
 
