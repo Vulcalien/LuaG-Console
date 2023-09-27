@@ -276,21 +276,47 @@ CMD(cmd_ver) {
     terminal_write("This is Free software", false);
 }
 
-CMD(cmd_help) {
-    if(argc > 0) {
+static void print_help_message(const char *cmd, const char *message) {
+    char name[16] = { 0 };
+    char str[32] = { 0 };
+    snprintf(name, sizeof(name), "%s:", cmd);
+    snprintf(str, sizeof(str), "%-7s %s", name, message);
 
+    terminal_write(str, false);
+}
+
+CMD(cmd_help) {
+    const char *list[][2] = {
+        { "run",    "run game"          },
+        { "edit",   "open editor"       },
+        { "pack",   "create cartridge"  },
+        { "unpack", "extract cartridge" },
+        { "setup",  "create game files" },
+        { "clear",  "clear shell"       },
+        { "ver",    "print version"     },
+        { "help",   "print this list"   },
+        { "mode",   "change mode"       },
+        { "files",  "open game folder"  },
+        { "log",    "open log file"     },
+        { NULL,     NULL                }
+    };
+
+    if(argc > 0) {
+        char *cmd = argv[0];
+
+        bool found = false;
+        for(u32 i = 0; list[i][0] != NULL; i++) {
+            if(!strcmp(cmd, list[i][0])) {
+                found = true;
+                print_help_message(list[i][0], list[i][1]);
+            }
+        }
+
+        if(!found)
+            terminal_write("Error: help message not\nfound", true);
     } else {
-        terminal_write("run:    run game",          false);
-        terminal_write("edit:   open editor",       false);
-        terminal_write("pack:   create cartridge",  false);
-        terminal_write("unpack: extract cartridge", false);
-        terminal_write("setup:  create game files", false);
-        terminal_write("clear:  clear shell",       false);
-        terminal_write("ver:    print version",     false);
-        terminal_write("help:   print this list",   false);
-        terminal_write("mode:   change mode",       false);
-        terminal_write("files:  open game folder",  false);
-        terminal_write("log:    open log file",     false);
+        for(u32 i = 0; list[i][0] != NULL; i++)
+            print_help_message(list[i][0], list[i][1]);
     }
 }
 
