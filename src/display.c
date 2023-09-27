@@ -189,14 +189,14 @@ int display_load_atlas(char *filename,
         return -2;
     }
 
-    if(display_update_atlas(surface, texture))
+    if(display_update_atlas(*surface, texture))
         return -3;
     return 0;
 }
 
-int display_update_atlas(SDL_Surface **surface, SDL_Texture **texture) {
+int display_update_atlas(SDL_Surface *surface, SDL_Texture **texture) {
     if(!surface)
-        surface = &atlas_surface;
+        surface = atlas_surface;
     if(!texture)
         texture = &atlas_texture;
 
@@ -206,7 +206,7 @@ int display_update_atlas(SDL_Surface **surface, SDL_Texture **texture) {
         *texture = NULL;
     }
 
-    *texture = SDL_CreateTextureFromSurface(renderer, *surface);
+    *texture = SDL_CreateTextureFromSurface(renderer, surface);
     if(!*texture) {
         fprintf(
             stderr,
