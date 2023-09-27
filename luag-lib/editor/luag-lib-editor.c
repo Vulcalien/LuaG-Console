@@ -46,7 +46,30 @@ static void throw_lua_error(lua_State *L, char *msg_format, ...) {
 }
 
 static int load_atlas(lua_State *L, char *filename) {
-    return display_load_atlas(filename, &atlas_surface, &atlas_texture);
+    SDL_Surface *tmp_surface = NULL;
+    if(display_load_atlas(filename, &tmp_surface, &atlas_texture)) {
+        return -1;
+    }
+
+    // convert the atlas surface to RGB to allow easy pixel edits
+    if(tmp_surface) {
+        atlas_surface = SDL_ConvertSurfaceFormat(
+            tmp_surface, SDL_PIXELFORMAT_RGB888, 0
+        );
+        SDL_FreeSurface(tmp_surface);
+
+        if(!atlas_surface) {
+            fprintf(
+                stderr,
+                "SDL: could not convert editor's atlas surface to RGB\n"
+                " - SDL_ConvertSurfaceFormat: %s\n",
+                SDL_GetError()
+            );
+            return -2;
+        }
+    }
+
+    return 0;
 }
 
 static void load_map(lua_State *L, char *filename) {
@@ -171,6 +194,21 @@ F(editor_update_map_size) {
     lua_setglobal(L, "map_h");
 
     return 0;
+}
+
+F(editor_atlas_set_pixel) {
+    lua_Integer x     = luaL_checkinteger(L, 1);
+    lua_Integer y     = luaL_checkinteger(L, 2);
+    lua_Integer color = luaL_checkinteger(L, 3);
+
+    u8 *pixels = atlas_surface->pixels;
+    u32 pitch = atlas_surface->pitch;
+    u32 *row = (u32 *)(pixels + pitch * y);
+
+    row[x] = color;
+
+    // update atlas_texture
+    return display_update_atlas(atlas_surface, &atlas_texture);
 }
 
 F(editor_spr) {
@@ -311,6 +349,8 @@ int luag_lib_load(lua_State *L) {
 
     lua_register(L, "editor_update_map_size", editor_update_map_size);
 
+    lua_register(L, "editor_atlas_set_pixel", editor_atlas_set_pixel);
+
     lua_register(L, "editor_spr", editor_spr);
     lua_register(L, "editor_maprender", editor_maprender);
 
@@ -325,6 +365,8 @@ int luag_lib_load(lua_State *L) {
 int luag_lib_destroy(void) {
     if(atlas_surface)
         SDL_FreeSurface(atlas_surface);
+    if(atlas_texture)
+        SDL_DestroyTexture(atlas_texture);
 
     return 0;
 }
