@@ -3,7 +3,12 @@ function atlas(editor, x, y, rows)
         x,      y,           -- x, y
         16 * 8, rows * 8,    -- w, h
         function(self)       -- render
-            editor_draw_atlas(x, y, self.scrolled, rows)
+            editor_spr(
+                self.scrolled * 16, -- id
+                x, y,               -- x, y
+                1,                  -- scale
+                16, rows            -- sw, wh
+            )
 
             local selected_x = self.selected % 16
             local selected_y = self.selected // 16 - self.scrolled

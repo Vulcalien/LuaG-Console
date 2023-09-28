@@ -308,39 +308,6 @@ F(editor_get_text) {
     return 1;
 }
 
-F(editor_draw_atlas) {
-    // draw coordinates
-    lua_Integer x0 = luaL_checkinteger(L, 1);
-    lua_Integer y0 = luaL_checkinteger(L, 2);
-
-    lua_Integer row0 = luaL_checkinteger(L, 3);
-    lua_Integer rows = luaL_checkinteger(L, 4);
-
-    char *err_msg = NULL;
-    if(row0 < 0 || row0 >= 16)
-        err_msg = "bad argument: row0";
-    else if(rows <= 0 || row0 + rows > 16)
-        err_msg = "bad argument: rows";
-
-    if(err_msg) {
-        throw_lua_error(L, err_msg);
-    } else {
-        for(u32 ys = 0; ys < rows; ys++) {
-            for(u32 xs = 0; xs < 16; xs++) {
-                u32 id = xs + (ys + row0) * 16;
-                display_draw_from_atlas(
-                    atlas_texture,
-                    id, x0 + xs * SPRITE_SIZE, y0 + ys * SPRITE_SIZE,
-                    1, 1, 1,
-                    0, false, false,
-                    0xff, 0xffffff
-                );
-            }
-        }
-    }
-    return 0;
-}
-
 int luag_lib_load(lua_State *L) {
     lua_register(L, "editor_load_files", editor_load_files);
 
@@ -356,8 +323,6 @@ int luag_lib_load(lua_State *L) {
 
     lua_register(L, "editor_set_text_mode", editor_set_text_mode);
     lua_register(L, "editor_get_text", editor_get_text);
-
-    lua_register(L, "editor_draw_atlas", editor_draw_atlas);
 
     return 0;
 }
