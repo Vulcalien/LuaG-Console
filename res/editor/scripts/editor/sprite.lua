@@ -4,6 +4,36 @@ editors.sprite = {
     title = 'Sprite Editor',
 
     init = function(self)
+        self.canvas = element(
+            xc - 24, 17,   -- x, y
+            48,      48,   -- w, h
+            function(self) -- render
+                local editor = editors.sprite
+
+                editor_spr(
+                    editor.atlas.selected, -- id
+                    self.x,                -- x
+                    self.y,                -- y
+                    6,                     -- scale
+                    1,                     -- sw
+                    1                      -- sh
+                )
+            end
+        )
+
+        self.canvas.mouse_down = function(self, x, y)
+            local editor = editors.sprite
+
+            -- TODO draw
+        end
+
+        self.atlas = atlas(
+            self,              -- editor
+            (scr_w - 128) / 2, -- x
+            scr_h - 10 - 69,   -- y
+            8                  -- rows
+        )
+
         self.gui = {
             -- TOOLBOX
             -- toolbox background
@@ -62,22 +92,16 @@ editors.sprite = {
             ),
 
             -- color selector
-            -- TODO consider making this a fixed width
-            box(xc + 30, 15, scr_w - xc - 35, 50, colors.primary.bg), -- TODO this is temporary
+            box(xc + 30, 15, scr_w - xc - 35, 50, colors.primary.bg),
 
-            -- sprite preview
-            box(xc - 25, 15, 50, 50, colors.primary.bg), -- TODO this is temporary
+            -- canvas background
+            box(xc - 26, 15, 52, 52, colors.primary.bg),
+
+            -- canvas
+            self.canvas,
 
             -- atlas
-            atlas(
-                self,              -- editor
-                (scr_w - 128) / 2, -- x
-                scr_h - 10 - 69,   -- y
-                8,                 -- rows
-                function()         -- on_select
-                    -- TODO
-                end
-            )
+            self.atlas
         }
     end,
 

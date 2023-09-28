@@ -1,4 +1,4 @@
-function atlas(editor, x, y, rows, select_fn)
+function atlas(editor, x, y, rows)
     local result = element(
         x,      y,           -- x, y
         16 * 8, rows * 8,    -- w, h
@@ -33,9 +33,6 @@ function atlas(editor, x, y, rows, select_fn)
         local yt = y // 8 + self.scrolled
 
         self.selected = xt + yt * 16
-        if on_select then
-            on_select()
-        end
     end
 
     result.scroll = function(self, x, y, amount)
