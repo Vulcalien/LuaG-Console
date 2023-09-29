@@ -77,11 +77,11 @@ editors.sprite = {
 
             -- SCOPE SELECTORS
             -- scope_background
-            box(xc - 40, 30, 10, 19, colors.primary.bg),
-            -- scope_big
+            box(xc - 40, 27, 10, 28, colors.primary.bg),
+            -- scope 1
             button(
                 xc - 39,       -- x
-                31,            -- y
+                28,            -- y
                 48,            -- icon
                 function(self) -- click_fn
                     local editor = editors.sprite
@@ -92,10 +92,10 @@ editors.sprite = {
                     return editor.atlas.scope == 1
                 end
             ),
-            -- scope_small
+            -- scope 2
             button(
                 xc - 39,       -- x
-                40,            -- y
+                37,            -- y
                 49,            -- icon
                 function(self) -- click_fn
                     local editor = editors.sprite
@@ -104,6 +104,20 @@ editors.sprite = {
                 function(self) -- highlight_fn
                     local editor = editors.sprite
                     return editor.atlas.scope == 2
+                end
+            ),
+            -- scope 3
+            button(
+                xc - 39,       -- x
+                46,            -- y
+                50,            -- icon
+                function(self) -- click_fn
+                    local editor = editors.sprite
+                    editor.atlas:change_scope(3)
+                end,
+                function(self) -- highlight_fn
+                    local editor = editors.sprite
+                    return editor.atlas.scope == 3
                 end
             ),
 
