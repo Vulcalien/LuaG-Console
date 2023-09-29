@@ -80,15 +80,31 @@ editors.sprite = {
             box(xc - 40, 30, 10, 19, colors.primary.bg),
             -- scope_big
             button(
-                xc - 39, -- x
-                31,      -- y
-                48       -- icon
+                xc - 39,       -- x
+                31,            -- y
+                48,            -- icon
+                function(self) -- click_fn
+                    local editor = editors.sprite
+                    editor.atlas:change_scope(1)
+                end,
+                function(self) -- highlight_fn
+                    local editor = editors.sprite
+                    return editor.atlas.scope == 1
+                end
             ),
             -- scope_small
             button(
-                xc - 39, -- x
-                40,      -- y
-                49       -- icon
+                xc - 39,       -- x
+                40,            -- y
+                49,            -- icon
+                function(self) -- click_fn
+                    local editor = editors.sprite
+                    editor.atlas:change_scope(2)
+                end,
+                function(self) -- highlight_fn
+                    local editor = editors.sprite
+                    return editor.atlas.scope == 2
+                end
             ),
 
             -- color selector

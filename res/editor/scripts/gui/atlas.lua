@@ -1,3 +1,20 @@
+-- Make sure that the selected area is entirely inside the atlas.
+-- Change the value of 'selected' if not.
+-- (only necessary for scope > 1)
+local function check_selected(self)
+    local xt = self.selected % 16
+    local yt = self.selected // 16
+
+    if xt + self.scope > 16 then
+        xt = 16 - self.scope
+    end
+    if yt + self.scope > 16 then
+        yt = 16 - self.scope
+    end
+
+    self.selected = xt + yt * 16
+end
+
 function atlas(editor, x, y, rows)
     local result = element(
         x,      y,           -- x, y
@@ -28,7 +45,7 @@ function atlas(editor, x, y, rows)
                 4,                       -- id
                 self.x + selected_x * 8, -- x
                 self.y + selected_y * 8, -- y
-                { scale = 1, alpha = alpha } -- TODO scale
+                { scale = self.scope, alpha = alpha }
             )
         end
     )
@@ -38,6 +55,7 @@ function atlas(editor, x, y, rows)
         local yt = y // 8 + self.scrolled
 
         self.selected = xt + yt * 16
+        check_selected(self)
     end
 
     result.scroll = function(self, x, y, amount)
@@ -50,7 +68,13 @@ function atlas(editor, x, y, rows)
         end
     end
 
+    result.change_scope = function(self, scope)
+        self.scope = scope
+        check_selected(self)
+    end
+
     result.selected = 0
+    result.scope    = 1
     result.scrolled = 0
 
     return result
