@@ -20,7 +20,20 @@ editors.sprite = {
             },
             bucket = {
                 act = function(self, editor, x, y)
-                    -- TODO fill
+                    local xt = editor.atlas.selected % 16
+                    local yt = editor.atlas.selected // 16
+
+                    -- fill bounds
+                    local x0 = xt * 8
+                    local y0 = yt * 8
+                    local x1 = (xt + editor.atlas.scope) * 8 - 1
+                    local y1 = (yt + editor.atlas.scope) * 8 - 1
+
+                    editor_atlas_fill(
+                        x0 + x, y0 + y,        -- x, y
+                        editor.selected_color, -- color
+                        x0, y0, x1, y1         -- x0, y0, x1, y1
+                    )
                 end
             },
             pickup = {

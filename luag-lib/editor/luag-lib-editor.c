@@ -201,6 +201,15 @@ F(editor_atlas_set_pixel) {
     lua_Integer y     = luaL_checkinteger(L, 2);
     lua_Integer color = luaL_checkinteger(L, 3);
 
+    if(x < 0 || x >= atlas_surface->w) {
+        throw_lua_error(L, "bad argument: x");
+        return 0;
+    }
+    if(y < 0 || y >= atlas_surface->h) {
+        throw_lua_error(L, "bad argument: y");
+        return 0;
+    }
+
     u8 *pixels = atlas_surface->pixels;
     u32 pitch = atlas_surface->pitch;
     u32 *row = (u32 *)(pixels + pitch * y);
@@ -217,6 +226,15 @@ F(editor_atlas_get_pixel) {
     lua_Integer x = luaL_checkinteger(L, 1);
     lua_Integer y = luaL_checkinteger(L, 2);
 
+    if(x < 0 || x >= atlas_surface->w) {
+        throw_lua_error(L, "bad argument: x");
+        return 0;
+    }
+    if(y < 0 || y >= atlas_surface->h) {
+        throw_lua_error(L, "bad argument: y");
+        return 0;
+    }
+
     u8 *pixels = atlas_surface->pixels;
     u32 pitch = atlas_surface->pitch;
     u32 *row = (u32 *)(pixels + pitch * y);
@@ -224,6 +242,88 @@ F(editor_atlas_get_pixel) {
     lua_pushinteger(L, row[x]);
 
     return 1;
+}
+
+// If the pixel (x, y) is the same as 'target_color' and (x, y) is
+// within the bounds (x0, y0, x1, y1), set the pixel (x, y) to 'color'
+// and recoursively try to do the same for adiacent pixels.
+static void fill(i32 x, i32 y, u32 color, u32 target_color,
+                 i32 x0, i32 y0, i32 x1, i32 y1) {
+    // check if (x, y) is within bounds
+    if(x < x0 || y < y0 || x > x1 || y > y1)
+        return;
+
+    u8 *pixels = atlas_surface->pixels;
+    u32 pitch = atlas_surface->pitch;
+    u32 *row = (u32 *)(pixels + pitch * y);
+
+    // check if (x, y) has the color 'target_color'
+    if(row[x] != target_color)
+        return;
+
+    row[x] = color;
+
+    // recoursively try to do the same for adiacent pixels
+    fill(x - 1, y,     color, target_color, x0, y0, x1, y1);
+    fill(x,     y - 1, color, target_color, x0, y0, x1, y1);
+    fill(x + 1, y,     color, target_color, x0, y0, x1, y1);
+    fill(x,     y + 1, color, target_color, x0, y0, x1, y1);
+}
+
+F(editor_atlas_fill) {
+    lua_Integer x     = luaL_checkinteger(L, 1);
+    lua_Integer y     = luaL_checkinteger(L, 2);
+    lua_Integer color = luaL_checkinteger(L, 3);
+    lua_Integer x0    = luaL_checkinteger(L, 4);
+    lua_Integer y0    = luaL_checkinteger(L, 5);
+    lua_Integer x1    = luaL_checkinteger(L, 6);
+    lua_Integer y1    = luaL_checkinteger(L, 7);
+
+    if(x < 0 || x >= atlas_surface->w) {
+        throw_lua_error(L, "bad argument: x");
+        return 0;
+    }
+    if(y < 0 || y >= atlas_surface->h) {
+        throw_lua_error(L, "bad argument: y");
+        return 0;
+    }
+
+    if(x0 < 0 || x0 >= atlas_surface->w) {
+        throw_lua_error(L, "bad argument: x0");
+        return 0;
+    }
+    if(y0 < 0 || y0 >= atlas_surface->h) {
+        throw_lua_error(L, "bad argument: y0");
+        return 0;
+    }
+    if(x1 < 0 || x1 >= atlas_surface->w) {
+        throw_lua_error(L, "bad argument: x1");
+        return 0;
+    }
+    if(y1 < 0 || y1 >= atlas_surface->h) {
+        throw_lua_error(L, "bad argument: y1");
+        return 0;
+    }
+
+    // read the target pixel
+    u32 target_color;
+    {
+        u8 *pixels = atlas_surface->pixels;
+        u32 pitch = atlas_surface->pitch;
+        u32 *row = (u32 *)(pixels + pitch * y);
+
+        target_color = row[x];
+
+        // if 'target_color' is the same as 'color', do nothing
+        if(target_color == color)
+            return 0;
+    }
+
+    // fill and update atlas_texture
+    fill(x, y, color, target_color, x0, y0, x1, y1);
+    display_update_atlas(atlas_surface, &atlas_texture);
+
+    return 0;
 }
 
 F(editor_spr) {
@@ -333,6 +433,7 @@ int luag_lib_load(lua_State *L) {
 
     lua_register(L, "editor_atlas_set_pixel", editor_atlas_set_pixel);
     lua_register(L, "editor_atlas_get_pixel", editor_atlas_get_pixel);
+    lua_register(L, "editor_atlas_fill", editor_atlas_fill);
 
     lua_register(L, "editor_spr", editor_spr);
     lua_register(L, "editor_maprender", editor_maprender);
