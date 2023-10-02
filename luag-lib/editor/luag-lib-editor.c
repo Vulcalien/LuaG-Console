@@ -208,7 +208,22 @@ F(editor_atlas_set_pixel) {
     row[x] = color;
 
     // update atlas_texture
-    return display_update_atlas(atlas_surface, &atlas_texture);
+    display_update_atlas(atlas_surface, &atlas_texture);
+
+    return 0;
+}
+
+F(editor_atlas_get_pixel) {
+    lua_Integer x = luaL_checkinteger(L, 1);
+    lua_Integer y = luaL_checkinteger(L, 2);
+
+    u8 *pixels = atlas_surface->pixels;
+    u32 pitch = atlas_surface->pitch;
+    u32 *row = (u32 *)(pixels + pitch * y);
+
+    lua_pushinteger(L, row[x]);
+
+    return 1;
 }
 
 F(editor_spr) {
@@ -317,6 +332,7 @@ int luag_lib_load(lua_State *L) {
     lua_register(L, "editor_update_map_size", editor_update_map_size);
 
     lua_register(L, "editor_atlas_set_pixel", editor_atlas_set_pixel);
+    lua_register(L, "editor_atlas_get_pixel", editor_atlas_get_pixel);
 
     lua_register(L, "editor_spr", editor_spr);
     lua_register(L, "editor_maprender", editor_maprender);

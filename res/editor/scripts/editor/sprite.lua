@@ -1,9 +1,45 @@
-local xc = scr_w / 2
-
 editors.sprite = {
     title = 'Sprite Editor',
 
     init = function(self)
+        -- First declare 'tools', then define it. This allows the tool
+        -- elements to reference 'tools'.
+        local tools
+        tools = {
+            pencil = {
+                act = function(self, editor, x, y)
+                    local xt = editor.atlas.selected % 16
+                    local yt = editor.atlas.selected // 16
+
+                    editor_atlas_set_pixel(
+                        xt * 8 + x,           -- x
+                        yt * 8 + y,           -- y
+                        editor.selected_color -- color
+                    )
+                end
+            },
+            bucket = {
+                act = function(self, editor, x, y)
+                    -- TODO fill
+                end
+            },
+            pickup = {
+                act = function(self, editor, x, y)
+                    local xt = editor.atlas.selected % 16
+                    local yt = editor.atlas.selected // 16
+
+                    editor.selected_color = editor_atlas_get_pixel(
+                        xt * 8 + x, -- x
+                        yt * 8 + y  -- y
+                    )
+
+                    editor.selected_tool = tools.pencil
+                end
+            }
+        }
+
+        local xc = scr_w // 2
+
         self.canvas = canvas(
             self,    -- editor
             xc - 24, -- x
@@ -17,27 +53,54 @@ editors.sprite = {
             8                  -- rows
         )
 
+        self.selected_tool = tools.pencil
+        self.selected_color = 0xffffff -- TODO
+
         self.gui = {
             -- TOOLBOX
             -- toolbox background
             box(xc - 64, 17, 19, 46, colors.primary.bg),
             -- pencil
             button(
-                xc - 63, -- x
-                18,      -- y
-                32       -- icon
+                xc - 63,       -- x
+                18,            -- y
+                32,            -- icon
+                function(self) -- click_fn
+                    local editor = editors.sprite
+                    editor.selected_tool = tools.pencil
+                end,
+                function(self) -- highlight_fn
+                    local editor = editors.sprite
+                    return editor.selected_tool == tools.pencil
+                end
             ),
             -- bucket
             button(
-                xc - 63, -- x
-                27,      -- y
-                33       -- icon
+                xc - 63,       -- x
+                27,            -- y
+                33,            -- icon
+                function(self) -- click_fn
+                    local editor = editors.sprite
+                    editor.selected_tool = tools.bucket
+                end,
+                function(self) -- highlight_fn
+                    local editor = editors.sprite
+                    return editor.selected_tool == tools.bucket
+                end
             ),
             -- pickup
             button(
-                xc - 63, -- x
-                36,      -- y
-                34       -- icon
+                xc - 63,       -- x
+                36,            -- y
+                34,            -- icon
+                function(self) -- click_fn
+                    local editor = editors.sprite
+                    editor.selected_tool = tools.pickup
+                end,
+                function(self) -- highlight_fn
+                    local editor = editors.sprite
+                    return editor.selected_tool == tools.pickup
+                end
             ),
             -- undo
             button(

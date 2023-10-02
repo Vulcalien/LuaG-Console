@@ -21,6 +21,8 @@ function canvas(editor, x, y, scale)
 
         local xpix = x * atlas.scope // scale
         local ypix = y * atlas.scope // scale
+
+        editor.selected_tool:act(editor, xpix, ypix)
     end
 
     return result
