@@ -15,7 +15,7 @@ local function check_selected(self)
     self.selected = xt + yt * 16
 end
 
-function atlas(editor, x, y, rows)
+function atlas(x, y, rows)
     local result = element(
         x,      y,           -- x, y
         16 * 8, rows * 8,    -- w, h

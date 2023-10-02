@@ -29,6 +29,7 @@ function init()
     loadscript('gui/textbox.lua')
     loadscript('gui/atlas.lua')
     loadscript('gui/map-element.lua')
+    loadscript('gui/canvas.lua')
 
     gui = {
         -- top_bar

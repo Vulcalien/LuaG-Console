@@ -4,31 +4,14 @@ editors.sprite = {
     title = 'Sprite Editor',
 
     init = function(self)
-        self.canvas = element(
-            xc - 24, 17,   -- x, y
-            48,      48,   -- w, h
-            function(self) -- render
-                local editor = editors.sprite
-
-                editor_spr(
-                    editor.atlas.selected,  -- id
-                    self.x,                 -- x
-                    self.y,                 -- y
-                    6 / editor.atlas.scope, -- scale
-                    editor.atlas.scope,     -- sw
-                    editor.atlas.scope      -- sh
-                )
-            end
+        self.canvas = canvas(
+            self,    -- editor
+            xc - 24, -- x
+            17,      -- y
+            6        -- scale
         )
 
-        self.canvas.mouse_down = function(self, x, y)
-            local editor = editors.sprite
-
-            -- TODO draw
-        end
-
         self.atlas = atlas(
-            self,              -- editor
             (scr_w - 128) / 2, -- x
             scr_h - 10 - 69,   -- y
             8                  -- rows

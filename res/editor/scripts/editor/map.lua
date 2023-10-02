@@ -9,7 +9,6 @@ editors.map = {
         )
 
         self.atlas = atlas(
-            self,              -- editor
             (scr_w - 128) / 2, -- x
             scr_h - 10 - 37,   -- y
             4                  -- rows
