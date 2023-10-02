@@ -103,7 +103,7 @@ int display_init(void) {
         "LuaG Console",
         SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
         DISPLAY_WIDTH * 4, DISPLAY_HEIGHT * 4,
-        SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN
+        SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN
     );
     if(!window) {
         fprintf(
@@ -132,6 +132,8 @@ int display_init(void) {
         return -4;
     if(load_font())
         return -5;
+
+    SDL_ShowWindow(window);
 
     return 0;
 }
