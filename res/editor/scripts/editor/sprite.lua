@@ -16,6 +16,8 @@ editors.sprite = {
                         yt * 8 + y,           -- y
                         editor.selected_color -- color
                     )
+
+                    editor.is_edited = true
                 end
             },
             bucket = {
@@ -34,6 +36,8 @@ editors.sprite = {
                         editor.selected_color, -- color
                         x0, y0, x1, y1         -- x0, y0, x1, y1
                     )
+
+                    editor.is_edited = true
                 end
             },
             pickup = {
@@ -195,6 +199,6 @@ editors.sprite = {
     end,
 
     save = function(self)
-
+        editor_save_atlas()
     end
 }

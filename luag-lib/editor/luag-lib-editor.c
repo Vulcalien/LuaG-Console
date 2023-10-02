@@ -146,6 +146,23 @@ F(editor_save_map) {
     return 1;
 }
 
+F(editor_save_atlas) {
+    #define filename (USERDATA_FOLDER "/atlas.png")
+    int err = IMG_SavePNG(atlas_surface, filename);
+
+    if(err) {
+        fprintf(
+            stderr,
+            "Editor: could not create atlas file '%s'\n",
+            filename
+        );
+    }
+    #undef filename
+
+    lua_pushinteger(L, err);
+    return 1;
+}
+
 F(editor_update_map_size) {
     lua_Integer w        = luaL_checkinteger(L, 1);
     lua_Integer h        = luaL_checkinteger(L, 2);
@@ -426,8 +443,8 @@ F(editor_get_text) {
 int luag_lib_load(lua_State *L) {
     lua_register(L, "editor_load_files", editor_load_files);
 
-    /*lua_register(L, "editor_save_atlas", editor_save_atlas);*/
     lua_register(L, "editor_save_map", editor_save_map);
+    lua_register(L, "editor_save_atlas", editor_save_atlas);
 
     lua_register(L, "editor_update_map_size", editor_update_map_size);
 
