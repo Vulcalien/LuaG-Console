@@ -11,12 +11,12 @@ editors.sprite = {
                 local editor = editors.sprite
 
                 editor_spr(
-                    editor.atlas.selected, -- id
-                    self.x,                -- x
-                    self.y,                -- y
-                    6,                     -- scale
-                    1,                     -- sw
-                    1                      -- sh
+                    editor.atlas.selected,  -- id
+                    self.x,                 -- x
+                    self.y,                 -- y
+                    6 / editor.atlas.scope, -- scale
+                    editor.atlas.scope,     -- sw
+                    editor.atlas.scope      -- sh
                 )
             end
         )
