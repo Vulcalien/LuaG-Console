@@ -45,7 +45,11 @@ int map_load(char *filename) {
     FILE *file = fopen(filename, "rb");
 
     if(!file) {
-        fprintf(stderr, "Map: could not load map file '%s'\n", filename);
+        fprintf(
+            stderr,
+            "Map: could not load map file '%s'\n",
+            filename
+        );
         err = -1;
         goto exit;
     }

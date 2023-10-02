@@ -67,7 +67,10 @@ static int load_font(void) {
     }
 
     // make background transparent
-    SDL_SetColorKey(font_surf, SDL_TRUE, SDL_MapRGB(font_surf->format, 0x00, 0x00, 0x00));
+    SDL_SetColorKey(
+        font_surf, SDL_TRUE,
+        SDL_MapRGB(font_surf->format, 0x00, 0x00, 0x00)
+    );
 
     font_texture = SDL_CreateTextureFromSurface(renderer, font_surf);
     if(!font_texture) {

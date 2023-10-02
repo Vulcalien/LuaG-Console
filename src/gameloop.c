@@ -33,7 +33,10 @@
     static void *tps_counter(void *arg) {
         while(true) {
             if(gameloop_print_performance) {
-                printf("tps: %d - fps: %d\n", counter_ticks, counter_frames);
+                printf(
+                    "tps: %d - fps: %d\n",
+                    counter_ticks, counter_frames
+                );
                 fflush(stdout);
             }
 

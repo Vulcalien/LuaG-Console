@@ -42,7 +42,10 @@ void input_init(void) {
     // load Game Controller mapping file
     {
         char filename[PATH_MAX];
-        snprintf(filename, PATH_MAX, "%s/gamecontrollerdb.txt", res_folder);
+        snprintf(
+            filename, PATH_MAX,
+            "%s/gamecontrollerdb.txt", res_folder
+        );
         SDL_GameControllerAddMappingsFromFile(filename);
     }
 
@@ -68,7 +71,8 @@ void input_init(void) {
 void input_tick(void) {
     if(engine_running) {
         // update is_down based on release_count
-        // (release_count only affects is_down one tick *after* the event occurred)
+        // (release_count only affects is_down one tick *after* the
+        // event occurred)
         for(u32 i = 0; i < KEY_COUNT + BTN_COUNT; i++) {
             struct input_Key *key = &input_keys[i];
 

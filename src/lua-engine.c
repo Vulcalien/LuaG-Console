@@ -133,8 +133,8 @@ static void *load_luag_library(lua_State *L, bool is_editor_lib) {
         if(!found) {
             fprintf(
                 stderr,
-                "Engine: could not find a version of LuaG Library compatible "
-                "with %d.%d\n",
+                "Engine: could not find a version of LuaG Library "
+                "compatible with %d.%d\n",
                 cartridge_info.major_v, cartridge_info.minor_v
             );
             return NULL;
@@ -197,11 +197,15 @@ static int load_main_file(void) {
     return check_error(L, status);
 }
 
-#define lua_load(func, name) luaL_requiref(L, name, func, 1); lua_pop(L, 1)
+#define lua_load(func, name)\
+    luaL_requiref(L, name, func, 1); lua_pop(L, 1)
 
 void engine_load(bool is_editor) {
     if(engine_running) {
-        fputs("Engine: engine is running when calling 'engine_load'\n", stderr);
+        fputs(
+            "Engine: engine is running when calling 'engine_load'\n",
+            stderr
+        );
         return;
     }
     engine_running = true;
@@ -248,7 +252,10 @@ void engine_load(bool is_editor) {
     if(is_editor) {
         editor_lib_handle = load_luag_library(L, true);
         if(!editor_lib_handle) {
-            fputs("Engine: could not load LuaG Editor Library\n", stderr);
+            fputs(
+                "Engine: could not load LuaG Editor Library\n",
+                stderr
+            );
             engine_stop();
             return;
         }
@@ -260,7 +267,10 @@ void engine_load(bool is_editor) {
     // run "init" function
     lua_getglobal(L, "init");
     if(!lua_isfunction(L, -1)) {
-        fputs("Engine: 'main.lua' must contain a function 'init()'\n", stderr);
+        fputs(
+            "Engine: 'main.lua' must contain a function 'init()'\n",
+            stderr
+        );
         engine_stop();
         return;
     }
@@ -280,7 +290,8 @@ void engine_reload(void) {
 void engine_stop(void) {
     if(!engine_running) {
         fputs(
-            "Engine: engine is not running when calling 'engine_stop'\n",
+            "Engine: engine is not running when calling "
+            "'engine_stop'\n",
             stderr
         );
         return;
@@ -340,7 +351,10 @@ void engine_render(void) {
 
     lua_getglobal(L, "render");
     if(!lua_isfunction(L, -1)) {
-        fputs("Engine: a function 'render()' must be defined\n", stderr);
+        fputs(
+            "Engine: a function 'render()' must be defined\n",
+            stderr
+        );
         engine_stop();
         return;
     }
