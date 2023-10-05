@@ -139,7 +139,7 @@ editors.sprite = {
             ),
 
             -- SCOPE SELECTORS
-            -- scope_background
+            -- scope background
             box(xc - 40, 27, 10, 28, colors.primary.bg),
             -- scope 1
             button(
@@ -184,8 +184,8 @@ editors.sprite = {
                 end
             ),
 
-            -- color selector
-            box(xc + 30, 15, scr_w - xc - 35, 50, colors.primary.bg),
+            -- palette background
+            box(xc + 30, 15, scr_w - xc - 35, 52, colors.primary.bg),
 
             -- canvas background
             box(xc - 26, 15, 52, 52, colors.primary.bg),
@@ -196,6 +196,52 @@ editors.sprite = {
             -- atlas
             self.atlas
         }
+
+        -- DEBUG
+        self.palette = {
+            0xffffff, 0xff0000, 0xffff00, 0xffffff,
+            0x000000, 0x0000ff, 0x0000ff, 0x000077,
+            0xff0000, 0xff0000, 0x770000, 0x777777,
+            0x111111, 0x222222, 0x333333, 0x444444,
+        }
+
+        -- Add palette color selectors to GUI
+        for i=0,15 do
+            local xt = i %  4
+            local yt = i // 4
+
+            -- add selector background
+            table.insert(self.gui, box(
+                xc + 31 + xt * 11,  -- x
+                16      + yt * 11,  -- y
+                10, 10,             -- w, h
+                colors.secondary.bg -- col
+            ))
+
+            -- add selector
+            local selector = element(
+                xc + 32 + xt * 11, -- x
+                17      + yt * 11, -- y
+                8, 8,              -- w, h
+                function(self)     -- render
+                    local editor = editors.sprite
+                    local col = editor.palette[1 + i]
+
+                    pix(self.x, self.y, col, { w = self.w, h = self.h })
+
+                    if editor.selected_color == col then
+                        spr(5, self.x, self.y)
+                    end
+                end
+            )
+            selector.mouse_down = function(self)
+                local editor = editors.sprite
+                local col = editor.palette[1 + i]
+
+                editor.selected_color = col
+            end
+            table.insert(self.gui, selector)
+        end
     end,
 
     save = function(self)
