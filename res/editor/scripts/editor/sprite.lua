@@ -219,7 +219,7 @@ editors.sprite = {
             ))
 
             -- add selector
-            local selector = element(
+            table.insert(self.gui, element(
                 xc + 32 + xt * 11, -- x
                 17      + yt * 11, -- y
                 8, 8,              -- w, h
@@ -232,15 +232,14 @@ editors.sprite = {
                     if editor.selected_color == col then
                         spr(5, self.x, self.y)
                     end
-                end
-            )
-            selector.mouse_down = function(self)
-                local editor = editors.sprite
-                local col = editor.palette[1 + i]
+                end,
+                function(self)     -- click
+                    local editor = editors.sprite
+                    local col = editor.palette[1 + i]
 
-                editor.selected_color = col
-            end
-            table.insert(self.gui, selector)
+                    editor.selected_color = col
+                end
+            ))
         end
     end,
 
