@@ -348,8 +348,9 @@ void input_tick(void) {
                         }
                         break;
                     case SDLK_v:
-                        if(e.key.keysym.mod & (KMOD_CTRL | KMOD_SHIFT))
-                            str = "\x17";
+                        if((e.key.keysym.mod & KMOD_CTRL) &&
+                           (e.key.keysym.mod & KMOD_SHIFT))
+                            str = "\x17"; // ctrl+shift+v
                         break;
 
                     case SDLK_u:
