@@ -19,6 +19,7 @@
 #include "terminal.h"
 #include "gameloop.h"
 #include "input-keys.h"
+#include "display.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -117,11 +118,19 @@ void input_tick(void) {
             }
         }
 
+        // Toggle performance info with Ctrl+F3
         if(e.type == SDL_KEYDOWN &&
            !e.key.repeat &&
            e.key.keysym.mod & KMOD_CTRL &&
            e.key.keysym.sym == SDLK_F3) {
             gameloop_print_performance = !gameloop_print_performance;
+        }
+
+        // Toggle fullscreen with F11
+        if(e.type == SDL_KEYDOWN &&
+           !e.key.repeat &&
+           e.key.keysym.sym == SDLK_F11) {
+            display_toggle_fullscreen();
         }
 
         if(engine_running) {

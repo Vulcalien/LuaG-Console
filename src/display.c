@@ -241,6 +241,16 @@ void display_refresh(void) {
     SDL_RenderClear(renderer);
 }
 
+void display_toggle_fullscreen(void) {
+    static bool fullscreen = false;
+
+    SDL_SetWindowFullscreen(
+        window,
+        fullscreen ? 0 : SDL_WINDOW_FULLSCREEN_DESKTOP
+    );
+    fullscreen = !fullscreen;
+}
+
 void display_clear(u32 color) {
     display_fill(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT, color, 0xff);
 }

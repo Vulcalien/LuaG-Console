@@ -43,6 +43,7 @@ extern int display_update_atlas(SDL_Surface *surface, SDL_Texture **texture);
 extern void display_atlas_set_color_key(u32 color, bool active_flag);
 
 extern void display_refresh(void);
+extern void display_toggle_fullscreen(void);
 
 extern void display_clear(u32 color);
 extern void display_fill(u32 x, u32 y, u32 w, u32 h, u32 color, u8 alpha);
