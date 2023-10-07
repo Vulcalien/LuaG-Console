@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+
+Name=LuaG Console
+GenericName=Fantasy Console
+
+Icon=luag-console
+
+TryExec=luag-console
+Exec=luag-console %f
