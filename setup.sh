@@ -2,81 +2,87 @@
 
 SCRIPT_PARENT="$(dirname "$0")"
 
-# functions
-install_bin() {
-    cp "$SCRIPT_PARENT/bin/luag-console" "$1"
-}
-
-uninstall_bin() {
-    rm -f "$1"
-}
-
-install_res() {
-    cp -r "$SCRIPT_PARENT/res" "$1"
-}
-
-uninstall_res() {
-    rm -rf "$1"
-}
-
-install_config() {
-    mkdir "$1"
-}
-
-uninstall_config() {
-    rm -rf "$1"
-}
-
-INSTALL_LOCALLY=0
+LOCATION="system"
 ACTION=0
 
 # parse arguments and options
 for i in "$@"; do
     case $i in
         install)
-            if [ "$ACTION" -eq "0" ]; then
+            if [ "$ACTION" = "0" ]; then
                 ACTION="install"
+            else
+                ACTION=0
             fi
             ;;
         uninstall)
-            if [ "$ACTION" -eq "0" ]; then
+            if [ "$ACTION" = "0" ]; then
                 ACTION="uninstall"
+            else
+                ACTION=0
             fi
             ;;
 
         -l|--local)
-            INSTALL_LOCALLY=1
+            LOCATION="local"
             ;;
     esac
 done
 
-# install/uninstall
-if [ "$ACTION" = "install" ]; then
-    echo Installing LuaG Console
-elif [ "$ACTION" = "uninstall" ]; then
-    echo Uninstalling LuaG Console
-else
-    echo "Usage: $0 <install/uninstall> [--local]"
-    exit
-fi
-
-if [ "$INSTALL_LOCALLY" -eq 1 ]; then
-    ${ACTION}_bin "$HOME/.local/bin/luag-console"
+# set paths
+if [ "$LOCATION" = "local" ]; then
+    BIN_PATH="$HOME/.local/bin/luag-console"
 
     if [ -z "$XDG_DATA_HOME" ]; then
-        ${ACTION}_res "$HOME/.local/share/luag-console"
+        RES_PATH="$HOME/.local/share/luag-console"
     else
-        ${ACTION}_res "$XDG_DATA_HOME/luag-console"
+        RES_PATH="$XDG_DATA_HOME/luag-console"
     fi
 
     if [ -z "$XDG_CONFIG_HOME" ]; then
-        ${ACTION}_config "$HOME/.config/luag-console"
+        CONFIG_PATH="$HOME/.config/luag-console"
     else
-        ${ACTION}_config "$XDG_CONFIG_HOME/luag-console"
+        CONFIG_PATH="$XDG_CONFIG_HOME/luag-console"
     fi
-else
-    ${ACTION}_bin "/usr/local/bin/luag-console"
 
-    ${ACTION}_res "/usr/local/share/luag-console"
-    ${ACTION}_config "/etc/luag-console"
+    DESKTOP_FILE_PATH="$HOME/.local/share/applications/net.vulcalien.LuagConsole.desktop"
+elif [ "$LOCATION" = "system" ]; then
+    BIN_PATH="/usr/bin/luag-console"
+    RES_PATH="/usr/share/luag-console"
+    CONFIG_PATH="/etc/luag-console"
+    DESKTOP_FILE_PATH="/usr/share/applications/net.vulcalien.LuagConsole.desktop"
+fi
+
+# install/uninstall
+if [ "$ACTION" = "install" ]; then
+    echo Installing LuaG Console
+
+    echo "Copying file: $BIN_PATH"
+    cp "$SCRIPT_PARENT/bin/luag-console" "$BIN_PATH"
+
+    echo "Copying directory: $RES_PATH"
+    cp -r "$SCRIPT_PARENT/res" "$RES_PATH"
+
+    echo "Creating directory: $CONFIG_PATH"
+    mkdir "$CONFIG_PATH"
+
+    echo "Copying file: $DESKTOP_FILE_PATH"
+    cp "$SCRIPT_PARENT/desktop/net.vulcalien.LuagConsole.desktop" "$DESKTOP_FILE_PATH"
+elif [ "$ACTION" = "uninstall" ]; then
+    echo Uninstalling LuaG Console
+
+    echo "Deleting file: $BIN_PATH"
+    rm "$BIN_PATH"
+
+    echo "Deleting directory: $RES_PATH"
+    rm -r "$RES_PATH"
+
+    echo "Deleting directory: $CONFIG_PATH"
+    rm -r "$CONFIG_PATH"
+
+    echo "Deleting file: $DESKTOP_FILE_PATH"
+    rm "$DESKTOP_FILE_PATH"
+else
+    echo "Usage: $0 <install/uninstall> [--local]"
+    exit
 fi
