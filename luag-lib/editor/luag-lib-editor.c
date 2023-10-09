@@ -45,6 +45,12 @@ static void throw_lua_error(lua_State *L, char *msg_format, ...) {
     va_end(args);
 }
 
+static inline u32 *atlas_get_row(u32 y) {
+    u8 *pixels = atlas_surface->pixels;
+    u32 pitch = atlas_surface->pitch;
+    return (u32 *)(pixels + pitch * y);
+}
+
 static int load_atlas(lua_State *L, char *filename) {
     SDL_Surface *tmp_surface = NULL;
     if(display_load_atlas(filename, &tmp_surface, &atlas_texture)) {
@@ -227,10 +233,7 @@ F(editor_atlas_set_pixel) {
         return 0;
     }
 
-    u8 *pixels = atlas_surface->pixels;
-    u32 pitch = atlas_surface->pitch;
-    u32 *row = (u32 *)(pixels + pitch * y);
-
+    u32 *row = atlas_get_row(y);
     row[x] = color;
 
     // update atlas_texture
@@ -252,10 +255,7 @@ F(editor_atlas_get_pixel) {
         return 0;
     }
 
-    u8 *pixels = atlas_surface->pixels;
-    u32 pitch = atlas_surface->pitch;
-    u32 *row = (u32 *)(pixels + pitch * y);
-
+    u32 *row = atlas_get_row(y);
     lua_pushinteger(L, row[x]);
 
     return 1;
@@ -270,9 +270,7 @@ static void fill(i32 x, i32 y, u32 color, u32 target_color,
     if(x < x0 || y < y0 || x > x1 || y > y1)
         return;
 
-    u8 *pixels = atlas_surface->pixels;
-    u32 pitch = atlas_surface->pitch;
-    u32 *row = (u32 *)(pixels + pitch * y);
+    u32 *row = atlas_get_row(y);
 
     // check if (x, y) has the color 'target_color'
     if(row[x] != target_color)
@@ -323,18 +321,12 @@ F(editor_atlas_fill) {
     }
 
     // read the target pixel
-    u32 target_color;
-    {
-        u8 *pixels = atlas_surface->pixels;
-        u32 pitch = atlas_surface->pitch;
-        u32 *row = (u32 *)(pixels + pitch * y);
+    u32 *row = atlas_get_row(y);
+    u32 target_color = row[x];
 
-        target_color = row[x];
-
-        // if 'target_color' is the same as 'color', do nothing
-        if(target_color == color)
-            return 0;
-    }
+    // if 'target_color' is the same as 'color', do nothing
+    if(target_color == color)
+        return 0;
 
     // fill and update atlas_texture
     fill(x, y, color, target_color, x0, y0, x1, y1);
