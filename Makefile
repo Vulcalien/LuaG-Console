@@ -1,11 +1,8 @@
 # Vulcalien's Executable Makefile
-# version 0.1.3
+# version 0.2.0
 #
 # One Makefile for Unix and Windows
 # Made for the 'gcc' compiler
-#
-# To cross-compile:
-#     make build TARGET_OS=<UNIX or WINDOWS> CC=<cross compiler>
 
 # === DETECT OS ===
 ifeq ($(OS),Windows_NT)
@@ -22,6 +19,10 @@ SRC_DIR := src
 OBJ_DIR := obj
 BIN_DIR := bin
 
+SRC_SUBDIRS :=
+
+CC := gcc
+
 CPPFLAGS := -Iinclude -MMD -MP
 CFLAGS   := -Wall -pedantic -Wno-format-truncation
 
@@ -37,21 +38,25 @@ ifeq ($(TARGET_OS),UNIX)
 		           -lSDL2_image -lSDL2_mixer -lpthread -ldl -llua5.4 -larchive
 	endif
 else ifeq ($(TARGET_OS),WINDOWS)
-	# WINDOWS
-	LDFLAGS := -Llib
-	LDLIBS  :=
+	ifeq ($(CURRENT_OS),WINDOWS)
+		# WINDOWS
+		LDFLAGS := -Llib
+		LDLIBS  :=
+	else ifeq ($(CURRENT_OS),UNIX)
+		# UNIX to WINDOWS cross-compile
+		CC := x86_64-w64-mingw32-gcc
+
+		LDFLAGS := -Llib
+		LDLIBS  :=
+	endif
 endif
 # =============================
 
 # === OS SPECIFIC ===
 ifeq ($(TARGET_OS),UNIX)
-	CC := gcc
-
 	OBJ_EXT := .o
 	OUT_EXT :=
 else ifeq ($(TARGET_OS),WINDOWS)
-	CC := gcc
-
 	OBJ_EXT := .obj
 	OUT_EXT := .exe
 endif
@@ -71,9 +76,12 @@ else ifeq ($(CURRENT_OS),WINDOWS)
 endif
 
 # === OTHER ===
-SRC := $(wildcard $(SRC_DIR)/*.c)
+SRC := $(wildcard $(SRC_DIR)/*.c)\
+       $(foreach DIR,$(SRC_SUBDIRS),$(wildcard $(SRC_DIR)/$(DIR)/*.c))
 OBJ := $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%$(OBJ_EXT))
 OUT := $(BIN_DIR)/$(OUT_FILENAME)$(OUT_EXT)
+
+OBJ_DIRECTORIES := $(OBJ_DIR) $(foreach DIR,$(SRC_SUBDIRS),$(OBJ_DIR)/$(DIR))
 
 # === TARGETS ===
 .PHONY: all run build clean
@@ -91,10 +99,10 @@ clean:
 $(OUT): $(OBJ) | $(BIN_DIR)
 	$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
-$(OBJ_DIR)/%$(OBJ_EXT): $(SRC_DIR)/%.c | $(OBJ_DIR)
+$(OBJ_DIR)/%$(OBJ_EXT): $(SRC_DIR)/%.c | $(OBJ_DIRECTORIES)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
-$(BIN_DIR) $(OBJ_DIR):
+$(BIN_DIR) $(OBJ_DIRECTORIES):
 	$(MKDIR) $(MKDIRFLAGS) "$@"
 
 -include $(OBJ:$(OBJ_EXT)=.d)
