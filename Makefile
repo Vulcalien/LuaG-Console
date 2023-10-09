@@ -23,19 +23,22 @@ SRC_SUBDIRS :=
 
 CC := gcc
 
+LIBS := sdl2 SDL2_image SDL2_mixer lua5.4 libarchive
+
 CPPFLAGS := -Iinclude -MMD -MP
-CFLAGS   := -Wall -pedantic -Wno-format-truncation
+CFLAGS   := -Wall -pedantic -Wno-format-truncation\
+            `pkg-config --cflags-only-other $(LIBS)`
 
 ifeq ($(TARGET_OS),UNIX)
 	# UNIX
 	ifdef LINK_STATIC
 		LDFLAGS := -Llib -static -rdynamic
-		LDLIBS  := `sdl2-config --static-libs`\
-		           -lSDL2_image -lSDL2_mixer -lpthread -ldl -llua5.4 -larchive
+		LDLIBS  := `pkg-config --static --libs-only-l $(LIBS)`\
+		           -lpthread -ldl
 	else
 		LDFLAGS := -Llib -rdynamic
-		LDLIBS  := `sdl2-config --libs`\
-		           -lSDL2_image -lSDL2_mixer -lpthread -ldl -llua5.4 -larchive
+		LDLIBS  := `pkg-config --libs-only-l $(LIBS)`\
+		           -lpthread -ldl
 	endif
 else ifeq ($(TARGET_OS),WINDOWS)
 	ifeq ($(CURRENT_OS),WINDOWS)
