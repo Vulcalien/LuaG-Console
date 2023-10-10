@@ -17,6 +17,7 @@
 
 #include "display.h"
 #include "shell-commands.h"
+#include "data-structs/char-queue.h"
 
 #include <string.h>
 
@@ -39,7 +40,6 @@
 #define MAX_CLOSED_ROWS (2048)
 
 #define COMMAND_HISTORY_SIZE (1024)
-#define MAX_BUFFERED_CHARS (4096)
 
 static struct {
     char *text;
@@ -71,15 +71,8 @@ static i32 used_command_history = 0;
 static i32 history_index = 0;
 
 // BUFFERS
-// user buffer
-static char *user_buffer;
-static i32 user_buffer_read_index = 0;
-static i32 user_buffer_write_index = 0;
-
-// output buffer
-static char *output_buffer;
-static i32 output_buffer_read_index = 0;
-static i32 output_buffer_write_index = 0;
+static struct CharQueue *user_buffer;
+static struct CharQueue *output_buffer;
 
 static void terminal_set_scroll(i32 scroll);
 
@@ -93,8 +86,8 @@ int terminal_init(void) {
     closed_rows     = calloc(MAX_CLOSED_ROWS, sizeof(struct row));
     command_history = malloc(COMMAND_HISTORY_SIZE * sizeof(char *));
 
-    user_buffer   = malloc(MAX_BUFFERED_CHARS * sizeof(char));
-    output_buffer = malloc(MAX_BUFFERED_CHARS * sizeof(char));
+    user_buffer   = charqueue_create(4096);
+    output_buffer = charqueue_create(4096);
 
     return 0;
 }
@@ -107,8 +100,8 @@ void terminal_destroy(void) {
         free(command_history[i]);
     free(command_history);
 
-    free(user_buffer);
-    free(output_buffer);
+    charqueue_destroy(user_buffer);
+    charqueue_destroy(output_buffer);
 }
 
 static inline void close_row(void) {
@@ -162,20 +155,12 @@ static void close_active_line(void) {
 void terminal_tick(void) {
     char c;
 
-    if(output_buffer_read_index != output_buffer_write_index) {
-        // output buffer is not empty
-        c = output_buffer[output_buffer_read_index];
-        output_buffer_read_index++;
-        output_buffer_read_index %= MAX_BUFFERED_CHARS;
-
+    if(!charqueue_is_empty(output_buffer)) {
+        c = charqueue_dequeue(output_buffer);
         if(active_line.type == LINE_TYPE_INPUT)
             active_line.type = LINE_TYPE_NORMAL;
-    } else if(user_buffer_read_index != user_buffer_write_index) {
-        // user buffer is not empty
-        c = user_buffer[user_buffer_read_index];
-        user_buffer_read_index++;
-        user_buffer_read_index %= MAX_BUFFERED_CHARS;
-
+    } else if(!charqueue_is_empty(user_buffer)) {
+        c = charqueue_dequeue(user_buffer);
         active_line.type = LINE_TYPE_INPUT;
     } else {
         // all buffers are empty
@@ -345,13 +330,9 @@ void terminal_render(void) {
 
 void terminal_receive_input(const char *c) {
     for(u32 i = 0; c[i] != '\0'; i++) {
-        // the buffer is full
-        if(user_buffer_write_index + 1 == user_buffer_read_index)
+        if(charqueue_is_full(user_buffer))
             break;
-
-        user_buffer[user_buffer_write_index] = c[i];
-        user_buffer_write_index++;
-        user_buffer_write_index %= MAX_BUFFERED_CHARS;
+        charqueue_enqueue(user_buffer, c[i]);
     }
 }
 
@@ -384,8 +365,7 @@ void terminal_write(const char *text, bool is_error) {
     bool should_write_err_flag = is_error;
     bool is_last_char = false;
     for(i32 i = 0; !is_last_char; i++) {
-        // the buffer is full
-        if(output_buffer_write_index + 1 == output_buffer_read_index)
+        if(charqueue_is_full(output_buffer))
             break;
 
         char c;
@@ -406,10 +386,7 @@ void terminal_write(const char *text, bool is_error) {
                 should_write_err_flag = true;
         }
 
-        output_buffer[output_buffer_write_index] = c;
-
-        output_buffer_write_index++;
-        output_buffer_write_index %= MAX_BUFFERED_CHARS;
+        charqueue_enqueue(output_buffer, c);
     }
 }
 
