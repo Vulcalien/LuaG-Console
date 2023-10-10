@@ -15,7 +15,7 @@
  */
 #include "sound.h"
 
-#include "hashtable.h"
+#include "data-structs/hashtable.h"
 
 #include <stdio.h>
 #include <string.h>
