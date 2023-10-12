@@ -18,6 +18,7 @@
 #include "display.h"
 #include "shell-commands.h"
 #include "data-structs/char-queue.h"
+#include "data-structs/circular-array.h"
 
 #include <string.h>
 
@@ -38,8 +39,6 @@
 
 #define MAX_LINE_LEN (127)
 #define MAX_CLOSED_ROWS (2048)
-
-#define COMMAND_HISTORY_SIZE (1024)
 
 static struct {
     char *text;
@@ -66,9 +65,8 @@ static struct row *closed_rows;
 static i32 closed_rows_count = 0;
 
 // command history
-static char **command_history;
-static i32 used_command_history = 0;
-static i32 history_index = 0;
+static struct CircularArray *command_history;
+static i32 history_index = -1;
 
 // BUFFERS
 static struct CharQueue *user_buffer;
@@ -84,7 +82,7 @@ int terminal_init(void) {
     allocate_active_line();
 
     closed_rows     = calloc(MAX_CLOSED_ROWS, sizeof(struct row));
-    command_history = malloc(COMMAND_HISTORY_SIZE * sizeof(char *));
+    command_history = circulararray_create(1024);
 
     user_buffer   = charqueue_create(4096);
     output_buffer = charqueue_create(4096);
@@ -96,9 +94,7 @@ void terminal_destroy(void) {
     free(active_line.text);
     free(closed_rows);
 
-    for(u32 i = 0; i < used_command_history; i++)
-        free(command_history[i]);
-    free(command_history);
+    circulararray_destroy(command_history, free);
 
     charqueue_destroy(user_buffer);
     charqueue_destroy(output_buffer);
@@ -207,10 +203,13 @@ void terminal_tick(void) {
         }
     } else if(c == '\x11') {
         // up key
-        if(history_index > 0) {
-            history_index--;
+        if(history_index + 1 < circulararray_count(command_history)) {
+            history_index++;
 
-            strcpy(active_line.text, command_history[history_index]);
+            char *command = circulararray_get(
+                command_history, history_index
+            );
+            strcpy(active_line.text, command);
             active_line.len = strlen(active_line.text);
             active_line.cursor_pos = active_line.len;
         }
@@ -220,15 +219,19 @@ void terminal_tick(void) {
             active_line.cursor_pos--;
     } else if(c == '\x13') {
         // down key
-        if(history_index < used_command_history - 1) {
-            history_index++;
+        if(history_index > 0) {
+            history_index--;
 
-            strcpy(active_line.text, command_history[history_index]);
+            char *command = circulararray_get(
+                command_history, history_index
+            );
+            strcpy(active_line.text, command);
             active_line.len = strlen(active_line.text);
             active_line.cursor_pos = active_line.len;
-        } else if(history_index == used_command_history - 1) {
-            history_index++;
+        } else if(history_index == 0) {
+            history_index--;
 
+            // clear active line
             strcpy(active_line.text, "");
             active_line.len = 0;
             active_line.cursor_pos = 0;
@@ -390,22 +393,6 @@ void terminal_write(const char *text, bool is_error) {
     }
 }
 
-static inline void check_command_history(void) {
-    if(used_command_history == COMMAND_HISTORY_SIZE) {
-        // free the oldest half of commands
-        for(u32 i = 0; i < COMMAND_HISTORY_SIZE / 2; i++)
-            free(command_history[i]);
-
-        // overwrite the first half
-        memcpy(
-            command_history,
-            command_history + COMMAND_HISTORY_SIZE / 2,
-            (COMMAND_HISTORY_SIZE / 2) * sizeof(char *)
-        );
-        used_command_history = COMMAND_HISTORY_SIZE / 2;
-    }
-}
-
 static bool is_empty(char *str) {
     for(u32 i = 0; str[i] != '\0'; i++) {
         if(str[i] != ' ')
@@ -415,12 +402,10 @@ static bool is_empty(char *str) {
 }
 
 static void terminal_execute(void) {
+    // save active line into command history
     if(!is_empty(active_line.text)) {
-        check_command_history();
-
-        command_history[used_command_history] = active_line.text;
-        used_command_history++;
-        history_index = used_command_history;
+        circulararray_add(command_history, active_line.text, free);
+        history_index = -1;
     }
 
     // parse command and arguments
