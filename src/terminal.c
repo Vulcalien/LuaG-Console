@@ -408,43 +408,37 @@ static bool is_empty(char *str) {
 static void terminal_execute(void) {
     // save active line into command history
     if(!is_empty(active_line.text)) {
-        circulararray_add(command_history, active_line.text, free);
+        char *command = malloc(
+            (strlen(active_line.text) + 1) * sizeof(char)
+        );
+        strcpy(command, active_line.text);
+
+        circulararray_add(command_history, command, free);
         history_index = -1;
     }
 
     // parse command and arguments
     u32 splits_count = 0;
     // to avoid errors, just allocate MAX_LINE_LEN pointers
-    char **splits = malloc(MAX_LINE_LEN * sizeof(const char *));
+    char **splits = malloc(MAX_LINE_LEN * sizeof(char *));
 
-    u32 writing_index = 0;
-    for(u32 i = 0; i < active_line.len; i++) {
-        if(active_line.text[i] == ' ') {
-            if(writing_index != 0)
-                writing_index = 0;
-        } else {
-            if(writing_index == 0) {
-                splits[splits_count] = calloc((MAX_LINE_LEN + 1), sizeof(char));
-                splits_count++;
-            }
+    char *cmd = strtok(active_line.text, " ");
+    while((splits[splits_count] = strtok(NULL, " ")))
+        splits_count++;
 
-            splits[splits_count - 1][writing_index] = active_line.text[i];
-            writing_index++;
-        }
-    }
-
-    if(splits_count == 0)
-        commands_execute("", 0, NULL);
+    if(cmd)
+        commands_execute(cmd, splits_count, splits);
     else
-        commands_execute(splits[0], splits_count - 1, splits + 1);
+        commands_execute("", 0, NULL);
 
     // free memory
-    for(u32 i = 0; i < splits_count; i++)
-        free(splits[i]);
     free(splits);
 }
 
 static void allocate_active_line(void) {
+    if(active_line.text)
+        free(active_line.text);
+
     active_line.text = malloc((MAX_LINE_LEN + 1) * sizeof(char));
     active_line.text[0] = '\0';
 
