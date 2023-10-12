@@ -256,7 +256,11 @@ void terminal_tick(void) {
         SDL_free(text);
     } else if(c == '\x18') {
         // ctrl+u
-        // TODO ctrl+u
+
+        // clear active line
+        strcpy(active_line.text, "");
+        active_line.len = 0;
+        active_line.cursor_pos = 0;
     } else if(c == '\x19') {
         // ctrl+w or ctrl+backspace
         // TODO ctrl+w or ctrl+backspace
