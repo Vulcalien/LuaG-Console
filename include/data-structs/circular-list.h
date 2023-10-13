@@ -13,27 +13,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#ifndef VULC_LUAG_CIRCULAR_ARRAY
-#define VULC_LUAG_CIRCULAR_ARRAY
+#ifndef VULC_LUAG_CIRCULAR_LIST
+#define VULC_LUAG_CIRCULAR_LIST
 
 #include "luag-console.h"
 
-struct CircularArray;
+struct CircularList;
 
-extern struct CircularArray *circulararray_create(u32 size);
+extern struct CircularList *circularlist_create(u32 size);
 
 // if destroy_value_fn is NULL, the objects are not destroyed
-extern void circulararray_destroy(struct CircularArray *array,
-                                  void (*destroy_value_fn)(void *));
+extern void circularlist_destroy(struct CircularList *list,
+                                 void (*destroy_value_fn)(void *));
 
 // Inserts the element at index 0.
 // If destroy_value_fn is NULL, the overwritten object is not destroyed
-extern void circulararray_add(struct CircularArray *array, void *value,
-                              void (*destroy_value_fn)(void *));
+extern void circularlist_add(struct CircularList *list, void *value,
+                             void (*destroy_value_fn)(void *));
 
-extern void *circulararray_get(struct CircularArray *array, u32 index);
+extern void *circularlist_get(struct CircularList *list, u32 index);
 
-extern u32 circulararray_count(struct CircularArray *array);
-extern void circulararray_clear(struct CircularArray *array);
+extern u32 circularlist_count(struct CircularList *list);
+extern void circularlist_clear(struct CircularList *list);
 
-#endif // VULC_LUAG_CIRCULAR_ARRAY
+#endif // VULC_LUAG_CIRCULAR_LIST

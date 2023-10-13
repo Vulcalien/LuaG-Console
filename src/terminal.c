@@ -18,7 +18,7 @@
 #include "display.h"
 #include "shell-commands.h"
 #include "data-structs/char-queue.h"
-#include "data-structs/circular-array.h"
+#include "data-structs/circular-list.h"
 
 #include <string.h>
 
@@ -61,10 +61,10 @@ static i32 scroll_position = 0;
 static i32 cursor_animation_ticks = 0;
 
 // closed rows
-static struct CircularArray *closed_rows;
+static struct CircularList *closed_rows;
 
 // command history
-static struct CircularArray *command_history;
+static struct CircularList *command_history;
 static i32 history_index = -1;
 
 // BUFFERS
@@ -80,8 +80,8 @@ static void allocate_active_line(void);
 int terminal_init(void) {
     allocate_active_line();
 
-    closed_rows     = circulararray_create(2048);
-    command_history = circulararray_create(1024);
+    closed_rows     = circularlist_create(2048);
+    command_history = circularlist_create(1024);
 
     user_buffer   = charqueue_create(4096);
     output_buffer = charqueue_create(4096);
@@ -92,8 +92,8 @@ int terminal_init(void) {
 void terminal_destroy(void) {
     free(active_line.text);
 
-    circulararray_destroy(closed_rows, free);
-    circulararray_destroy(command_history, free);
+    circularlist_destroy(closed_rows, free);
+    circularlist_destroy(command_history, free);
 
     charqueue_destroy(user_buffer);
     charqueue_destroy(output_buffer);
@@ -105,7 +105,7 @@ static void close_active_line(void) {
     for(u32 i = 0; i < active_line.len; i++) {
         if(i % CHARS_IN_ROW == 0) {
             if(i > 0)
-                circulararray_add(closed_rows, current_row, free);
+                circularlist_add(closed_rows, current_row, free);
             current_row = calloc(1, sizeof(struct Row));
 
             switch(active_line.type) {
@@ -122,7 +122,7 @@ static void close_active_line(void) {
         }
         current_row->text[i % CHARS_IN_ROW] = active_line.text[i];
     }
-    circulararray_add(closed_rows, current_row, free);
+    circularlist_add(closed_rows, current_row, free);
 }
 
 void terminal_tick(void) {
@@ -180,10 +180,10 @@ void terminal_tick(void) {
         }
     } else if(c == '\x11') {
         // up key
-        if(history_index + 1 < circulararray_count(command_history)) {
+        if(history_index + 1 < circularlist_count(command_history)) {
             history_index++;
 
-            char *command = circulararray_get(
+            char *command = circularlist_get(
                 command_history, history_index
             );
             strcpy(active_line.text, command);
@@ -199,7 +199,7 @@ void terminal_tick(void) {
         if(history_index > 0) {
             history_index--;
 
-            char *command = circulararray_get(
+            char *command = circularlist_get(
                 command_history, history_index
             );
             strcpy(active_line.text, command);
@@ -261,7 +261,7 @@ void terminal_tick(void) {
         }
     }
 
-    const i32 closed_rows_count = circulararray_count(closed_rows);
+    const i32 closed_rows_count = circularlist_count(closed_rows);
     terminal_set_scroll(closed_rows_count - ROWS_IN_DISPLAY + 2);
 }
 
@@ -270,9 +270,9 @@ void terminal_render(void) {
 
     u32 drawn_lines = 0;
 
-    const i32 closed_rows_count = circulararray_count(closed_rows);
+    const i32 closed_rows_count = circularlist_count(closed_rows);
     for(i32 i = closed_rows_count - scroll_position; i >= 0; i--) {
-        struct Row *row = circulararray_get(closed_rows, i);
+        struct Row *row = circularlist_get(closed_rows, i);
         if(!row)
             continue;
         display_write(
@@ -327,7 +327,7 @@ void terminal_receive_input(const char *c) {
 }
 
 static void terminal_set_scroll(i32 scroll) {
-    const i32 closed_rows_count = circulararray_count(closed_rows);
+    const i32 closed_rows_count = circularlist_count(closed_rows);
     if(scroll > (closed_rows_count) - ROWS_IN_DISPLAY + 2)
         scroll = closed_rows_count - ROWS_IN_DISPLAY + 2;
 
@@ -346,7 +346,7 @@ void terminal_clear(void) {
     active_line.len = 0;
     active_line.cursor_pos = 0;
 
-    circulararray_clear(closed_rows);
+    circularlist_clear(closed_rows);
 
     scroll_position = 0;
 }
@@ -396,7 +396,7 @@ static void terminal_execute(void) {
         );
         strcpy(command, active_line.text);
 
-        circulararray_add(command_history, command, free);
+        circularlist_add(command_history, command, free);
         history_index = -1;
     }
 

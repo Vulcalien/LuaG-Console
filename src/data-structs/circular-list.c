@@ -13,12 +13,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include "data-structs/circular-array.h"
+#include "data-structs/circular-list.h"
 
-// Implementation of a Circular Array of generic items. The array grows
+// Implementation of a Circular List of generic items. The list grows
 // right-to-left and overwrites the elements as it grows.
 
-struct CircularArray {
+struct CircularList {
     u32 size;
     void **values;
 
@@ -26,10 +26,10 @@ struct CircularArray {
     i32 head;
 };
 
-struct CircularArray *circulararray_create(u32 size) {
-    struct CircularArray *result = malloc(sizeof(struct CircularArray));
+struct CircularList *circularlist_create(u32 size) {
+    struct CircularList *result = malloc(sizeof(struct CircularList));
 
-    *result = (struct CircularArray) {
+    *result = (struct CircularList) {
         .size = size,
         .values = calloc(size, sizeof(void *)),
 
@@ -40,48 +40,48 @@ struct CircularArray *circulararray_create(u32 size) {
     return result;
 }
 
-void circulararray_destroy(struct CircularArray *array,
-                           void (*destroy_value_fn)(void *)) {
+void circularlist_destroy(struct CircularList *list,
+                          void (*destroy_value_fn)(void *)) {
     if(destroy_value_fn) {
-        for(u32 i = 0; i < array->size; i++) {
-            void *value = array->values[i];
+        for(u32 i = 0; i < list->size; i++) {
+            void *value = list->values[i];
             if(value)
                 destroy_value_fn(value);
         }
     }
 
-    free(array->values);
-    free(array);
+    free(list->values);
+    free(list);
 }
 
-void circulararray_add(struct CircularArray *array, void *value,
-                       void (*destroy_value_fn)(void *)) {
-    if(array->count == array->size) {
+void circularlist_add(struct CircularList *list, void *value,
+                      void (*destroy_value_fn)(void *)) {
+    if(list->count == list->size) {
         // delete the value present in that position, if present
-        void *old = array->values[array->head];
+        void *old = list->values[list->head];
         if(old && destroy_value_fn)
             destroy_value_fn(old);
     } else {
-        array->count++;
+        list->count++;
     }
 
-    array->values[array->head] = value;
-    array->head--;
-    if(array->head < 0)
-        array->head = array->size - 1;
+    list->values[list->head] = value;
+    list->head--;
+    if(list->head < 0)
+        list->head = list->size - 1;
 }
 
-void *circulararray_get(struct CircularArray *array, u32 index) {
-    if(index >= array->count)
+void *circularlist_get(struct CircularList *list, u32 index) {
+    if(index >= list->count)
         return NULL;
 
-    return array->values[(array->head + 1 + index) % (array->size)];
+    return list->values[(list->head + 1 + index) % (list->size)];
 }
 
-u32 circulararray_count(struct CircularArray *array) {
-    return array->count;
+u32 circularlist_count(struct CircularList *list) {
+    return list->count;
 }
 
-void circulararray_clear(struct CircularArray *array) {
-    array->count = 0;
+void circularlist_clear(struct CircularList *list) {
+    list->count = 0;
 }
