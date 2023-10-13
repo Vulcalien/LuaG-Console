@@ -38,7 +38,6 @@
 #define ANIMATION_DELAY (25)
 
 #define MAX_LINE_LEN (127)
-#define MAX_CLOSED_ROWS (2048)
 
 static struct {
     char *text;
