@@ -52,7 +52,7 @@ static struct {
     } type;
 } active_line;
 
-struct row {
+struct Row {
     char text[CHARS_IN_ROW + 1];
     u32 color;
 };
@@ -61,8 +61,7 @@ static i32 scroll_position = 0;
 static i32 cursor_animation_ticks = 0;
 
 // closed rows
-static struct row *closed_rows;
-static i32 closed_rows_count = 0;
+static struct CircularArray *closed_rows;
 
 // command history
 static struct CircularArray *command_history;
@@ -81,7 +80,7 @@ static void allocate_active_line(void);
 int terminal_init(void) {
     allocate_active_line();
 
-    closed_rows     = calloc(MAX_CLOSED_ROWS, sizeof(struct row));
+    closed_rows     = circulararray_create(2048);
     command_history = circulararray_create(1024);
 
     user_buffer   = charqueue_create(4096);
@@ -92,44 +91,22 @@ int terminal_init(void) {
 
 void terminal_destroy(void) {
     free(active_line.text);
-    free(closed_rows);
 
+    circulararray_destroy(closed_rows, free);
     circulararray_destroy(command_history, free);
 
     charqueue_destroy(user_buffer);
     charqueue_destroy(output_buffer);
 }
 
-static inline void close_row(void) {
-    closed_rows_count++;
-
-    if(closed_rows_count == MAX_CLOSED_ROWS) {
-        // overwrite the first half of the closed lines
-        memcpy(
-            closed_rows,
-            closed_rows + MAX_CLOSED_ROWS / 2,
-            (MAX_CLOSED_ROWS / 2) * sizeof(struct row)
-        );
-
-        // delete second half
-        memset(
-            closed_rows + MAX_CLOSED_ROWS / 2,
-            0,
-            (MAX_CLOSED_ROWS / 2) * sizeof(struct row)
-        );
-
-        closed_rows_count = MAX_CLOSED_ROWS / 2;
-    }
-}
-
 static void close_active_line(void) {
     // split and save the active line into closed_rows
-    struct row *current_row;
+    struct Row *current_row = calloc(1, sizeof(struct Row));
     for(u32 i = 0; i < active_line.len; i++) {
         if(i % CHARS_IN_ROW == 0) {
             if(i > 0)
-                close_row();
-            current_row = &closed_rows[closed_rows_count];
+                circulararray_add(closed_rows, current_row, free);
+            current_row = calloc(1, sizeof(struct Row));
 
             switch(active_line.type) {
                 case LINE_TYPE_NORMAL:
@@ -145,7 +122,7 @@ static void close_active_line(void) {
         }
         current_row->text[i % CHARS_IN_ROW] = active_line.text[i];
     }
-    close_row();
+    circulararray_add(closed_rows, current_row, free);
 }
 
 void terminal_tick(void) {
@@ -284,26 +261,32 @@ void terminal_tick(void) {
         }
     }
 
-    terminal_set_scroll(closed_rows_count - ROWS_IN_DISPLAY + 1);
+    const i32 closed_rows_count = circulararray_count(closed_rows);
+    terminal_set_scroll(closed_rows_count - ROWS_IN_DISPLAY + 2);
 }
 
 void terminal_render(void) {
     display_clear(0x000000);
 
-    u32 rendered_lines = 0;
-    for(u32 i = scroll_position; i < closed_rows_count; i++) {
+    u32 drawn_lines = 0;
+
+    const i32 closed_rows_count = circulararray_count(closed_rows);
+    for(i32 i = closed_rows_count - scroll_position; i >= 0; i--) {
+        struct Row *row = circulararray_get(closed_rows, i);
+        if(!row)
+            continue;
         display_write(
-            closed_rows[i].text, closed_rows[i].color,
-            1, 1 + (CHAR_HEIGHT + LINE_SPACING) * rendered_lines,
+            row->text, row->color,
+            1, 1 + (CHAR_HEIGHT + LINE_SPACING) * drawn_lines,
             1, 0xff
         );
 
-        rendered_lines++;
-        if(rendered_lines >= ROWS_IN_DISPLAY)
+        drawn_lines++;
+        if(drawn_lines >= ROWS_IN_DISPLAY)
             break;
     }
 
-    if(rendered_lines < ROWS_IN_DISPLAY) {
+    if(drawn_lines < ROWS_IN_DISPLAY) {
         u32 color;
         switch(active_line.type) {
             case LINE_TYPE_NORMAL:
@@ -318,7 +301,7 @@ void terminal_render(void) {
         }
         display_write(
             active_line.text, color,
-            1, 1 + (CHAR_HEIGHT + LINE_SPACING) * rendered_lines,
+            1, 1 + (CHAR_HEIGHT + LINE_SPACING) * drawn_lines,
             1, 0xff
         );
 
@@ -328,7 +311,7 @@ void terminal_render(void) {
             display_write(
                 "_", CURSOR_COLOR,
                 1 + (CHAR_WIDTH + LETTER_SPACING) * active_line.cursor_pos,
-                1 + (CHAR_HEIGHT + LINE_SPACING) * rendered_lines,
+                1 + (CHAR_HEIGHT + LINE_SPACING) * drawn_lines,
                 1, 0xff
             );
         }
@@ -344,8 +327,9 @@ void terminal_receive_input(const char *c) {
 }
 
 static void terminal_set_scroll(i32 scroll) {
-    if(scroll > ((i32) closed_rows_count) - ROWS_IN_DISPLAY + 1)
-        scroll = closed_rows_count - ROWS_IN_DISPLAY + 1;
+    const i32 closed_rows_count = circulararray_count(closed_rows);
+    if(scroll > (closed_rows_count) - ROWS_IN_DISPLAY + 2)
+        scroll = closed_rows_count - ROWS_IN_DISPLAY + 2;
 
     if(scroll < 0)
         scroll = 0;
@@ -362,8 +346,7 @@ void terminal_clear(void) {
     active_line.len = 0;
     active_line.cursor_pos = 0;
 
-    memset(closed_rows, 0, MAX_CLOSED_ROWS * sizeof(struct row));
-    closed_rows_count = 0;
+    circulararray_clear(closed_rows);
 
     scroll_position = 0;
 }
