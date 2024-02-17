@@ -33,11 +33,13 @@ CFLAGS   := -Wall -pedantic -Wno-format-truncation\
 ifeq ($(TARGET_OS),UNIX)
 	# UNIX
 	ifdef LINK_STATIC
-		LDFLAGS := -Llib -static -rdynamic
+		LDFLAGS := -Llib -static -rdynamic\
+		           `pkg-config --static --libs-only-L $(LIBS)`
 		LDLIBS  := `pkg-config --static --libs-only-l $(LIBS)`\
 		           -lpthread -ldl
 	else
-		LDFLAGS := -Llib -rdynamic
+		LDFLAGS := -Llib -rdynamic\
+		           `pkg-config --libs-only-L $(LIBS)`
 		LDLIBS  := `pkg-config --libs-only-l $(LIBS)`\
 		           -lpthread -ldl
 	endif
