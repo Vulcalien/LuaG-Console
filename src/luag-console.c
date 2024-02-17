@@ -1,4 +1,4 @@
-/* Copyright 2022 Vulcalien
+/* Copyright 2022, 2024 Vulcalien
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -153,6 +153,9 @@ static void destroy(void) {
 }
 
 static char *clone_str(char *src) {
+    if(src == NULL)
+        return NULL;
+
     char *result = malloc((strlen(src) + 1) * sizeof(char));
     strcpy(result, src);
     return result;
@@ -181,14 +184,20 @@ static char *find_folder(const char *description, char *list[][2]) {
 static int find_res_folder(void) {
     #ifdef __unix__
         char *list[][2] = {
-            // TODO XDG_DATA_HOME
-            { "%s/.local/share/luag-console" },
+            { NULL }, // $XDG_DATA_HOME or $HOME/.local/share
             { "/usr/share/luag-console" },
             { "/usr/local/share/luag-console" },
             { NULL }
         };
 
-        list[0][1] = clone_str(getenv("HOME"));
+        char *xdg_data_home = clone_str(getenv("XDG_DATA_HOME"));
+        if(xdg_data_home && xdg_data_home[0] != '\0') {
+            list[0][0] = "%s/luag-console";
+            list[0][1] = xdg_data_home;
+        } else {
+            list[0][0] = "%s/.local/share/luag-console";
+            list[0][1] = clone_str(getenv("HOME"));
+        }
     #elif _WIN32
         char *list[][2] = {
             { "%s/LuaG Console/res" },
@@ -215,13 +224,19 @@ static int find_res_folder(void) {
 static int find_config_folder(void) {
     #ifdef __unix__
         char *list[][2] = {
-            // TODO XDG_CONFIG_HOME
-            { "%s/.config/luag-console" },
+            { NULL }, // $XDG_CONFIG_HOME or $HOME/.config
             { "/etc/luag-console" },
             { NULL }
         };
 
-        list[0][1] = clone_str(getenv("HOME"));
+        char *xdg_config_home = clone_str(getenv("XDG_CONFIG_HOME"));
+        if(xdg_config_home && xdg_config_home[0] != '\0') {
+            list[0][0] = "%s/luag-console";
+            list[0][1] = xdg_config_home;
+        } else {
+            list[0][0] = "%s/.config/luag-console";
+            list[0][1] = clone_str(getenv("HOME"));
+        }
     #elif _WIN32
         char *list[][2] = {
             { "%s/LuaG Console/config" },
