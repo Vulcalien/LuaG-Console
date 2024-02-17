@@ -25,7 +25,7 @@
 #include <string.h>
 #include <limits.h>
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 static bool text_mode;
 #define TEXT_MODE_BUFFER (128)

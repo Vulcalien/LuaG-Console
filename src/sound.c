@@ -26,7 +26,7 @@
 #include <dirent.h>
 #include <unistd.h>
 
-#include <SDL2/SDL_mixer.h>
+#include <SDL_mixer.h>
 
 struct Sound {
     Mix_Chunk *chunk;

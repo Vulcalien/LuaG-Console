@@ -19,8 +19,8 @@
 #include <string.h>
 #include <limits.h>
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
+#include <SDL.h>
+#include <SDL_image.h>
 
 static SDL_Window *window;
 static SDL_Renderer *renderer;

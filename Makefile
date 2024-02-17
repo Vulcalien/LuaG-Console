@@ -25,7 +25,8 @@ CC := gcc
 
 LIBS := sdl2 SDL2_image SDL2_mixer lua5.4 libarchive
 
-CPPFLAGS := -Iinclude -MMD -MP
+CPPFLAGS := -Iinclude -MMD -MP\
+            `pkg-config --cflags-only-I $(LIBS)`
 CFLAGS   := -Wall -pedantic -Wno-format-truncation\
             `pkg-config --cflags-only-other $(LIBS)`
 

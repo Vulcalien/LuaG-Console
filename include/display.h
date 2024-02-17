@@ -18,7 +18,7 @@
 
 #include "luag-console.h"
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 #define DISPLAY_WIDTH  (160)
 #define DISPLAY_HEIGHT (160)

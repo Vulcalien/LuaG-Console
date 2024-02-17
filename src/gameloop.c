@@ -19,7 +19,7 @@
 
 #include <stdio.h>
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 #ifdef PERFORMANCE_THREAD
     #include <stdio.h>

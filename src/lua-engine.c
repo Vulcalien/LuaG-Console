@@ -29,9 +29,9 @@
 #include <unistd.h>
 #include <dlfcn.h>
 
-#include <lua5.4/lua.h>
-#include <lua5.4/lualib.h>
-#include <lua5.4/lauxlib.h>
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
 
 #ifdef __unix__
     #define LIB_EXT ".so"

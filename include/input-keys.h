@@ -20,7 +20,7 @@
 
 #include "input.h"
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 extern int inputkeys_init(void);
 

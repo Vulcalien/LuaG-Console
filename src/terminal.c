@@ -22,7 +22,7 @@
 
 #include <string.h>
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 // colors
 #define TERM_COLOR_NORMAL (0xffffff)
