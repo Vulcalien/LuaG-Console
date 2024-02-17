@@ -42,6 +42,9 @@ struct CircularList *circularlist_create(u32 size) {
 
 void circularlist_destroy(struct CircularList *list,
                           void (*destroy_value_fn)(void *)) {
+    if(!list)
+        return;
+
     if(destroy_value_fn) {
         for(u32 i = 0; i < list->size; i++) {
             void *value = list->values[i];

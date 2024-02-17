@@ -69,6 +69,9 @@ static void destroy_entry(struct hashtable_Entry *entry,
 
 void hashtable_destroy(struct Hashtable *table,
                        void (*destroy_value_fn)(void *)) {
+    if(!table)
+        return;
+
     for(u32 i = 0; i < table->size; i++)
         destroy_entry(&table->slots[i], destroy_value_fn);
     free(table->slots);

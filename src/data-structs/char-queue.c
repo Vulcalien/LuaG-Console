@@ -44,6 +44,9 @@ struct CharQueue *charqueue_create(u32 size) {
 }
 
 void charqueue_destroy(struct CharQueue *queue) {
+    if(!queue)
+        return;
+
     free(queue->array);
     free(queue);
 }
