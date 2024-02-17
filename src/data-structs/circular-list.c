@@ -59,14 +59,15 @@ void circularlist_destroy(struct CircularList *list,
 
 void circularlist_add(struct CircularList *list, void *value,
                       void (*destroy_value_fn)(void *)) {
-    if(list->count == list->size) {
-        // delete the value present in that position, if present
+    if(destroy_value_fn) {
+        // destroy the element in that position, if present
         void *old = list->values[list->head];
-        if(old && destroy_value_fn)
+        if(old)
             destroy_value_fn(old);
-    } else {
-        list->count++;
     }
+
+    if(list->count < list->size)
+        list->count++;
 
     list->values[list->head] = value;
     list->head--;
@@ -85,6 +86,8 @@ u32 circularlist_count(struct CircularList *list) {
     return list->count;
 }
 
+// The elements inside the list are not leaked: they will be destroyed
+// either when a new one overwrites it or when the list is destroyed.
 void circularlist_clear(struct CircularList *list) {
     list->count = 0;
 }
