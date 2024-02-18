@@ -25,6 +25,7 @@
 #include "sound.h"
 #include "cartridge.h"
 #include "map.h"
+#include "data-structs/array-list.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -152,110 +153,103 @@ static void destroy(void) {
         free(config_folder);
 }
 
-static char *clone_str(char *src) {
-    if(src == NULL)
-        return NULL;
-
-    char *result = malloc((strlen(src) + 1) * sizeof(char));
-    strcpy(result, src);
+static char *clone(const char *str) {
+    char *result = malloc((strlen(str) + 1) * sizeof(char));
+    strcpy(result, str);
     return result;
 }
 
-static char *find_folder(const char *description, char *list[][2]) {
-    char *path = malloc(PATH_MAX * sizeof(char));
-    for(u32 i = 0; list[i][0] != NULL; i++) {
-        snprintf(
-            path, PATH_MAX,
-            list[i][0], list[i][1]
-        );
+static char *concat(const char *a, const char *b) {
+    u32 len_a = strlen(a);
+    u32 len_b = strlen(b);
+
+    char *result = calloc((len_a + len_b + 1), sizeof(char));
+    strcat(result, a);
+    strcat(result + len_a, b);
+
+    return result;
+}
+
+static char *find_folder(const char *description,
+                         struct ArrayList *list) {
+    u32 list_len = arraylist_count(list);
+    for(u32 i = 0; i < list_len; i++) {
+        char *path = arraylist_get(list, i);
 
         struct stat st;
         if(!stat(path, &st) && S_ISDIR(st.st_mode)) {
             printf("Found %s folder: '%s'\n", description, path);
-            return path;
+            return clone(path);
         }
     }
-    free(path);
 
     fprintf(stderr, "LuaG: %s folder not found\n", description);
     return NULL;
 }
 
 static int find_res_folder(void) {
+    struct ArrayList *list = arraylist_create(8, 16);
+
     #ifdef __unix__
-        char *list[][2] = {
-            { NULL }, // $XDG_DATA_HOME or $HOME/.local/share
-            { "/usr/share/luag-console" },
-            { "/usr/local/share/luag-console" },
-            { NULL }
-        };
-
-        char *xdg_data_home = clone_str(getenv("XDG_DATA_HOME"));
+        char *xdg_data_home = getenv("XDG_DATA_HOME");
         if(xdg_data_home && xdg_data_home[0] != '\0') {
-            list[0][0] = "%s/luag-console";
-            list[0][1] = xdg_data_home;
+            arraylist_add(list, concat(
+                xdg_data_home, "/luag-console"
+            ));
         } else {
-            list[0][0] = "%s/.local/share/luag-console";
-            list[0][1] = clone_str(getenv("HOME"));
+            arraylist_add(list, concat(
+                getenv("HOME"), "/.local/share/luag-console"
+            ));
         }
-    #elif _WIN32
-        char *list[][2] = {
-            { "%s/LuaG Console/res" },
-            { "%s/LuaG Console/res" },
-            { "%s/LuaG Console/res" },
-            { NULL }
-        };
 
-        list[0][1] = clone_str(getenv("LOCALAPPDATA"));
-        list[1][1] = clone_str(getenv("PROGRAMFILES"));
-        list[2][1] = clone_str(getenv("PROGRAMFILES(x86)"));
+        arraylist_add(list, clone("/usr/share/luag-console"));
+        arraylist_add(list, clone("/usr/local/share/luag-console"));
+    #elif _WIN32
+        arraylist_add(list, concat(
+            getenv("LOCALAPPDATA", "/LuaG Console/res")
+        ));
+        arraylist_add(list, concat(
+            getenv("PROGRAMFILES", "/LuaG Console/res")
+        ));
+        arraylist_add(list, concat(
+            getenv("PROGRAMFILES(x86)", "/LuaG Console/res")
+        ));
     #endif
 
     res_folder = find_folder("resource", list);
-
-    for(u32 i = 0; list[i][0] != NULL; i++) {
-        if(list[i][1])
-            free(list[i][1]);
-    }
-
+    arraylist_destroy(list, free);
     return res_folder == NULL;
 }
 
 static int find_config_folder(void) {
+    struct ArrayList *list = arraylist_create(8, 16);
+
     #ifdef __unix__
-        char *list[][2] = {
-            { NULL }, // $XDG_CONFIG_HOME or $HOME/.config
-            { "/etc/luag-console" },
-            { NULL }
-        };
-
-        char *xdg_config_home = clone_str(getenv("XDG_CONFIG_HOME"));
+        char *xdg_config_home = getenv("XDG_CONFIG_HOME");
         if(xdg_config_home && xdg_config_home[0] != '\0') {
-            list[0][0] = "%s/luag-console";
-            list[0][1] = xdg_config_home;
+            arraylist_add(list, concat(
+                xdg_config_home, "/luag-console"
+            ));
         } else {
-            list[0][0] = "%s/.config/luag-console";
-            list[0][1] = clone_str(getenv("HOME"));
+            arraylist_add(list, concat(
+                getenv("HOME"), "/.config/luag-console"
+            ));
         }
-    #elif _WIN32
-        char *list[][2] = {
-            { "%s/LuaG Console/config" },
-            { "%s/LuaG Console/config" },
-            { "%s/LuaG Console/config" },
-            { NULL }
-        };
 
-        list[0][1] = clone_str(getenv("LOCALAPPDATA"));
-        list[1][1] = clone_str(getenv("PROGRAMFILES"));
-        list[2][1] = clone_str(getenv("PROGRAMFILES(x86)"));
+        arraylist_add(list, clone("/etc/luag-console"));
+    #elif _WIN32
+        arraylist_add(list, concat(
+            getenv("LOCALAPPDATA"), "/LuaG Console/config"
+        ));
+        arraylist_add(list, concat(
+            getenv("PROGRAMFILES"), "/LuaG Console/config"
+        ));
+        arraylist_add(list, concat(
+            getenv("PROGRAMFILES(x86)"), "/LuaG Console/config"
+        ));
     #endif
 
     config_folder = find_folder("config", list);
-
-    for(u32 i = 0; list[i][0] != NULL; i++) {
-        if(list[i][1])
-            free(list[i][1]);
-    }
-
+    arraylist_destroy(list, free);
     return config_folder == NULL;
 }
