@@ -206,13 +206,13 @@ static int find_res_folder(void) {
         arraylist_add(list, clone("/usr/local/share/luag-console"));
     #elif _WIN32
         arraylist_add(list, concat(
-            getenv("LOCALAPPDATA", "/LuaG Console/res")
+            getenv("LOCALAPPDATA"), "/LuaG Console/res"
         ));
         arraylist_add(list, concat(
-            getenv("PROGRAMFILES", "/LuaG Console/res")
+            getenv("PROGRAMFILES"), "/LuaG Console/res"
         ));
         arraylist_add(list, concat(
-            getenv("PROGRAMFILES(x86)", "/LuaG Console/res")
+            getenv("PROGRAMFILES(x86)"), "/LuaG Console/res"
         ));
     #endif
 
