@@ -3,5 +3,5 @@ Type=Application
 Name=LuaG Console
 GenericName=Fantasy Console
 Icon=luag-console
-TryExec=luag-console
+TryExec=net.vulcalien.LuagConsole
 Exec=luag-console %f
