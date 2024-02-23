@@ -166,3 +166,4 @@ $(BIN_DIR) $(OBJ_DIRS):
 	$(MKDIR) $(MKDIRFLAGS) "$@"
 
 -include $(OBJ:.$(OBJ_EXT)=.d)
+-include install.mk
