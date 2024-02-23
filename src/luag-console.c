@@ -36,7 +36,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-static int init(int argc, const char *argv[]);
+static int init(int argc, char *argv[]);
 static void destroy(void);
 
 static int find_res_folder(void);
@@ -50,7 +50,7 @@ char *res_folder    = NULL;
 char *config_folder = NULL;
 char *game_folder   = NULL;
 
-int main(int argc, const char *argv[]) {
+int main(int argc, char *argv[]) {
     int err = 0;
 
     err = init(argc, argv);
@@ -85,7 +85,7 @@ void render(void) {
     display_refresh();
 }
 
-static int init(int argc, const char *argv[]) {
+static int init(int argc, char *argv[]) {
     if(find_res_folder() || find_config_folder())
         return -1;
 
