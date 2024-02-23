@@ -26,8 +26,8 @@
 #include <errno.h>
 #include <stdarg.h>
 
-#include <lua5.4/lua.h>
-#include <lua5.4/lauxlib.h>
+#include <lua.h>
+#include <lauxlib.h>
 
 #define F(name) static int name(lua_State *L)
 
