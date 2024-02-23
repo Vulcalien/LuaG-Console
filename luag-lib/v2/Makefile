@@ -20,17 +20,43 @@ BIN_DIR := bin
 LIBS := sdl2 SDL2_image SDL2_mixer lua5.4 libarchive
 
 # === C Flags ===
-CPPFLAGS := -I../../include -MMD -MP\
-            `pkg-config --cflags-only-I $(LIBS)`
+CPPFLAGS := -I../../include -MMD -MP
 
 CFLAGS_STATIC := -Wall -pedantic
 CFLAGS_SHARED := -Wall -pedantic -fPIC
 
+# list libraries and add C flags for dependencies
+ifeq ($(TARGET_OS),UNIX)
+    # UNIX
+    LIBS := sdl2 SDL2_image SDL2_mixer lua5.4 libarchive
+
+    CPPFLAGS      += `pkg-config --cflags-only-I $(LIBS)`
+    CFLAGS_SHARED += `pkg-config --cflags-only-other $(LIBS)`
+else ifeq ($(TARGET_OS),WINDOWS)
+    ifeq ($(CURRENT_OS),WINDOWS)
+        # WINDOWS
+        CPPFLAGS      +=
+        CFLAGS_SHARED +=
+    else ifeq ($(CURRENT_OS),UNIX)
+        # UNIX to WINDOWS cross-compile
+        WIN_CC_DIR := ../../win-cc/lib
+
+        CPPFLAGS += -I$(WIN_CC_DIR)/SDL2/x86_64-w64-mingw32/include/SDL2 \
+                    -I$(WIN_CC_DIR)/SDL2_image/x86_64-w64-mingw32/include/SDL2 \
+                    -I$(WIN_CC_DIR)/SDL2_mixer/x86_64-w64-mingw32/include/SDL2 \
+                    -I$(WIN_CC_DIR)/libarchive/include \
+                    -I$(WIN_CC_DIR)/lua54/include \
+                    -I$(WIN_CC_DIR)/dlfcn-win32
+        CFLAGS_SHARED += `$(WIN_CC_DIR)/SDL2/x86_64-w64-mingw32/bin/sdl2-config --cflags`
+    endif
+endif
+
 # === Linker Flags ===
 ifeq ($(TARGET_OS),UNIX)
     # UNIX
-    LDFLAGS := -shared
-    LDLIBS  :=
+    LDFLAGS := -shared \
+               `pkg-config --libs-only-L $(LIBS)`
+    LDLIBS  := `pkg-config --libs-only-l $(LIBS)`
 else ifeq ($(TARGET_OS),WINDOWS)
     ifeq ($(CURRENT_OS),WINDOWS)
         # WINDOWS
@@ -38,8 +64,20 @@ else ifeq ($(TARGET_OS),WINDOWS)
         LDLIBS  :=
     else ifeq ($(CURRENT_OS),UNIX)
         # UNIX to WINDOWS cross-compile
-        LDFLAGS := -shared
-        LDLIBS  :=
+        LDFLAGS := -shared -L../../bin \
+                   -L$(WIN_CC_DIR)/SDL2/x86_64-w64-mingw32/bin \
+                   -L$(WIN_CC_DIR)/SDL2/x86_64-w64-mingw32/lib \
+                   -L$(WIN_CC_DIR)/SDL2_image/x86_64-w64-mingw32/bin \
+                   -L$(WIN_CC_DIR)/SDL2_image/x86_64-w64-mingw32/lib \
+                   -L$(WIN_CC_DIR)/SDL2_mixer/x86_64-w64-mingw32/bin \
+                   -L$(WIN_CC_DIR)/SDL2_mixer/x86_64-w64-mingw32/lib \
+                   -L$(WIN_CC_DIR)/libarchive/bin \
+                   -L$(WIN_CC_DIR)/libarchive/lib \
+                   -L$(WIN_CC_DIR)/lua54 \
+                   -L$(WIN_CC_DIR)/dlfcn-win32
+        LDLIBS := -l:luag-console.lib -lpthread \
+                  -lSDL2_image -lSDL2_mixer -ldlfcn -llua54 -larchive \
+                  `$(WIN_CC_DIR)/SDL2/x86_64-w64-mingw32/bin/sdl2-config --libs`
     endif
 endif
 

@@ -67,7 +67,9 @@ else ifeq ($(TARGET_OS),WINDOWS)
         LDLIBS  :=
     else ifeq ($(CURRENT_OS),UNIX)
         # UNIX to WINDOWS cross-compile
-        LDFLAGS := -L$(WIN_CC_DIR)/SDL2/x86_64-w64-mingw32/bin \
+        LDFLAGS := -Wl,--export-all-symbols \
+                   -Wl,--out-implib,$(BIN_DIR)/$(OUT_FILENAME).lib \
+                   -L$(WIN_CC_DIR)/SDL2/x86_64-w64-mingw32/bin \
                    -L$(WIN_CC_DIR)/SDL2/x86_64-w64-mingw32/lib \
                    -L$(WIN_CC_DIR)/SDL2_image/x86_64-w64-mingw32/bin \
                    -L$(WIN_CC_DIR)/SDL2_image/x86_64-w64-mingw32/lib \
